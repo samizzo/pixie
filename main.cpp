@@ -5,6 +5,21 @@ static const char* WindowTitle = "Hello, World!";
 static const int WindowWidth = 320;
 static const int WindowHeight = 200;
 
+static void draw(int x, int y, uint32* buffer)
+{
+	for (int i = x; i < x+4; i++)
+	{
+		for (int j = y; j < y+4; j++)
+		{
+			if (i < WindowWidth && j < WindowHeight)
+			{
+				int index = (i + (j * WindowWidth));
+				buffer[index] = 0xff;
+			}
+		}
+	}
+}
+
 int main(int argc, char** argv)
 {
 	Pixie pixie;
@@ -15,20 +30,19 @@ int main(int argc, char** argv)
 
 	while (true)
 	{
-		for (int y = 0; y < WindowHeight; y++)
+		//memset(buffer, 0, WindowWidth*WindowHeight*4);
+		if (pixie.IsMouseOverWindow())
 		{
-			for (int x = 0; x < WindowWidth; x++)
-			{
-				int index = (x + (y*WindowWidth));
-				uint8 c = x & y;
-				buffer[index] = MAKE_RGB(c, c, c);
-			}
+			int mouseX = pixie.GetMouseX();
+			int mouseY = pixie.GetMouseY();
+			draw(mouseX, mouseY, buffer);
 		}
 
 		if (!pixie.Update(buffer))
 			break;
 	}
 
+	delete[] buffer;
 	pixie.Close();
 
 	printf("done");

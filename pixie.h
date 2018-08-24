@@ -16,8 +16,33 @@ class Pixie
 		void Close();
 		bool Update(const uint32* buffer);
 
+		int GetMouseX() const;
+		int GetMouseY() const;
+		bool IsMouseOverWindow() const;
+
 	private:
+		void UpdateMousePosition();
+
 		HWND m_window;
+
 		int m_width;
 		int m_height;
+
+		int m_mouseX;
+		int m_mouseY;
 };
+
+inline int Pixie::GetMouseX() const
+{
+	return m_mouseX;
+}
+
+inline int Pixie::GetMouseY() const
+{
+	return m_mouseY;
+}
+
+inline bool Pixie::IsMouseOverWindow() const
+{
+	return m_mouseX >= 0 && m_mouseX < m_width && m_mouseY >= 0 && m_mouseY < m_height;
+}

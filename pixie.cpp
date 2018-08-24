@@ -46,11 +46,19 @@ bool Pixie::Open(const char* title, int width, int height)
 	m_width = width;
 	m_height = height;
 
-	m_window = CreateWindow(PixieWindowClass, title, WS_OVERLAPPED, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
+	int style = WS_BORDER | WS_CAPTION;
+	RECT rect;
+	rect.left = 0;
+	rect.right = width;
+	rect.top = 0;
+	rect.bottom = height;
+	AdjustWindowRect(&rect, style, FALSE);
+	m_window = CreateWindow(PixieWindowClass, title, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
 	if (m_window != 0)
 	{
 		SetWindowLongPtr(m_window, GWL_USERDATA, (LONG)this);
 		ShowWindow(m_window, SW_SHOW);
+		UpdateMousePosition();
 	}
 
 	return m_window != 0;
@@ -67,6 +75,8 @@ bool Pixie::Update(const uint32* buffer)
 		if (msg.message == WM_QUIT)
 			return false;
 	}
+
+	UpdateMousePosition();
 
 	// Copy buffer to the window.
 	HDC hdc = GetDC(m_window);
@@ -92,6 +102,15 @@ bool Pixie::Update(const uint32* buffer)
 void Pixie::Close()
 {
 	DestroyWindow(m_window);
+}
+
+void Pixie::UpdateMousePosition()
+{
+	POINT p;
+	GetCursorPos(&p);
+	ScreenToClient(m_window, &p);
+	m_mouseX = p.x;
+	m_mouseY = p.y;
 }
 
 extern int main(int argc, char** argv);
