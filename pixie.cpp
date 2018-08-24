@@ -43,6 +43,9 @@ bool Pixie::Open(const char* title, int width, int height)
 	if (!RegisterClass(&wc))
 		return 0;
 
+	m_width = width;
+	m_height = height;
+
 	m_window = CreateWindow(PixieWindowClass, title, WS_OVERLAPPED, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hInstance, NULL);
 	if (m_window != 0)
 	{
@@ -53,7 +56,7 @@ bool Pixie::Open(const char* title, int width, int height)
 	return m_window != 0;
 }
 
-bool Pixie::Update()
+bool Pixie::Update(const uint32* buffer)
 {
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -65,12 +68,30 @@ bool Pixie::Update()
 			return false;
 	}
 
+	// Copy buffer to the window.
+	HDC hdc = GetDC(m_window);
+	BITMAPINFO bitmapInfo;
+	BITMAPINFOHEADER& bmiHeader = bitmapInfo.bmiHeader;
+	bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmiHeader.biWidth = m_width;
+	bmiHeader.biHeight = -m_height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
+	bmiHeader.biPlanes = 1;
+	bmiHeader.biBitCount = 32;
+	bmiHeader.biCompression = BI_RGB;
+	bmiHeader.biSizeImage = 0;
+	bmiHeader.biXPelsPerMeter = 0;
+	bmiHeader.biYPelsPerMeter = 0;
+	bmiHeader.biClrUsed = 0;
+	bmiHeader.biClrImportant = 0;
+	SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, buffer, &bitmapInfo, DIB_RGB_COLORS);
+	ReleaseDC(m_window, hdc);
+
 	return true;
 }
 
 void Pixie::Close()
 {
-	//DestroyWindow(m_window);
+	DestroyWindow(m_window);
 }
 
 extern int main(int argc, char** argv);

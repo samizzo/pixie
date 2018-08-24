@@ -11,9 +11,21 @@ int main(int argc, char** argv)
 	if (!pixie.Open(WindowTitle, WindowWidth, WindowHeight))
 		return 0;
 
+	uint32* buffer = new uint32[WindowWidth * WindowHeight];
+
 	while (true)
 	{
-		if (!pixie.Update())
+		for (int y = 0; y < WindowHeight; y++)
+		{
+			for (int x = 0; x < WindowWidth; x++)
+			{
+				int index = (x + (y*WindowWidth));
+				uint8 c = x & y;
+				buffer[index] = MAKE_RGB(c, c, c);
+			}
+		}
+
+		if (!pixie.Update(buffer))
 			break;
 	}
 
