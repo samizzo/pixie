@@ -24,6 +24,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+Pixie::Pixie()
+{
+	m_delta = 0.0f;
+}
+
 bool Pixie::Open(const char* title, int width, int height)
 {
 	HINSTANCE hInstance = GetModuleHandle(0);
@@ -61,11 +66,20 @@ bool Pixie::Open(const char* title, int width, int height)
 		UpdateMousePosition();
 	}
 
+	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
+	QueryPerformanceCounter((LARGE_INTEGER*)&m_lastTime);
+
 	return m_window != 0;
 }
 
 bool Pixie::Update(const uint32* buffer)
 {
+	__int64 p;
+	QueryPerformanceCounter((LARGE_INTEGER*)&p);
+	__int64 delta = p - m_lastTime;
+	m_delta = (delta / (float)m_freq);
+	m_lastTime = p;
+
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{

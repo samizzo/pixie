@@ -12,6 +12,7 @@ typedef unsigned char uint8;
 class Pixie
 {
 	public:
+		Pixie();
 		bool Open(const char* title, int width, int height);
 		void Close();
 		bool Update(const uint32* buffer);
@@ -19,6 +20,7 @@ class Pixie
 		int GetMouseX() const;
 		int GetMouseY() const;
 		bool IsMouseOverWindow() const;
+		float GetDelta() const;
 
 	private:
 		void UpdateMousePosition();
@@ -30,6 +32,10 @@ class Pixie
 
 		int m_mouseX;
 		int m_mouseY;
+
+		float m_delta;
+		__int64 m_lastTime;
+		__int64 m_freq;
 };
 
 inline int Pixie::GetMouseX() const
@@ -45,4 +51,9 @@ inline int Pixie::GetMouseY() const
 inline bool Pixie::IsMouseOverWindow() const
 {
 	return m_mouseX >= 0 && m_mouseX < m_width && m_mouseY >= 0 && m_mouseY < m_height;
+}
+
+inline float Pixie::GetDelta() const
+{
+	return m_delta;
 }
