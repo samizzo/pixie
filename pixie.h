@@ -3,9 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <Windows.h>
-
-typedef unsigned int uint32;
-typedef unsigned char uint8;
+#include "Types.h"
 
 #define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
 

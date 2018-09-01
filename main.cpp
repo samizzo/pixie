@@ -1,4 +1,5 @@
-#include "pixie.h"
+﻿#include "pixie.h"
+#include "font.h"
 #include <stdio.h>
 
 static const char* WindowTitle = "Hello, World!";
@@ -22,6 +23,10 @@ static void draw(int x, int y, uint32* buffer)
 
 int main(int argc, char** argv)
 {
+	Font font;
+	if (!font.Load("font.bmp", 9, 16))
+		return 0;
+
 	Pixie pixie;
 	if (!pixie.Open(WindowTitle, WindowWidth, WindowHeight))
 		return 0;
@@ -59,6 +64,21 @@ int main(int argc, char** argv)
 		}
 
 		memset(buffer, 0, WindowWidth * WindowHeight * sizeof(uint32));
+
+		int cx = 0, cy = 0;
+		for (int i = 0; i < 256; i++)
+		{
+			char buf[128];
+			sprintf_s(buf, sizeof(buf), "%c", i);
+			if (cx >= WindowWidth-9)
+			{
+				cx = 0;
+				cy += 16;
+			}
+			font.Draw(buf, cx, cy, buffer, WindowWidth, WindowHeight);
+			cx += 9;
+		}
+
 		draw((int)x, (int)y, buffer);
 
 		if (!pixie.Update(buffer))

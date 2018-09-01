@@ -123,11 +123,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="font.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pixie.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="font.h" />
     <ClInclude Include="pixie.h" />
+    <ClInclude Include="Types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
