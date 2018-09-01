@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "pixie.h"
+#include "pixelbuffer.h"
 
 static const char* PixieWindowClass = "PixieWindowClass";
 
@@ -27,6 +28,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 Pixie::Pixie()
 {
 	m_delta = 0.0f;
+	m_buffer = 0;
+}
+
+Pixie::~Pixie()
+{
+	delete m_buffer;
 }
 
 bool Pixie::Open(const char* title, int width, int height)
@@ -69,10 +76,12 @@ bool Pixie::Open(const char* title, int width, int height)
 	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_lastTime);
 
+	m_buffer = new PixelBuffer(width, height);
+
 	return m_window != 0;
 }
 
-bool Pixie::Update(const uint32* buffer)
+bool Pixie::Update()
 {
 	__int64 p;
 	QueryPerformanceCounter((LARGE_INTEGER*)&p);
@@ -107,7 +116,7 @@ bool Pixie::Update(const uint32* buffer)
 	bmiHeader.biYPelsPerMeter = 0;
 	bmiHeader.biClrUsed = 0;
 	bmiHeader.biClrImportant = 0;
-	SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, buffer, &bitmapInfo, DIB_RGB_COLORS);
+	SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, m_buffer->GetPixels(), &bitmapInfo, DIB_RGB_COLORS);
 	ReleaseDC(m_window, hdc);
 
 	return true;

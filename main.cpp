@@ -1,13 +1,15 @@
 ﻿#include "pixie.h"
 #include "font.h"
+#include "pixelbuffer.h"
 #include <stdio.h>
 
 static const char* WindowTitle = "Hello, World!";
 static const int WindowWidth = 640;
 static const int WindowHeight = 400;
 
-static void draw(int x, int y, uint32* buffer)
+static void draw(int x, int y, PixelBuffer* buffer)
 {
+	uint32* pixels = buffer->GetPixels();
 	for (int i = x; i < x+4; i++)
 	{
 		for (int j = y; j < y+4; j++)
@@ -15,7 +17,7 @@ static void draw(int x, int y, uint32* buffer)
 			if (i < WindowWidth && j < WindowHeight)
 			{
 				int index = (i + (j * WindowWidth));
-				buffer[index] = 0xff;
+				pixels[index] = 0xff;
 			}
 		}
 	}
@@ -31,7 +33,9 @@ int main(int argc, char** argv)
 	if (!pixie.Open(WindowTitle, WindowWidth, WindowHeight))
 		return 0;
 
-	uint32* buffer = new uint32[WindowWidth * WindowHeight];
+	PixelBuffer* buffer = pixie.GetPixelBuffer();
+	uint32* pixels = buffer->GetPixels();
+
 	const float SPEED = 100.0f;
 	float x = 0, y = 0;
 	float xadd = SPEED, yadd = SPEED;
@@ -63,7 +67,7 @@ int main(int argc, char** argv)
 			yadd = SPEED;
 		}
 
-		memset(buffer, 0, WindowWidth * WindowHeight * sizeof(uint32));
+		memset(pixels, 0, WindowWidth * WindowHeight * sizeof(uint32));
 
 		int cx = 0, cy = 0;
 		for (int i = 0; i < 256; i++)
@@ -75,17 +79,16 @@ int main(int argc, char** argv)
 				cx = 0;
 				cy += 16;
 			}
-			font.Draw(buf, cx, cy, buffer, WindowWidth, WindowHeight);
+			font.Draw(buf, cx, cy, buffer);
 			cx += 9;
 		}
 
 		draw((int)x, (int)y, buffer);
 
-		if (!pixie.Update(buffer))
+		if (!pixie.Update())
 			break;
 	}
 
-	delete[] buffer;
 	pixie.Close();
 
 	printf("done");

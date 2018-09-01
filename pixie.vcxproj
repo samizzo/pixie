@@ -128,9 +128,10 @@
     <ClCompile Include="pixie.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="pixelbuffer.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="pixie.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

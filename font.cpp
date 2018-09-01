@@ -1,4 +1,5 @@
-#include "Font.h"
+#include "font.h"
+#include "pixelbuffer.h"
 #include <stdio.h>
 #include <Windows.h>
 
@@ -53,12 +54,17 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
 	return true;
 }
 
-void Font::Draw(const char* msg, int x, int y, uint32* buffer, int width, int height)
+void Font::Draw(const char* msg, int x, int y, PixelBuffer* buffer)
 {
+	uint32* pixels = buffer->GetPixels();
+	int width = buffer->GetWidth();
+	int height = buffer->GetHeight();
+
 	for ( ; *msg; msg++)
 	{
 		uint8 c = *msg;
-		uint32* charStart = m_fontBuffer + (c*m_characterSizeX);
+		uint32* charStart = m_fontBuffer + (c * m_characterSizeX);
+
 		for (int cx = 0; cx < m_characterSizeX; cx++)
 		{
 			for (int cy = 0; cy < m_characterSizeY; cy++)
@@ -66,7 +72,7 @@ void Font::Draw(const char* msg, int x, int y, uint32* buffer, int width, int he
 				int sx = cx + x;
 				int sy = cy + y;
 				if (sx >= 0 && sx < width && sy >= 0 && sy < height)
-					buffer[sx+(sy*width)] = charStart[cx + (cy * 256 * m_characterSizeX)];
+					pixels[sx+(sy*width)] = charStart[cx + (cy * 256 * m_characterSizeX)];
 			}
 		}
 

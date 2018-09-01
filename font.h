@@ -2,6 +2,8 @@
 
 #include "Types.h"
 
+class PixelBuffer;
+
 // BMP font loader. Expects the entire character set on one line.
 class Font
 {
@@ -9,7 +11,7 @@ class Font
 		Font();
 		~Font();
 		bool Load(const char* filename, int characterSizeX, int characterSizeY);
-		void Draw(const char* msg, int x, int y, uint32* buffer, int width, int height);
+		void Draw(const char* msg, int x, int y, PixelBuffer* buffer);
 
 	private:
 		uint32* m_fontBuffer;

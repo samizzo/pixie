@@ -3,22 +3,28 @@
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <Windows.h>
-#include "Types.h"
+#include "types.h"
 
 #define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
+
+class PixelBuffer;
 
 class Pixie
 {
 	public:
 		Pixie();
+		~Pixie();
+
 		bool Open(const char* title, int width, int height);
 		void Close();
-		bool Update(const uint32* buffer);
+		bool Update();
 
 		int GetMouseX() const;
 		int GetMouseY() const;
 		bool IsMouseOverWindow() const;
 		float GetDelta() const;
+
+		PixelBuffer* GetPixelBuffer() const;
 
 	private:
 		void UpdateMousePosition();
@@ -34,6 +40,8 @@ class Pixie
 		float m_delta;
 		__int64 m_lastTime;
 		__int64 m_freq;
+
+		PixelBuffer* m_buffer;
 };
 
 inline int Pixie::GetMouseX() const
@@ -54,4 +62,9 @@ inline bool Pixie::IsMouseOverWindow() const
 inline float Pixie::GetDelta() const
 {
 	return m_delta;
+}
+
+inline PixelBuffer* Pixie::GetPixelBuffer() const
+{
+	return m_buffer;
 }
