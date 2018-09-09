@@ -1,31 +1,11 @@
 #include <stdlib.h>
 #include "pixie.h"
 #include "buffer.h"
+#include <assert.h>
 
 using namespace Pixie;
 
 static const char* PixieWindowClass = "PixieWindowClass";
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch (uMsg)
-	{
-		case WM_KEYUP:
-		{
-			if (wParam == VK_ESCAPE)
-				DestroyWindow(hWnd);
-			break;
-		}
-
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			break;
-		}
-	}
-
-	return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
 
 Window::Window()
 {
@@ -229,6 +209,40 @@ char Window::GetChar(Key key) const
 	WORD character;
 	ToAscii(vkCode, 0, m_keyboardState, &character, 0);
 	return character & 0xff;
+}
+
+LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	Window* window = (Window*)GetWindowLong(hWnd, GWL_USERDATA);
+	if (window)
+	{
+		return window->WndProc(uMsg, wParam, lParam);
+	}
+	else
+	{
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+}
+
+LRESULT CALLBACK Window::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+		case WM_KEYUP:
+		{
+			if (wParam == VK_ESCAPE)
+				DestroyWindow(m_window);
+			break;
+		}
+
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			break;
+		}
+	}
+
+	return DefWindowProc(m_window, uMsg, wParam, lParam);
 }
 
 extern int main(int argc, char** argv);

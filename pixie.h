@@ -110,6 +110,9 @@ namespace Pixie
 			HWND m_window;
 			__int64 m_lastTime;
 			__int64 m_freq;
+
+			static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+			LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 
 	inline int Window::GetMouseX() const
