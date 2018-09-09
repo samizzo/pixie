@@ -42,6 +42,7 @@ int main(int argc, char** argv)
 	float xadd = SPEED, yadd = SPEED;
 	char buf[16] = { 0 };
 	strcat_s(buf, sizeof(buf), "Hello, World!");
+	bool checked = false;
 
 	while (true)
 	{
@@ -90,15 +91,17 @@ int main(int argc, char** argv)
 
 		draw((int)x, (int)y, buffer);
 
-		ImGui::FilledRect(10, 210, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
-		ImGui::FilledRoundedRect(120, 210, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));
+		ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
+		ImGui::FilledRoundedRect(120, 240, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));
 
-		if (ImGui::Button("Button 1", 100, 100, 100, 30))
-			OutputDebugString("Button 1 pressed\n");
-		if (ImGui::Button("Button 2", 100, 140, 100, 30))
-			OutputDebugString("Button 2 pressed\n");
+		if (ImGui::Button("Hello", 100, 100, 100, 30))
+			strcpy_s(buf, sizeof(buf), "Hello, World!");
+		if (ImGui::Button("Goodbye", 100, 140, 100, 30))
+			strcpy_s(buf, sizeof(buf), "Goodbye, World!");
 
 		ImGui::Input(buf, sizeof(buf), 100, 180, 400, 20);
+
+		checked = ImGui::Checkbox("Do the thing", checked, 100, 210);
 
 		ImGui::End();
 

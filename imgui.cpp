@@ -1,4 +1,4 @@
-#include "imgui.h"
+﻿#include "imgui.h"
 #include "pixelbuffer.h"
 #include "pixie.h"
 #include "font.h"
@@ -272,6 +272,34 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			}
 		}
 	}
+}
+
+bool ImGui::Checkbox(const char* text, bool checked, int x, int y)
+{
+	assert(text);
+	assert(s_state.HasStarted());
+
+	const int TextLeftMargin = 8;
+	const int BoxSize = 18;
+	const int CheckSize = 6;
+
+	Font* font = s_state.font;
+	int charHeight = font->GetCharacterHeight();
+
+	int textY = y + ((BoxSize - charHeight) >> 1) + 1;
+	Label(text, x + BoxSize + TextLeftMargin, textY, MAKE_RGB(255, 255, 255));
+	bool wasChecked = checked;
+	if (Button(" ", x, y, BoxSize, BoxSize))
+		checked = !checked;
+
+	if (wasChecked)
+	{
+		int checkX = x + ((BoxSize - CheckSize) >> 1);
+		int checkY = y + ((BoxSize - CheckSize) >> 1);
+		FilledRoundedRect(checkX, checkY, CheckSize, CheckSize, MAKE_RGB(255, 255, 255), MAKE_RGB(255, 255, 255));
+	}
+
+	return checked;
 }
 
 void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
