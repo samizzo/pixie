@@ -40,8 +40,13 @@ namespace Pixie
 			Window();
 			~Window();
 
+			// Open the Pixie window with the specified title bar, width, and height.
 			bool Open(const char* title, int width, int height);
+
+			// Close the Pixie window.
 			void Close();
+
+			// Update the Pixie window. This will copy the backing buffer to the actual window.
 			bool Update();
 
 			// Returns true in the frame the mouse button went down.
@@ -68,19 +73,24 @@ namespace Pixie
 			// Returns the ASCII character for the specified key if valid, based on any current keyboard state (e.g. shift).
 			char GetChar(Key key) const;
 
+			// Returns the current mouse X position.
 			int GetMouseX() const;
+
+			// Returns the current mouse Y position.
 			int GetMouseY() const;
+
+			// Returns true if the mouse is currently over the window.
 			bool IsMouseOverWindow() const;
 
+			// Returns the time delta since the last time the window was updated.
 			float GetDelta() const;
 
+			// Returns the backing buffer for the window.
 			Buffer* GetBuffer() const;
 
 		private:
 			void UpdateMouse();
 			void UpdateKeyboard();
-
-			HWND m_window;
 
 			int m_width;
 			int m_height;
@@ -94,10 +104,12 @@ namespace Pixie
 			uint8 m_keyboardState[256];
 
 			float m_delta;
-			__int64 m_lastTime;
-			__int64 m_freq;
 
 			Buffer* m_buffer;
+
+			HWND m_window;
+			__int64 m_lastTime;
+			__int64 m_freq;
 	};
 
 	inline int Window::GetMouseX() const
