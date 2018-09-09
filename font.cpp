@@ -72,10 +72,49 @@ void Font::Draw(const char* msg, int x, int y, PixelBuffer* buffer)
 				int sx = cx + x;
 				int sy = cy + y;
 				if (sx >= 0 && sx < width && sy >= 0 && sy < height)
-					pixels[sx+(sy*width)] = charStart[cx + (cy * 256 * m_characterSizeX)];
+				{
+					uint32 pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
+					if (pixel != 0xff000000)
+						pixels[sx+(sy*width)] = pixel;
+				}
 			}
 		}
 
 		x += m_characterSizeX;
 	}
+}
+
+void Font::DrawColour(const char* msg, int x, int y, uint32 colour, PixelBuffer* buffer)
+{
+	uint32* pixels = buffer->GetPixels();
+	int width = buffer->GetWidth();
+	int height = buffer->GetHeight();
+
+	for (; *msg; msg++)
+	{
+		uint8 c = *msg;
+		uint32* charStart = m_fontBuffer + (c * m_characterSizeX);
+
+		for (int cx = 0; cx < m_characterSizeX; cx++)
+		{
+			for (int cy = 0; cy < m_characterSizeY; cy++)
+			{
+				int sx = cx + x;
+				int sy = cy + y;
+				if (sx >= 0 && sx < width && sy >= 0 && sy < height)
+				{
+					uint32 pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
+					if (pixel != 0xff000000)
+						pixels[sx + (sy*width)] = colour;
+				}
+			}
+		}
+
+		x += m_characterSizeX;
+	}
+}
+
+int Font::GetStringWidth(const char* msg) const
+{
+	return strlen(msg) * m_characterSizeX;
 }
