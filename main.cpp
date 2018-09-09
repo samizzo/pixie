@@ -1,6 +1,7 @@
 ﻿#include "pixie.h"
 #include "font.h"
 #include "pixelbuffer.h"
+#include "imgui.h"
 #include <stdio.h>
 
 static const char* WindowTitle = "Hello, World!";
@@ -39,9 +40,13 @@ int main(int argc, char** argv)
 	const float SPEED = 100.0f;
 	float x = 0, y = 0;
 	float xadd = SPEED, yadd = SPEED;
+	char buf[16] = { 0 };
+	strcat_s(buf, sizeof(buf), "Hello, World!");
 
 	while (true)
 	{
+		ImGui::Begin(&pixie, &font);
+
 		float delta = pixie.GetDelta();
 		x += xadd*delta;
 		y += yadd*delta;
@@ -84,6 +89,18 @@ int main(int argc, char** argv)
 		}
 
 		draw((int)x, (int)y, buffer);
+
+		ImGui::FilledRect(10, 210, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
+		ImGui::FilledRoundedRect(120, 210, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));
+
+		if (ImGui::Button("Button 1", 100, 100, 100, 30))
+			OutputDebugString("Button 1 pressed\n");
+		if (ImGui::Button("Button 2", 100, 140, 100, 30))
+			OutputDebugString("Button 2 pressed\n");
+
+		ImGui::Input(buf, sizeof(buf), 100, 180, 400, 20);
+
+		ImGui::End();
 
 		if (!pixie.Update())
 			break;

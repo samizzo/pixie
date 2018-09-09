@@ -124,10 +124,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="font.cpp" />
+    <ClCompile Include="imgui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pixie.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="imgui.h" />
     <ClInclude Include="pixelbuffer.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="pixie.h" />
