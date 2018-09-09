@@ -144,6 +144,8 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	bool pressed = false;
 	int textLength = strlen(text);
 
+	int textX = x + LeftMargin;
+
 	if (hover)
 	{
 		s_state.hoverId = id;
@@ -155,12 +157,11 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			{
 				s_state.keyRepeatTimer = 0.0f;
 				s_state.cursorBlinkTimer = 0.0f;
-
-				// Also set the keyboard cursor position to the end of the string.
-				s_state.keyboardCursorPosition = textLength;
+				s_state.focusId = id;
 			}
 
-			s_state.focusId = id;
+			// Move the cursor to whereever the user clicked.
+			s_state.keyboardCursorPosition = min((mouseX - textX) / s_state.font->GetCharacterWidth(), textLength);
 		}
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
@@ -173,7 +174,6 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	// Draw the input field.
 	FilledRoundedRect(x, y, width, height, boxColour, borderColour);
 
-	int textX = x + LeftMargin;
 	int textY = y + ((height - s_state.font->GetCharacterHeight()) >> 1);
 	Label(text, textX, textY, TextColour);
 
