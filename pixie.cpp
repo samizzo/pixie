@@ -50,7 +50,7 @@ bool Pixie::Open(const char* title, int width, int height)
 	wc.cbWndExtra = 0;
 	wc.hInstance = hInstance;
 	wc.hIcon = NULL;
-	wc.hCursor = NULL;
+	wc.hCursor = LoadCursor(hInstance, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = PixieWindowClass;
