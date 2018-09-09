@@ -29,6 +29,9 @@ Pixie::Pixie()
 {
 	m_delta = 0.0f;
 	m_buffer = 0;
+	m_mouseButtonDown = m_lastMouseButtonDown = 0;
+	memset(m_lastKeyboardState, 0, sizeof(m_lastKeyboardState));
+	memset(m_keyboardState, 0, sizeof(m_keyboardState));
 }
 
 Pixie::~Pixie()
@@ -70,7 +73,8 @@ bool Pixie::Open(const char* title, int width, int height)
 	{
 		SetWindowLongPtr(m_window, GWL_USERDATA, (LONG)this);
 		ShowWindow(m_window, SW_SHOW);
-		UpdateMousePosition();
+		UpdateMouse();
+		UpdateKeyboard();
 	}
 
 	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
@@ -99,7 +103,8 @@ bool Pixie::Update()
 			return false;
 	}
 
-	UpdateMousePosition();
+	UpdateMouse();
+	UpdateKeyboard();
 
 	// Copy buffer to the window.
 	HDC hdc = GetDC(m_window);
@@ -127,13 +132,101 @@ void Pixie::Close()
 	DestroyWindow(m_window);
 }
 
-void Pixie::UpdateMousePosition()
+void Pixie::UpdateMouse()
 {
 	POINT p;
 	GetCursorPos(&p);
 	ScreenToClient(m_window, &p);
 	m_mouseX = p.x;
 	m_mouseY = p.y;
+
+	m_lastMouseButtonDown = m_mouseButtonDown;
+	m_mouseButtonDown = 0;
+	if ((GetAsyncKeyState(VK_LBUTTON) & 1<<15) != 0)
+		m_mouseButtonDown |= Mouse::LeftButton;
+	if ((GetAsyncKeyState(VK_RBUTTON) & 1<<15) != 0)
+		m_mouseButtonDown |= Mouse::RightButton;
+}
+
+void Pixie::UpdateKeyboard()
+{
+	memcpy(m_lastKeyboardState, m_keyboardState, sizeof(m_keyboardState));
+	GetKeyboardState(m_keyboardState);
+}
+
+static const uint8 s_vkKeyMap[] =
+{
+	VK_LEFT,
+	VK_RIGHT,
+	VK_HOME,
+	VK_END,
+	VK_BACK,
+	VK_DELETE,
+	VK_LSHIFT,
+	VK_RSHIFT,
+	'A',
+	'B',
+	'C',
+	'D',
+	'E',
+	'F',
+	'G',
+	'H',
+	'I',
+	'J',
+	'K',
+	'L',
+	'M',
+	'N',
+	'O',
+	'P',
+	'Q',
+	'R',
+	'S',
+	'T',
+	'U',
+	'V',
+	'W',
+	'X',
+	'Y',
+	'Z',
+	'0',
+	'1',
+	'2',
+	'3',
+	'4',
+	'5',
+	'6',
+	'7',
+	'8',
+	'9',
+	VK_OEM_PERIOD
+};
+
+bool Pixie::HasKeyGoneDown(Key key) const
+{
+	uint8 vkCode = s_vkKeyMap[key];
+	return (m_lastKeyboardState[vkCode] & 1<<7) == 0 && (m_keyboardState[vkCode] & 1<<7) != 0;
+}
+
+bool Pixie::HasKeyGoneUp(Key key) const
+{
+	uint8 vkCode = s_vkKeyMap[key];
+	return (m_lastKeyboardState[vkCode] & 1<<7) != 0 && (m_keyboardState[vkCode] & 1<<7) == 0;
+}
+
+bool Pixie::IsKeyDown(Key key) const
+{
+	uint8 vkCode = s_vkKeyMap[key];
+	return (m_keyboardState[vkCode] & 1<<7) != 0;
+}
+
+char Pixie::GetChar(Key key) const
+{
+	uint8 vkCode = s_vkKeyMap[key];
+	WORD character;
+	ToAscii(vkCode, 0, m_keyboardState, &character, 0);
+	return character & 0xff;
 }
 
 extern int main(int argc, char** argv);
