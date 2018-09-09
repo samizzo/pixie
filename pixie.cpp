@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include "pixie.h"
-#include "pixelbuffer.h"
+#include "buffer.h"
+
+using namespace Pixie;
 
 static const char* PixieWindowClass = "PixieWindowClass";
 
@@ -25,7 +27,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-Pixie::Pixie()
+Window::Window()
 {
 	m_delta = 0.0f;
 	m_buffer = 0;
@@ -34,12 +36,12 @@ Pixie::Pixie()
 	memset(m_keyboardState, 0, sizeof(m_keyboardState));
 }
 
-Pixie::~Pixie()
+Window::~Window()
 {
 	delete m_buffer;
 }
 
-bool Pixie::Open(const char* title, int width, int height)
+bool Window::Open(const char* title, int width, int height)
 {
 	HINSTANCE hInstance = GetModuleHandle(0);
 
@@ -80,12 +82,12 @@ bool Pixie::Open(const char* title, int width, int height)
 	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_lastTime);
 
-	m_buffer = new PixelBuffer(width, height);
+	m_buffer = new Buffer(width, height);
 
 	return m_window != 0;
 }
 
-bool Pixie::Update()
+bool Window::Update()
 {
 	__int64 p;
 	QueryPerformanceCounter((LARGE_INTEGER*)&p);
@@ -127,12 +129,12 @@ bool Pixie::Update()
 	return true;
 }
 
-void Pixie::Close()
+void Window::Close()
 {
 	DestroyWindow(m_window);
 }
 
-void Pixie::UpdateMouse()
+void Window::UpdateMouse()
 {
 	POINT p;
 	GetCursorPos(&p);
@@ -148,7 +150,7 @@ void Pixie::UpdateMouse()
 		m_mouseButtonDown |= Mouse::RightButton;
 }
 
-void Pixie::UpdateKeyboard()
+void Window::UpdateKeyboard()
 {
 	memcpy(m_lastKeyboardState, m_keyboardState, sizeof(m_keyboardState));
 	GetKeyboardState(m_keyboardState);
@@ -203,25 +205,25 @@ static const uint8 s_vkKeyMap[] =
 	VK_OEM_PERIOD
 };
 
-bool Pixie::HasKeyGoneDown(Key key) const
+bool Window::HasKeyGoneDown(Key key) const
 {
 	uint8 vkCode = s_vkKeyMap[key];
 	return (m_lastKeyboardState[vkCode] & 1<<7) == 0 && (m_keyboardState[vkCode] & 1<<7) != 0;
 }
 
-bool Pixie::HasKeyGoneUp(Key key) const
+bool Window::HasKeyGoneUp(Key key) const
 {
 	uint8 vkCode = s_vkKeyMap[key];
 	return (m_lastKeyboardState[vkCode] & 1<<7) != 0 && (m_keyboardState[vkCode] & 1<<7) == 0;
 }
 
-bool Pixie::IsKeyDown(Key key) const
+bool Window::IsKeyDown(Key key) const
 {
 	uint8 vkCode = s_vkKeyMap[key];
 	return (m_keyboardState[vkCode] & 1<<7) != 0;
 }
 
-char Pixie::GetChar(Key key) const
+char Window::GetChar(Key key) const
 {
 	uint8 vkCode = s_vkKeyMap[key];
 	WORD character;

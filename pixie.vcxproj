@@ -130,7 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui.h" />
-    <ClInclude Include="pixelbuffer.h" />
+    <ClInclude Include="buffer.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="pixie.h" />
     <ClInclude Include="types.h" />

@@ -1,6 +1,6 @@
 ﻿#include "pixie.h"
 #include "font.h"
-#include "pixelbuffer.h"
+#include "buffer.h"
 #include "imgui.h"
 #include <stdio.h>
 
@@ -8,7 +8,7 @@ static const char* WindowTitle = "Hello, World!";
 static const int WindowWidth = 640;
 static const int WindowHeight = 400;
 
-static void draw(int x, int y, PixelBuffer* buffer)
+static void draw(int x, int y, Pixie::Buffer* buffer)
 {
 	uint32* pixels = buffer->GetPixels();
 	for (int i = x; i < x+4; i++)
@@ -26,15 +26,15 @@ static void draw(int x, int y, PixelBuffer* buffer)
 
 int main(int argc, char** argv)
 {
-	Font font;
+	Pixie::Font font;
 	if (!font.Load("font.bmp", 9, 16))
 		return 0;
 
-	Pixie pixie;
-	if (!pixie.Open(WindowTitle, WindowWidth, WindowHeight))
+	Pixie::Window window;
+	if (!window.Open(WindowTitle, WindowWidth, WindowHeight))
 		return 0;
 
-	PixelBuffer* buffer = pixie.GetPixelBuffer();
+	Pixie::Buffer* buffer = window.GetBuffer();
 	uint32* pixels = buffer->GetPixels();
 
 	const float SPEED = 100.0f;
@@ -46,9 +46,9 @@ int main(int argc, char** argv)
 
 	while (true)
 	{
-		ImGui::Begin(&pixie, &font);
+		Pixie::ImGui::Begin(&window, &font);
 
-		float delta = pixie.GetDelta();
+		float delta = window.GetDelta();
 		x += xadd*delta;
 		y += yadd*delta;
 		if (x >= WindowWidth - 1)
@@ -91,25 +91,25 @@ int main(int argc, char** argv)
 
 		draw((int)x, (int)y, buffer);
 
-		ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
-		ImGui::FilledRoundedRect(120, 240, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));
+		Pixie::ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
+		Pixie::ImGui::FilledRoundedRect(120, 240, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));
 
-		if (ImGui::Button("Hello", 100, 100, 100, 30))
+		if (Pixie::ImGui::Button("Hello", 100, 100, 100, 30))
 			strcpy_s(buf, sizeof(buf), "Hello, World!");
-		if (ImGui::Button("Goodbye", 100, 140, 100, 30))
+		if (Pixie::ImGui::Button("Goodbye", 100, 140, 100, 30))
 			strcpy_s(buf, sizeof(buf), "Goodbye, World!");
 
-		ImGui::Input(buf, sizeof(buf), 100, 180, 400, 20);
+		Pixie::ImGui::Input(buf, sizeof(buf), 100, 180, 400, 20);
 
-		checked = ImGui::Checkbox("Do the thing", checked, 100, 210);
+		checked = Pixie::ImGui::Checkbox("Do the thing", checked, 100, 210);
 
-		ImGui::End();
+		Pixie::ImGui::End();
 
-		if (!pixie.Update())
+		if (!window.Update())
 			break;
 	}
 
-	pixie.Close();
+	window.Close();
 
 	printf("done");
 }

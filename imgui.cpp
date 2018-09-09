@@ -1,8 +1,10 @@
 ﻿#include "imgui.h"
-#include "pixelbuffer.h"
+#include "buffer.h"
 #include "pixie.h"
 #include "font.h"
 #include <assert.h>
+
+using namespace Pixie;
 
 struct State
 {
@@ -23,21 +25,21 @@ struct State
 	float keyRepeatTime;
 	float cursorBlinkTimer;
 
-	Pixie* pixie;
+	Window* window;
 	Font* font;
 };
 
 static State s_state = { 0 };
 
-void ImGui::Begin(Pixie* pixie, Font* font)
+void ImGui::Begin(Window* window, Font* font)
 {
-	assert(pixie);
+	assert(window);
 	assert(font);
 
 	s_state.flags = State::Flags::Started;
 	s_state.nextId = 1;
 	s_state.hoverId = 0;
-	s_state.pixie = pixie;
+	s_state.window = window;
 	s_state.font = font;
 }
 
@@ -45,7 +47,7 @@ void ImGui::End()
 {
 	s_state.flags = 0;
 
-	if (s_state.pixie->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+	if (s_state.window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
 	{
 		// If mouse has gone down over empty space, clear the current focus.
 		if (s_state.hoverId == 0)
@@ -55,14 +57,14 @@ void ImGui::End()
 		}
 	}
 
-	s_state.pixie = 0;
+	s_state.window = 0;
 }
 
 void ImGui::Label(const char* text, int x, int y, uint32 colour)
 {
 	assert(text);
 	assert(s_state.HasStarted());
-	s_state.font->DrawColour(text, x, y, colour, s_state.pixie->GetPixelBuffer());
+	s_state.font->DrawColour(text, x, y, colour, s_state.window->GetBuffer());
 }
 
 bool ImGui::Button(const char* text, int x, int y, int width, int height)
@@ -70,7 +72,7 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 	assert(text);
 	assert(s_state.HasStarted());
 
-	Pixie* pixie = s_state.pixie;
+	Window* window = s_state.window;
 	int id = s_state.GetNextId();
 
 	const uint32 NormalColour = MAKE_RGB(15, 122, 229);
@@ -80,8 +82,8 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 	const uint32 FontColour = MAKE_RGB(255, 255, 255);
 	const uint32 FontPressedColour = MAKE_RGB(255, 255, 255);
 
-	int mouseX = pixie->GetMouseX();
-	int mouseY = pixie->GetMouseY();
+	int mouseX = window->GetMouseX();
+	int mouseY = window->GetMouseY();
 
 	bool hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 	bool pressed = false;
@@ -91,20 +93,20 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 		s_state.hoverId = id;
 
 		// Mouse has just gone down over this element, so give it focus.
-		if (pixie->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+		if (window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
 			s_state.focusId = id;
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
-		pressed = pixie->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
+		pressed = window->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
 	}
 
 	uint32 buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
 	uint32 borderColour = s_state.focusId == id ? FocusBorderColour : buttonColour;
 
-	PixelBuffer* pixelBuffer = pixie->GetPixelBuffer();
-	uint32* pixels = pixelBuffer->GetPixels();
-	int bufferWidth = pixelBuffer->GetWidth();
-	int bufferHeight = pixelBuffer->GetHeight();
+	Buffer* buffer = window->GetBuffer();
+	uint32* pixels = buffer->GetPixels();
+	int bufferWidth = buffer->GetWidth();
+	int bufferHeight = buffer->GetHeight();
 
 	FilledRoundedRect(x, y, width, height, buttonColour, borderColour);
 
@@ -115,7 +117,7 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 	uint32 fontColour = pressed ? FontPressedColour : FontColour;
 	Label(text, textX, textY, fontColour);
 
-	return hover && s_state.focusId == id && pixie->HasMouseGoneUp(Pixie::Mouse::LeftButton);
+	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::Mouse::LeftButton);
 }
 
 void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int height)
@@ -123,7 +125,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	assert(text);
 	assert(s_state.HasStarted());
 
-	Pixie* pixie = s_state.pixie;
+	Window* window = s_state.window;
 	int id = s_state.GetNextId();
 
 	const int LeftMargin = 8;
@@ -137,8 +139,8 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	const float KeyRepeatTimeRepeat = 0.05f;
 	const float CursorBlinkTime = 1.0f;
 
-	int mouseX = pixie->GetMouseX();
-	int mouseY = pixie->GetMouseY();
+	int mouseX = window->GetMouseX();
+	int mouseY = window->GetMouseY();
 
 	bool hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 	bool pressed = false;
@@ -151,7 +153,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		s_state.hoverId = id;
 
 		// Mouse has just gone down over this element, so give it focus.
-		if (pixie->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+		if (window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
 		{
 			if (s_state.focusId != id)
 			{
@@ -165,7 +167,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		}
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
-		pressed = pixie->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
+		pressed = window->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
 	}
 
 	uint32 boxColour = pressed || hover || s_state.focusId == id ? HoverColour : NormalColour;
@@ -179,7 +181,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 
 	if (s_state.focusId == id)
 	{
-		float delta = pixie->GetDelta();
+		float delta = window->GetDelta();
 
 		// Input field has focus, draw the keyboard cursor and process input.
 		s_state.cursorBlinkTimer -= delta;
@@ -189,7 +191,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			s_state.cursorBlinkTimer = CursorBlinkTime;
 
 
-		if (pixie->HasAnyKeyGoneDown())
+		if (window->HasAnyKeyGoneDown())
 		{
 			s_state.keyRepeatTimer = 0.0f;
 			s_state.keyRepeatTime = KeyRepeatTimeInit;
@@ -201,15 +203,15 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			s_state.keyRepeatTimer = s_state.keyRepeatTime;
 			s_state.keyRepeatTime = KeyRepeatTimeRepeat;
 
-			if (pixie->IsKeyDown(Pixie::Key::Left))
+			if (window->IsKeyDown(Pixie::Key::Left))
 			{
 				s_state.keyboardCursorPosition = max(s_state.keyboardCursorPosition - 1, 0);
 			}
-			else if (pixie->IsKeyDown(Pixie::Key::Right))
+			else if (window->IsKeyDown(Pixie::Key::Right))
 			{
 				s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textLength);
 			}
-			else if (pixie->IsKeyDown(Pixie::Key::Backspace))
+			else if (window->IsKeyDown(Pixie::Key::Backspace))
 			{
 				// Move cursor back.
 				s_state.keyboardCursorPosition--;
@@ -226,7 +228,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 					s_state.keyboardCursorPosition = 0;
 				}
 			}
-			else if (pixie->IsKeyDown(Pixie::Key::Delete))
+			else if (window->IsKeyDown(Pixie::Key::Delete))
 			{
 				// Delete the current character.
 				int position = s_state.keyboardCursorPosition;
@@ -237,11 +239,11 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 					memcpy(text + position, text + position + 1, copyAmount);
 				}
 			}
-			else if (pixie->IsKeyDown(Pixie::Key::Home))
+			else if (window->IsKeyDown(Pixie::Key::Home))
 			{
 				s_state.keyboardCursorPosition = 0;
 			}
-			else if (pixie->IsKeyDown(Pixie::Key::End))
+			else if (window->IsKeyDown(Pixie::Key::End))
 			{
 				s_state.keyboardCursorPosition = textLength;
 			}
@@ -249,15 +251,15 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			{
 				for (int i = Pixie::Key::A; i < Pixie::Key::Nine; i++)
 				{
-					if (pixie->IsKeyDown((Pixie::Key)i))
+					if (window->IsKeyDown((Pixie::Key)i))
 					{
 						// Ignore the numbers if shift is held down.
-						if ((Pixie::Key)i >= Pixie::Key::Zero && pixie->IsKeyDown(Pixie::Key::LeftShift) || pixie->IsKeyDown(Pixie::Key::RightShift))
+						if ((Pixie::Key)i >= Pixie::Key::Zero && window->IsKeyDown(Pixie::Key::LeftShift) || window->IsKeyDown(Pixie::Key::RightShift))
 							continue;
 
 						// Overwrite the character at the current position.
 						int position = s_state.keyboardCursorPosition;
-						char character = pixie->GetChar((Pixie::Key)i);
+						char character = window->GetChar((Pixie::Key)i);
 						text[position] = character;
 
 						// If at the end of the string, add a null because we've just extended the string.
@@ -305,10 +307,10 @@ bool ImGui::Checkbox(const char* text, bool checked, int x, int y)
 void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
 {
 	assert(s_state.HasStarted());
-	PixelBuffer* pixelBuffer = s_state.pixie->GetPixelBuffer();
-	uint32* pixels = pixelBuffer->GetPixels();
-	int bufferWidth = pixelBuffer->GetWidth();
-	int bufferHeight = pixelBuffer->GetHeight();
+	Buffer* buffer = s_state.window->GetBuffer();
+	uint32* pixels = buffer->GetPixels();
+	int bufferWidth = buffer->GetWidth();
+	int bufferHeight = buffer->GetHeight();
 
 	pixels += x + (y*bufferWidth);
 
@@ -329,10 +331,10 @@ void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint3
 void ImGui::FilledRoundedRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
 {
 	assert(s_state.HasStarted());
-	PixelBuffer* pixelBuffer = s_state.pixie->GetPixelBuffer();
-	uint32* pixels = pixelBuffer->GetPixels();
-	int bufferWidth = pixelBuffer->GetWidth();
-	int bufferHeight = pixelBuffer->GetHeight();
+	Buffer* buffer = s_state.window->GetBuffer();
+	uint32* pixels = buffer->GetPixels();
+	int bufferWidth = buffer->GetWidth();
+	int bufferHeight = buffer->GetHeight();
 
 	const int NumPixels = 1;
 

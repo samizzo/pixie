@@ -1,7 +1,9 @@
 #include "font.h"
-#include "pixelbuffer.h"
+#include "buffer.h"
 #include <stdio.h>
 #include <Windows.h>
+
+using namespace Pixie;
 
 Font::~Font()
 {
@@ -54,7 +56,7 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
 	return true;
 }
 
-void Font::Draw(const char* msg, int x, int y, PixelBuffer* buffer)
+void Font::Draw(const char* msg, int x, int y, Pixie::Buffer* buffer)
 {
 	uint32* pixels = buffer->GetPixels();
 	int width = buffer->GetWidth();
@@ -84,7 +86,7 @@ void Font::Draw(const char* msg, int x, int y, PixelBuffer* buffer)
 	}
 }
 
-void Font::DrawColour(const char* msg, int x, int y, uint32 colour, PixelBuffer* buffer)
+void Font::DrawColour(const char* msg, int x, int y, uint32 colour, Pixie::Buffer* buffer)
 {
 	uint32* pixels = buffer->GetPixels();
 	int width = buffer->GetWidth();
