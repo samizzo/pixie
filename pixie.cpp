@@ -55,7 +55,6 @@ bool Window::Open(const char* title, int width, int height)
 	{
 		SetWindowLongPtr(m_window, GWL_USERDATA, (LONG)this);
 		ShowWindow(m_window, SW_SHOW);
-		UpdateMouse();
 		UpdateKeyboard();
 	}
 
@@ -69,11 +68,11 @@ bool Window::Open(const char* title, int width, int height)
 
 bool Window::Update()
 {
-	__int64 p;
-	QueryPerformanceCounter((LARGE_INTEGER*)&p);
-	__int64 delta = p - m_lastTime;
+	__int64 time;
+	QueryPerformanceCounter((LARGE_INTEGER*)&time);
+	__int64 delta = time - m_lastTime;
 	m_delta = (delta / (float)m_freq);
-	m_lastTime = p;
+	m_lastTime = time;
 
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -85,7 +84,7 @@ bool Window::Update()
 			return false;
 	}
 
-	UpdateMouse();
+	UpdateMousePosition();
 	UpdateKeyboard();
 
 	// Copy buffer to the window.
@@ -114,20 +113,13 @@ void Window::Close()
 	DestroyWindow(m_window);
 }
 
-void Window::UpdateMouse()
+void Window::UpdateMousePosition()
 {
 	POINT p;
 	GetCursorPos(&p);
 	ScreenToClient(m_window, &p);
 	m_mouseX = p.x;
 	m_mouseY = p.y;
-
-	m_lastMouseButtonDown = m_mouseButtonDown;
-	m_mouseButtonDown = 0;
-	if ((GetAsyncKeyState(VK_LBUTTON) & 1<<15) != 0)
-		m_mouseButtonDown |= Mouse::LeftButton;
-	if ((GetAsyncKeyState(VK_RBUTTON) & 1<<15) != 0)
-		m_mouseButtonDown |= Mouse::RightButton;
 }
 
 void Window::UpdateKeyboard()
@@ -211,23 +203,53 @@ char Window::GetChar(Key key) const
 	return character & 0xff;
 }
 
-LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	Window* window = (Window*)GetWindowLong(hWnd, GWL_USERDATA);
 	if (window)
 	{
-		return window->WndProc(uMsg, wParam, lParam);
+		return window->WndProc(msg, wParam, lParam);
 	}
 	else
 	{
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		return DefWindowProc(hWnd, msg, wParam, lParam);
 	}
 }
 
-LRESULT CALLBACK Window::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg)
+	switch (msg)
 	{
+		case WM_LBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+		{
+			m_lastMouseButtonDown = m_mouseButtonDown;
+			if (msg == WM_LBUTTONDOWN)
+			{
+				m_mouseButtonDown |= Mouse::LeftButton;
+			}
+			else if (msg == WM_RBUTTONDOWN)
+			{
+				m_mouseButtonDown |= Mouse::RightButton;
+			}
+			break;
+		}
+
+		case WM_LBUTTONUP:
+		case WM_RBUTTONUP:
+		{
+			m_lastMouseButtonDown = m_mouseButtonDown;
+			if (msg == WM_LBUTTONUP)
+			{
+				m_mouseButtonDown &= ~Mouse::LeftButton;
+			}
+			else if (msg == WM_RBUTTONUP)
+			{
+				m_mouseButtonDown &= ~Mouse::RightButton;
+			}
+			break;
+		}
+
 		case WM_KEYUP:
 		{
 			if (wParam == VK_ESCAPE)
@@ -242,7 +264,7 @@ LRESULT CALLBACK Window::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	return DefWindowProc(m_window, uMsg, wParam, lParam);
+	return DefWindowProc(m_window, msg, wParam, lParam);
 }
 
 extern int main(int argc, char** argv);

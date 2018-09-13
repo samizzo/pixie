@@ -89,7 +89,7 @@ namespace Pixie
 			Buffer* GetBuffer() const;
 
 		private:
-			void UpdateMouse();
+			void UpdateMousePosition();
 			void UpdateKeyboard();
 
 			int m_width;
@@ -97,8 +97,8 @@ namespace Pixie
 
 			int m_mouseX;
 			int m_mouseY;
-			uint32 m_lastMouseButtonDown;
-			uint32 m_mouseButtonDown;
+			uint8 m_lastMouseButtonDown;
+			uint8 m_mouseButtonDown;
 
 			uint8 m_lastKeyboardState[256];
 			uint8 m_keyboardState[256];
