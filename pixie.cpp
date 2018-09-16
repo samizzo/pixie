@@ -53,7 +53,7 @@ bool Window::Open(const char* title, int width, int height)
 	m_window = CreateWindow(PixieWindowClass, title, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
 	if (m_window != 0)
 	{
-		SetWindowLongPtr(m_window, GWL_USERDATA, (LONG)this);
+		SetWindowLongPtr(m_window, GWLP_USERDATA, (LONG_PTR)this);
 		ShowWindow(m_window, SW_SHOW);
 		UpdateMouse();
 		UpdateKeyboard();
@@ -213,7 +213,7 @@ char Window::GetChar(Key key) const
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	Window* window = (Window*)GetWindowLong(hWnd, GWL_USERDATA);
+	Window* window = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	if (window)
 	{
 		return window->WndProc(uMsg, wParam, lParam);
