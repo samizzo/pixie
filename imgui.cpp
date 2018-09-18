@@ -67,7 +67,7 @@ void ImGui::Label(const char* text, int x, int y, uint32 colour)
 	s_state.font->DrawColour(text, x, y, colour, s_state.window->GetBuffer());
 }
 
-bool ImGui::Button(const char* text, int x, int y, int width, int height)
+bool ImGui::Button(const char* label, int x, int y, int width, int height)
 {
 	assert(s_state.HasStarted());
 
@@ -278,7 +278,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	}
 }
 
-bool ImGui::Checkbox(const char* text, bool checked, int x, int y)
+bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
 {
 	assert(text);
 	assert(s_state.HasStarted());
