@@ -69,7 +69,6 @@ void ImGui::Label(const char* text, int x, int y, uint32 colour)
 
 bool ImGui::Button(const char* text, int x, int y, int width, int height)
 {
-	assert(text);
 	assert(s_state.HasStarted());
 
 	Window* window = s_state.window;
@@ -110,12 +109,15 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 
 	FilledRoundedRect(x, y, width, height, buttonColour, borderColour);
 
-	Font* font = s_state.font;
-	int textX = x + ((width - font->GetStringWidth(text)) >> 1);
-	int textY = y + ((height - font->GetCharacterHeight()) >> 1);
+	if (text)
+	{
+		Font* font = s_state.font;
+		int textX = x + ((width - font->GetStringWidth(text)) >> 1);
+		int textY = y + ((height - font->GetCharacterHeight()) >> 1);
 
-	uint32 fontColour = pressed ? FontPressedColour : FontColour;
-	Label(text, textX, textY, fontColour);
+		uint32 fontColour = pressed ? FontPressedColour : FontColour;
+		Label(text, textX, textY, fontColour);
+	}
 
 	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::Mouse::LeftButton);
 }
@@ -291,7 +293,7 @@ bool ImGui::Checkbox(const char* text, bool checked, int x, int y)
 	int textY = y + ((BoxSize - charHeight) >> 1) + 1;
 	Label(text, x + BoxSize + TextLeftMargin, textY, MAKE_RGB(255, 255, 255));
 	bool wasChecked = checked;
-	if (Button(" ", x, y, BoxSize, BoxSize))
+	if (Button(0, x, y, BoxSize, BoxSize))
 		checked = !checked;
 
 	if (wasChecked)
