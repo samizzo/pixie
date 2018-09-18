@@ -303,10 +303,10 @@ bool ImGui::Checkbox(const char* text, bool checked, int x, int y)
 		int bufferWidth = buffer->GetWidth();
 		uint32* pixels = buffer->GetPixels();
 		y = checkY;
-		for (int yy = y*bufferWidth, x = 0; y <= checkY + CheckSize; y++, x++, yy += bufferWidth)
+		for (int yy = y*bufferWidth, x = 0; y < checkY + CheckSize; y++, x++, yy += bufferWidth)
 		{
 			pixels[checkX + x + yy] = MAKE_RGB(255, 255, 255);
-			pixels[checkX + CheckSize - x + yy] = MAKE_RGB(255, 255, 255);
+			pixels[checkX + CheckSize - x - 1 + yy] = MAKE_RGB(255, 255, 255);
 		}
 	}
 
