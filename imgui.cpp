@@ -77,7 +77,8 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 	const uint32 NormalColour = MAKE_RGB(15, 122, 229);
 	const uint32 HoverColour = MAKE_RGB(30, 135, 240);
 	const uint32 PressedColour = MAKE_RGB(14, 109, 205);
-	const uint32 FocusBorderColour = MAKE_RGB(15, 122, 229);
+	const uint32 BorderColour = MAKE_RGB(45, 152, 255);
+	const uint32 FocusBorderColour = MAKE_RGB(200, 200, 229);
 	const uint32 FontColour = MAKE_RGB(255, 255, 255);
 	const uint32 FontPressedColour = MAKE_RGB(255, 255, 255);
 
@@ -100,7 +101,7 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 	}
 
 	uint32 buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
-	uint32 borderColour = s_state.focusId == id ? FocusBorderColour : buttonColour;
+	uint32 borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
 	Buffer* buffer = window->GetBuffer();
 	uint32* pixels = buffer->GetPixels();
