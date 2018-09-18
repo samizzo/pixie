@@ -24,6 +24,7 @@ struct State
 	float keyRepeatTimer;
 	float keyRepeatTime;
 	float cursorBlinkTimer;
+	uint32 defaultTextColour;
 
 	Window* window;
 	Font* font;
@@ -41,6 +42,7 @@ void ImGui::Begin(Window* window, Font* font)
 	s_state.hoverId = 0;
 	s_state.window = window;
 	s_state.font = font;
+	s_state.defaultTextColour = MAKE_RGB(200, 200, 200);
 }
 
 void ImGui::End()
@@ -79,8 +81,6 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 	const uint32 PressedColour = MAKE_RGB(22, 40, 67);
 	const uint32 BorderColour = MAKE_RGB(68, 79, 103);
 	const uint32 FocusBorderColour = MAKE_RGB(200, 200, 229);
-	const uint32 FontColour = MAKE_RGB(255, 255, 255);
-	const uint32 FontPressedColour = MAKE_RGB(255, 255, 255);
 
 	int mouseX = window->GetMouseX();
 	int mouseY = window->GetMouseY();
@@ -116,8 +116,7 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 		int textX = x + ((width - font->GetStringWidth(label)) >> 1);
 		int textY = y + ((height - font->GetCharacterHeight()) >> 1);
 
-		uint32 fontColour = pressed ? FontPressedColour : FontColour;
-		Label(label, textX, textY, fontColour);
+		Label(label, textX, textY, s_state.defaultTextColour);
 	}
 
 	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::Mouse::LeftButton);
@@ -135,8 +134,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	const uint32 NormalColour = MAKE_RGB(64, 68, 71);
 	const uint32 HoverColour = MAKE_RGB(84, 88, 91);
 	const uint32 BorderColour = MAKE_RGB(104, 108, 111);
-	const uint32 FocusBorderColour = MAKE_RGB(144, 148, 141);
-	const uint32 TextColour = MAKE_RGB(203, 203, 203);
+	const uint32 FocusBorderColour = MAKE_RGB(200, 200, 200);
 	const uint32 CursorColour = MAKE_RGB(220, 220, 220);
 	const int CursorWidth = 8;
 	const float KeyRepeatTimeInit = 0.2f;
@@ -181,7 +179,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	FilledRect(x, y, width, height, boxColour, borderColour);
 
 	int textY = y + ((height - s_state.font->GetCharacterHeight()) >> 1);
-	Label(text, textX, textY, TextColour);
+	Label(text, textX, textY, s_state.defaultTextColour);
 
 	if (s_state.focusId == id)
 	{
@@ -293,7 +291,7 @@ bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
 	int charHeight = font->GetCharacterHeight();
 
 	int textY = y + ((BoxSize - charHeight) >> 1) + 1;
-	Label(label, x + BoxSize + TextLeftMargin, textY, MAKE_RGB(255, 255, 255));
+	Label(label, x + BoxSize + TextLeftMargin, textY, s_state.defaultTextColour);
 	bool wasChecked = checked;
 	if (Button(0, x, y, BoxSize, BoxSize))
 		checked = !checked;
@@ -325,12 +323,13 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
 	const int TextLeftMargin = 8;
 	const int BoxSize = 18;
 	const int CheckSize = 8;
+	const uint32 FontColour = s_state.defaultTextColour;
 
 	Font* font = s_state.font;
 	int charHeight = font->GetCharacterHeight();
 
 	int textY = y + ((BoxSize - charHeight) >> 1) + 1;
-	Label(label, x + BoxSize + TextLeftMargin, textY, MAKE_RGB(255, 255, 255));
+	Label(label, x + BoxSize + TextLeftMargin, textY, FontColour);
 	bool wasChecked = checked;
 	if (Button(0, x, y, BoxSize, BoxSize))
 		checked = !checked;
@@ -340,7 +339,7 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
 		// Draw radio button mark.
 		int checkX = x + ((BoxSize - CheckSize) >> 1);
 		int checkY = y + ((BoxSize - CheckSize) >> 1);
-		FilledRect(checkX, checkY, CheckSize, CheckSize, MAKE_RGB(255, 255, 255), MAKE_RGB(255, 255, 255));
+		FilledRect(checkX, checkY, CheckSize, CheckSize, FontColour, FontColour);
 	}
 
 	return checked;
