@@ -42,7 +42,6 @@ int main(int argc, char** argv)
 	float xadd = SPEED, yadd = SPEED;
 	char buf[16] = { 0 };
 	strcat_s(buf, sizeof(buf), "Hello, World!");
-	bool checked = false;
 
 	while (true)
 	{
@@ -101,7 +100,16 @@ int main(int argc, char** argv)
 
 		Pixie::ImGui::Input(buf, sizeof(buf), 100, 180, 400, 20);
 
+		static bool checked = false;
 		checked = Pixie::ImGui::Checkbox("Do the thing", checked, 100, 210);
+
+		static int selection = 0;
+		if (Pixie::ImGui::RadioButton("Banana", selection == 0, 300, 210))
+			selection = 0;
+		if (Pixie::ImGui::RadioButton("Apple", selection == 1, 300, 230))
+			selection = 1;
+		if (Pixie::ImGui::RadioButton("Pear", selection == 3, 300, 250))
+			selection = 3;
 
 		Pixie::ImGui::End();
 

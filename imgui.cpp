@@ -315,6 +315,35 @@ bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
 	return checked;
 }
 
+bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
+{
+	assert(label);
+	assert(s_state.HasStarted());
+
+	const int TextLeftMargin = 8;
+	const int BoxSize = 18;
+	const int CheckSize = 8;
+
+	Font* font = s_state.font;
+	int charHeight = font->GetCharacterHeight();
+
+	int textY = y + ((BoxSize - charHeight) >> 1) + 1;
+	Label(label, x + BoxSize + TextLeftMargin, textY, MAKE_RGB(255, 255, 255));
+	bool wasChecked = checked;
+	if (Button(0, x, y, BoxSize, BoxSize))
+		checked = !checked;
+
+	if (wasChecked)
+	{
+		// Draw radio button mark.
+		int checkX = x + ((BoxSize - CheckSize) >> 1);
+		int checkY = y + ((BoxSize - CheckSize) >> 1);
+		FilledRoundedRect(checkX, checkY, CheckSize, CheckSize, MAKE_RGB(255, 255, 255), MAKE_RGB(255, 255, 255));
+	}
+
+	return checked;
+}
+
 void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
 {
 	assert(s_state.HasStarted());
