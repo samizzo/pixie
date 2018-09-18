@@ -132,7 +132,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 
 	const int LeftMargin = 8;
 	const uint32 NormalColour = MAKE_RGB(64, 68, 71);
-	const uint32 HoverColour = MAKE_RGB(84, 88, 91);
+	const uint32 HoverColour = MAKE_RGB(74, 78, 81);
 	const uint32 BorderColour = MAKE_RGB(104, 108, 111);
 	const uint32 FocusBorderColour = MAKE_RGB(200, 200, 200);
 	const uint32 CursorColour = MAKE_RGB(220, 220, 220);
