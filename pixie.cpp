@@ -11,7 +11,8 @@ Window::Window()
 {
 	m_delta = 0.0f;
 	m_buffer = 0;
-	m_mouseButtonDown = m_lastMouseButtonDown = 0;
+	memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
+	memset(m_lastMouseButtonDown, 0, sizeof(m_lastMouseButtonDown));
 	memset(m_lastKeyboardState, 0, sizeof(m_lastKeyboardState));
 	memset(m_keyboardState, 0, sizeof(m_keyboardState));
 }
@@ -84,7 +85,7 @@ bool Window::Update()
 			return false;
 	}
 
-	UpdateMousePosition();
+	UpdateMouse();
 	UpdateKeyboard();
 
 	// Copy buffer to the window.
@@ -113,13 +114,18 @@ void Window::Close()
 	DestroyWindow(m_window);
 }
 
-void Window::UpdateMousePosition()
+void Window::UpdateMouse()
 {
 	POINT p;
 	GetCursorPos(&p);
 	ScreenToClient(m_window, &p);
 	m_mouseX = p.x;
 	m_mouseY = p.y;
+
+	for (int i = 0; i < MouseButton_Num; i++)
+	{
+		
+	}
 }
 
 void Window::UpdateKeyboard()
@@ -221,32 +227,24 @@ LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 		case WM_LBUTTONDOWN:
+		case WM_MBUTTONDOWN:
 		case WM_RBUTTONDOWN:
 		{
-			m_lastMouseButtonDown = m_mouseButtonDown;
-			if (msg == WM_LBUTTONDOWN)
-			{
-				m_mouseButtonDown |= Mouse::LeftButton;
-			}
-			else if (msg == WM_RBUTTONDOWN)
-			{
-				m_mouseButtonDown |= Mouse::RightButton;
-			}
+			int button = MouseButton_Left;
+			if (msg == WM_MBUTTONDOWN) button = MouseButton_Middle;
+			if (msg == WM_RBUTTONDOWN) button = MouseButton_Right;
+			m_mouseButtonDown[button] = true;
 			break;
 		}
 
 		case WM_LBUTTONUP:
+		case WM_MBUTTONUP:
 		case WM_RBUTTONUP:
 		{
-			m_lastMouseButtonDown = m_mouseButtonDown;
-			if (msg == WM_LBUTTONUP)
-			{
-				m_mouseButtonDown &= ~Mouse::LeftButton;
-			}
-			else if (msg == WM_RBUTTONUP)
-			{
-				m_mouseButtonDown &= ~Mouse::RightButton;
-			}
+			int button = MouseButton_Left;
+			if (msg == WM_MBUTTONUP) button = MouseButton_Middle;
+			if (msg == WM_RBUTTONUP) button = MouseButton_Right;
+			m_mouseButtonDown[button] = false;
 			break;
 		}
 
