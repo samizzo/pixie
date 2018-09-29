@@ -30,10 +30,16 @@ Window::~Window()
 
 bool Window::Open(const char* title, int width, int height)
 {
-	if (!PlatformOpen(title, width,  height))
-		return false;
-
+	// Create the buffer first because on OSX we need it to exist when initialising.
 	m_buffer = new Buffer(width, height);
+
+	if (!PlatformOpen(title, width,  height))
+	{
+		delete m_buffer;
+		m_buffer = 0;
+		return false;
+	}
+
 	return true;
 }
 

@@ -1,0 +1,33 @@
+CC=gcc
+CFLAGS=-I.
+
+OBJDIR=obj
+
+LIBS=-lc++
+FRAMEWORKS=-framework CoreGraphics -framework AppKit
+
+DEPS = buffer.h core.h font.h imgui.h pixie.h
+
+_OBJ = main.o pixie.o pixie_osx.o imgui.o font.o
+OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
+
+TARGET = pixie_demo
+
+$(OBJDIR)/%.o: %.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.mm $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+all: $(OBJDIR) $(TARGET)
+
+$(OBJDIR):
+	mkdir -p $@
+
+$(TARGET): $(OBJ)
+	$(CC) $(FRAMEWORKS) $(LIBS) -o $@ $^
+
+.PHONY: clean
+
+clean:
+	rm -rf $(OBJDIR) *~ core
