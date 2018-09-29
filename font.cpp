@@ -1,7 +1,39 @@
 #include "font.h"
 #include "buffer.h"
 #include <stdio.h>
+#if PIXIE_PLATFORM_WIN
 #include <Windows.h>
+#else
+#include <string.h>
+#endif
+
+#if PIXIE_PLATFORM_OSX
+struct BITMAPFILEHEADER
+{
+	uint16_t	bfType;
+	uint32_t	bfSize;
+	uint16_t	bfReserved1;
+	uint16_t	bfReserved2;
+	uint32_t	bfOffBits;
+} __attribute__((packed));
+
+struct BITMAPINFOHEADER
+{
+	uint32_t biSize;
+	int32_t	biWidth;
+	int32_t	biHeight;
+	uint16_t	biPlanes;
+	uint16_t	biBitCount;
+	uint32_t	biCompression;
+	uint32_t	biSizeImage;
+	int32_t	biXPelsPerMeter;
+	int32_t	biYPelsPerMeter;
+	uint32_t	biClrUsed;
+	uint32_t	biClrImportant;
+} __attribute__((packed));
+
+#define BI_RGB 0
+#endif
 
 using namespace Pixie;
 
