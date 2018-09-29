@@ -21,6 +21,7 @@ namespace Pixie
 
 	enum Key
 	{
+		Escape,
 		Left,
 		Right,
 		Home,
@@ -33,7 +34,8 @@ namespace Pixie
 		Z = A + 25,
 		Zero,
 		Nine = Zero + 9,
-		Period
+		Period,
+		Num
 	};
 
 	class Window
@@ -99,8 +101,9 @@ namespace Pixie
 			bool m_lastMouseButtonDown[MouseButton_Num];
 			bool m_mouseButtonDown[MouseButton_Num];
 
-			uint8 m_lastKeyboardState[256];
-			uint8 m_keyboardState[256];
+			int m_keyMap[Key::Num];
+			bool m_lastKeyDown[256];
+			bool m_keyDown[256];
 
 			float m_delta;
 
@@ -151,12 +154,30 @@ namespace Pixie
 
 	inline bool Window::HasAnyKeyGoneDown() const
 	{
-		for (int i = 0; i < sizeof(m_keyboardState); i++)
+		for (int i = 0; i < Key::Num; i++)
 		{
-			if ((m_lastKeyboardState[i] & 1<<7) == 0 && (m_keyboardState[i] & 1<<7) != 0)
+			if (HasKeyGoneDown((Key)i))
 				return true;
 		}
 
 		return false;
+	}
+
+	inline bool Window::HasKeyGoneDown(Key key) const
+	{
+		uint8 index = m_keyMap[key];
+		return !m_lastKeyDown[index] && m_keyDown[index];
+	}
+
+	inline bool Window::HasKeyGoneUp(Key key) const
+	{
+		uint8 index = m_keyMap[key];
+		return m_lastKeyDown[index] && !m_keyDown[index];
+	}
+
+	inline bool Window::IsKeyDown(Key key) const
+	{
+		uint8 index = m_keyMap[key];
+		return m_keyDown[index];
 	}
 }

@@ -13,8 +13,22 @@ Window::Window()
 	m_buffer = 0;
 	memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
 	memset(m_lastMouseButtonDown, 0, sizeof(m_lastMouseButtonDown));
-	memset(m_lastKeyboardState, 0, sizeof(m_lastKeyboardState));
-	memset(m_keyboardState, 0, sizeof(m_keyboardState));
+	memset(m_lastKeyDown, 0, sizeof(m_lastKeyDown));
+	memset(m_keyDown, 0, sizeof(m_keyDown));
+
+	for (int i = 0; i < Key::Num; i++)
+		m_keyMap[i] = -1;
+	m_keyMap[Key::Escape] = VK_ESCAPE;
+	m_keyMap[Key::Left] = VK_LEFT;
+	m_keyMap[Key::Right] = VK_RIGHT;
+	m_keyMap[Key::Home] = VK_HOME;
+	m_keyMap[Key::End] = VK_END;
+	m_keyMap[Key::Backspace] = VK_BACK;
+	m_keyMap[Key::Delete] = VK_DELETE;
+	m_keyMap[Key::LeftShift] = VK_LSHIFT;
+	m_keyMap[Key::RightShift] = VK_RSHIFT;
+	for (int i = Key::A; i <= Key::Z; i++)
+		m_keyMap[i] = (i - Key::A) + 'A';
 }
 
 Window::~Window()
@@ -75,7 +89,8 @@ bool Window::Update()
 	m_delta = (delta / (float)m_freq);
 	m_lastTime = time;
 
-	memcpy(m_lastMouseButtonDown, m_mouseButtonDown, sizeof(m_mouseButtonDown));
+	UpdateMouse();
+	UpdateKeyboard();
 
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -86,9 +101,6 @@ bool Window::Update()
 		if (msg.message == WM_QUIT)
 			return false;
 	}
-
-	UpdateMouse();
-	UpdateKeyboard();
 
 	// Copy buffer to the window.
 	HDC hdc = GetDC(m_window);
@@ -123,12 +135,12 @@ void Window::UpdateMouse()
 	ScreenToClient(m_window, &p);
 	m_mouseX = p.x;
 	m_mouseY = p.y;
+	memcpy(m_lastMouseButtonDown, m_mouseButtonDown, sizeof(m_mouseButtonDown));
 }
 
 void Window::UpdateKeyboard()
 {
-	memcpy(m_lastKeyboardState, m_keyboardState, sizeof(m_keyboardState));
-	GetKeyboardState(m_keyboardState);
+	memcpy(m_lastKeyDown, m_keyDown, sizeof(m_keyDown));
 }
 
 static const uint8 s_vkKeyMap[] =
@@ -180,30 +192,9 @@ static const uint8 s_vkKeyMap[] =
 	VK_OEM_PERIOD
 };
 
-bool Window::HasKeyGoneDown(Key key) const
-{
-	uint8 vkCode = s_vkKeyMap[key];
-	return (m_lastKeyboardState[vkCode] & 1<<7) == 0 && (m_keyboardState[vkCode] & 1<<7) != 0;
-}
-
-bool Window::HasKeyGoneUp(Key key) const
-{
-	uint8 vkCode = s_vkKeyMap[key];
-	return (m_lastKeyboardState[vkCode] & 1<<7) != 0 && (m_keyboardState[vkCode] & 1<<7) == 0;
-}
-
-bool Window::IsKeyDown(Key key) const
-{
-	uint8 vkCode = s_vkKeyMap[key];
-	return (m_keyboardState[vkCode] & 1<<7) != 0;
-}
-
 char Window::GetChar(Key key) const
 {
-	uint8 vkCode = s_vkKeyMap[key];
-	WORD character;
-	ToAscii(vkCode, 0, m_keyboardState, &character, 0);
-	return character & 0xff;
+	return 0;
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -245,8 +236,21 @@ LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 
-		case WM_KEYUP:
+		case WM_KEYDOWN:
+		case WM_SYSKEYDOWN:
 		{
+			if (wParam < 256)
+				m_keyDown[wParam] = true;
+			break;
+		}
+
+		case WM_KEYUP:
+		case WM_SYSKEYUP:
+		{
+			if (wParam < 256)
+				m_keyDown[wParam] = false;
+
+			// TODO: Move this to Update().
 			if (wParam == VK_ESCAPE)
 				DestroyWindow(m_window);
 			break;
