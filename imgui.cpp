@@ -47,7 +47,7 @@ void ImGui::End()
 {
 	s_state.flags = 0;
 
-	if (s_state.window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+	if (s_state.window->HasMouseGoneDown(Pixie::MouseButton_Left))
 	{
 		// If mouse has gone down over empty space, clear the current focus.
 		if (s_state.hoverId == 0)
@@ -93,11 +93,11 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 		s_state.hoverId = id;
 
 		// Mouse has just gone down over this element, so give it focus.
-		if (window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+		if (window->HasMouseGoneDown(Pixie::MouseButton_Left))
 			s_state.focusId = id;
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
-		pressed = window->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
+		pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
 	}
 
 	uint32 buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
@@ -117,7 +117,7 @@ bool ImGui::Button(const char* text, int x, int y, int width, int height)
 	uint32 fontColour = pressed ? FontPressedColour : FontColour;
 	Label(text, textX, textY, fontColour);
 
-	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::Mouse::LeftButton);
+	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::MouseButton_Left);
 }
 
 void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int height)
@@ -153,7 +153,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		s_state.hoverId = id;
 
 		// Mouse has just gone down over this element, so give it focus.
-		if (window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+		if (window->HasMouseGoneDown(Pixie::MouseButton_Left))
 		{
 			if (s_state.focusId != id)
 			{
@@ -167,7 +167,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		}
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
-		pressed = window->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
+		pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
 	}
 
 	uint32 boxColour = pressed || hover || s_state.focusId == id ? HoverColour : NormalColour;

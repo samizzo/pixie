@@ -75,6 +75,8 @@ bool Window::Update()
 	m_delta = (delta / (float)m_freq);
 	m_lastTime = time;
 
+	memcpy(m_lastMouseButtonDown, m_mouseButtonDown, sizeof(m_mouseButtonDown));
+
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
@@ -121,11 +123,6 @@ void Window::UpdateMouse()
 	ScreenToClient(m_window, &p);
 	m_mouseX = p.x;
 	m_mouseY = p.y;
-
-	for (int i = 0; i < MouseButton_Num; i++)
-	{
-		
-	}
 }
 
 void Window::UpdateKeyboard()

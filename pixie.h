@@ -99,8 +99,6 @@ namespace Pixie
 
 			int m_mouseX;
 			int m_mouseY;
-			uint8 m_lastMouseButtonDown;
-			uint8 m_mouseButtonDown;
 			bool m_lastMouseButtonDown[MouseButton_Num];
 			bool m_mouseButtonDown[MouseButton_Num];
 
@@ -146,12 +144,12 @@ namespace Pixie
 
 	inline bool Window::HasMouseGoneDown(MouseButton button) const
 	{
-		return (m_lastMouseButtonDown & button) == 0 && (m_mouseButtonDown & button) != 0;
+		return !m_lastMouseButtonDown[button] && m_mouseButtonDown[button];
 	}
 
 	inline bool Window::HasMouseGoneUp(MouseButton button) const
 	{
-		return (m_lastMouseButtonDown & button) != 0 && (m_mouseButtonDown & button) == 0;
+		return m_lastMouseButtonDown[button] && m_mouseButtonDown[button];
 	}
 
 	inline bool Window::IsMouseDown(MouseButton button) const
