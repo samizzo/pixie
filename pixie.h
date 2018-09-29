@@ -93,6 +93,11 @@ namespace Pixie
 			void AddInputCharacter(char c);
 
 		private:
+			void PlatformInit();
+			bool PlatformOpen(const char* title, int width, int height);
+			bool PlatformUpdate();
+			void PlatformClose();
+
 			void UpdateMouse();
 			void UpdateKeyboard();
 
