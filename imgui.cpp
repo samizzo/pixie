@@ -252,36 +252,36 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			{
 				s_state.keyboardCursorPosition = textLength;
 			}
+		}
 
-			// Process remaining ASCII input.
-			const char* inputCharacters = window->GetInputCharacters();
-			if (*inputCharacters)
+		// Process remaining ASCII input.
+		const char* inputCharacters = window->GetInputCharacters();
+		if (*inputCharacters)
+		{
+			for ( ; *inputCharacters; inputCharacters++)
 			{
-				for ( ; *inputCharacters; inputCharacters++)
+				if (s_state.keyboardCursorPosition == textBufferLength - 1)
+					break;
+
+				// Overwrite the character at the current position.
+				int position = s_state.keyboardCursorPosition;
+				assert(position >= 0 && position < textBufferLength - 1);
+				text[position] = *inputCharacters;
+
+				// If at the end of the string, add a null because we've just extended the string.
+				if (position == textLength)
 				{
-					if (s_state.keyboardCursorPosition == textBufferLength - 1)
-						break;
-
-					// Overwrite the character at the current position.
-					int position = s_state.keyboardCursorPosition;
-					assert(position >= 0 && position < textBufferLength - 1);
-					text[position] = *inputCharacters;
-
-					// If at the end of the string, add a null because we've just extended the string.
-					if (position == textLength)
-					{
-						position++;
-						assert(position >= 0 && position < textBufferLength);
-						text[position] = 0;
-					}
-
-					// Move the cursor.
-					s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
+					position++;
+					assert(position >= 0 && position < textBufferLength);
+					text[position] = 0;
 				}
 
-				// We have consumed the input so remove it from the buffer.
-				window->ClearInputCharacters();
+				// Move the cursor.
+				s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
 			}
+
+			// We have consumed the input so remove it from the buffer.
+			window->ClearInputCharacters();
 		}
 	}
 }
