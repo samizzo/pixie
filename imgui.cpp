@@ -11,10 +11,10 @@ struct State
 {
 	enum Flags
 	{
-		Started = 1 << 0,
+		Flags_Started = 1 << 0,
 	};
 
-	bool HasStarted() { return (flags & Flags::Started) != 0; }
+	bool HasStarted() { return (flags & Flags_Started) != 0; }
 	int GetNextId() { return nextId++; }
 
 	int flags;
@@ -38,7 +38,7 @@ void ImGui::Begin(Window* window, Font* font)
 	assert(window);
 	assert(font);
 
-	s_state.flags = State::Flags::Started;
+	s_state.flags = State::Flags_Started;
 	s_state.nextId = 1;
 	s_state.hoverId = 0;
 	s_state.window = window;
