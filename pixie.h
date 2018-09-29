@@ -117,8 +117,8 @@ namespace Pixie
 			Buffer* m_buffer;
 
 			void* m_window;
-			__int64 m_lastTime;
-			__int64 m_freq;
+			int64_t m_lastTime;
+			int64_t m_freq;
 	};
 
 	inline int Window::GetMouseX() const
