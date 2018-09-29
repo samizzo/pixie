@@ -164,7 +164,13 @@ namespace Pixie
 
 	inline bool Window::HasAnyKeyGoneDown() const
 	{
-		return m_anyKeyDown;
+		for (int i = 0; i < Key::Num; i++)
+		{
+			if (HasKeyGoneDown((Key)i))
+				return true;
+		}
+
+		return false;
 	}
 
 	inline bool Window::HasKeyGoneDown(Key key) const
