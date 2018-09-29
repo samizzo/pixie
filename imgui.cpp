@@ -208,15 +208,15 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			s_state.keyRepeatTimer = s_state.keyRepeatTime;
 			s_state.keyRepeatTime = KeyRepeatTimeRepeat;
 
-			if (window->IsKeyDown(Pixie::Key::Left))
+			if (window->IsKeyDown(Pixie::Key_Left))
 			{
 				s_state.keyboardCursorPosition = max(s_state.keyboardCursorPosition - 1, 0);
 			}
-			else if (window->IsKeyDown(Pixie::Key::Right))
+			else if (window->IsKeyDown(Pixie::Key_Right))
 			{
 				s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textLength);
 			}
-			else if (window->IsKeyDown(Pixie::Key::Backspace))
+			else if (window->IsKeyDown(Pixie::Key_Backspace))
 			{
 				// Move cursor back.
 				s_state.keyboardCursorPosition--;
@@ -233,7 +233,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 					s_state.keyboardCursorPosition = 0;
 				}
 			}
-			else if (window->IsKeyDown(Pixie::Key::Delete))
+			else if (window->IsKeyDown(Pixie::Key_Delete))
 			{
 				// Delete the current character.
 				int position = s_state.keyboardCursorPosition;
@@ -244,11 +244,11 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 					memcpy(text + position, text + position + 1, copyAmount);
 				}
 			}
-			else if (window->IsKeyDown(Pixie::Key::Home))
+			else if (window->IsKeyDown(Pixie::Key_Home))
 			{
 				s_state.keyboardCursorPosition = 0;
 			}
-			else if (window->IsKeyDown(Pixie::Key::End))
+			else if (window->IsKeyDown(Pixie::Key_End))
 			{
 				s_state.keyboardCursorPosition = textLength;
 			}

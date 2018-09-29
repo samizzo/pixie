@@ -12,26 +12,26 @@ Window::Window()
 	m_delta = 0.0f;
 	m_buffer = 0;
 
+	assert(sizeof(m_mouseButtonDown) == sizeof(m_lastMouseButtonDown));
 	memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
 	memset(m_lastMouseButtonDown, 0, sizeof(m_lastMouseButtonDown));
 
 	memset(m_inputCharacters, 0, sizeof(m_inputCharacters));
+	assert(sizeof(m_keyDown) == sizeof(m_lastKeyDown));
 	memset(m_lastKeyDown, 0, sizeof(m_lastKeyDown));
 	memset(m_keyDown, 0, sizeof(m_keyDown));
 
-	for (int i = 0; i < Key::Num; i++)
+	for (int i = 0; i < Key_Num; i++)
 		m_keyMap[i] = -1;
-	m_keyMap[Key::Escape] = VK_ESCAPE;
-	m_keyMap[Key::Left] = VK_LEFT;
-	m_keyMap[Key::Right] = VK_RIGHT;
-	m_keyMap[Key::Home] = VK_HOME;
-	m_keyMap[Key::End] = VK_END;
-	m_keyMap[Key::Backspace] = VK_BACK;
-	m_keyMap[Key::Delete] = VK_DELETE;
-	m_keyMap[Key::LeftShift] = VK_LSHIFT;
-	m_keyMap[Key::RightShift] = VK_RSHIFT;
-	for (int i = Key::A; i <= Key::Z; i++)
-		m_keyMap[i] = (i - Key::A) + 'A';
+	m_keyMap[Key_Escape] = VK_ESCAPE;
+	m_keyMap[Key_Left] = VK_LEFT;
+	m_keyMap[Key_Right] = VK_RIGHT;
+	m_keyMap[Key_Home] = VK_HOME;
+	m_keyMap[Key_End] = VK_END;
+	m_keyMap[Key_Backspace] = VK_BACK;
+	m_keyMap[Key_Delete] = VK_DELETE;
+	m_keyMap[Key_LeftShift] = VK_LSHIFT;
+	m_keyMap[Key_RightShift] = VK_RSHIFT;
 }
 
 Window::~Window()

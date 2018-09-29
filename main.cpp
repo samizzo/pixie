@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 
 		Pixie::ImGui::End();
 
-		if (window.HasKeyGoneUp(Pixie::Key::Escape))
+		if (window.HasKeyGoneUp(Pixie::Key_Escape))
 			window.Close();
 
 		if (!window.Update())

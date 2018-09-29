@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <Windows.h>
@@ -21,21 +23,16 @@ namespace Pixie
 
 	enum Key
 	{
-		Escape,
-		Left,
-		Right,
-		Home,
-		End,
-		Backspace,
-		Delete,
-		LeftShift,
-		RightShift,
-		A,
-		Z = A + 25,
-		Zero,
-		Nine = Zero + 9,
-		Period,
-		Num
+		Key_Escape,
+		Key_Left,
+		Key_Right,
+		Key_Home,
+		Key_End,
+		Key_Backspace,
+		Key_Delete,
+		Key_LeftShift,
+		Key_RightShift,
+		Key_Num
 	};
 
 	class Window
@@ -109,7 +106,7 @@ namespace Pixie
 			bool m_lastMouseButtonDown[MouseButton_Num];
 			bool m_mouseButtonDown[MouseButton_Num];
 
-			int m_keyMap[Key::Num];
+			int m_keyMap[Key_Num];
 			bool m_lastKeyDown[256];
 			bool m_keyDown[256];
 			bool m_anyKeyDown;
@@ -164,7 +161,7 @@ namespace Pixie
 
 	inline bool Window::HasAnyKeyGoneDown() const
 	{
-		for (int i = 0; i < Key::Num; i++)
+		for (int i = 0; i < Key_Num; i++)
 		{
 			if (HasKeyGoneDown((Key)i))
 				return true;
@@ -176,24 +173,27 @@ namespace Pixie
 	inline bool Window::HasKeyGoneDown(Key key) const
 	{
 		uint8 index = m_keyMap[key];
+		assert(index >= 0 && index < sizeof(m_keyDown));
 		return !m_lastKeyDown[index] && m_keyDown[index];
 	}
 
 	inline bool Window::HasKeyGoneUp(Key key) const
 	{
 		uint8 index = m_keyMap[key];
+		assert(index >= 0 && index < sizeof(m_keyDown));
 		return m_lastKeyDown[index] && !m_keyDown[index];
 	}
 
 	inline bool Window::IsKeyDown(Key key) const
 	{
 		uint8 index = m_keyMap[key];
+		assert(index >= 0 && index < sizeof(m_keyDown));
 		return m_keyDown[index];
 	}
 
 	inline bool Window::IsAnyKeyDown() const
 	{
-		for (int i = 0; i < Key::Num; i++)
+		for (int i = 0; i < Key_Num; i++)
 		{
 			if (IsKeyDown((Key)i))
 				return true;
