@@ -2,6 +2,7 @@
 #include "font.h"
 #include "buffer.h"
 #include "imgui.h"
+#include <string.h>
 #include <stdio.h>
 
 static const char* WindowTitle = "Hello, World!";

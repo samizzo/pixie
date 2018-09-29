@@ -2,6 +2,7 @@
 #include "buffer.h"
 #include "pixie.h"
 #include "font.h"
+#include <string.h>
 #include <assert.h>
 
 using namespace Pixie;
@@ -146,7 +147,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 
 	bool hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 	bool pressed = false;
-	int textLength = strlen(text);
+	int textLength = (int)strlen(text);
 
 	int textX = x + LeftMargin;
 
@@ -225,7 +226,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 				{
 					// Copy everything after the current position to the current position.
 					int position = s_state.keyboardCursorPosition;
-					int copyAmount = strlen(text + position + 1) + 1;
+					int copyAmount = (int)strlen(text + position + 1) + 1;
 					memcpy(text + position, text + position + 1, copyAmount);
 				}
 				else
@@ -240,7 +241,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 				if (position < textLength)
 				{
 					// Copy everything after the current position to the current position.
-					int copyAmount = strlen(text + position + 1) + 1;
+					int copyAmount = (int)strlen(text + position + 1) + 1;
 					memcpy(text + position, text + position + 1, copyAmount);
 				}
 			}

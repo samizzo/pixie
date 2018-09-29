@@ -118,5 +118,5 @@ void Font::DrawColour(const char* msg, int x, int y, uint32 colour, Pixie::Buffe
 
 int Font::GetStringWidth(const char* msg) const
 {
-	return strlen(msg) * m_characterSizeX;
+	return (int)strlen(msg) * m_characterSizeX;
 }

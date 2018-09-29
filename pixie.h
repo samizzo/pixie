@@ -1,13 +1,8 @@
 #pragma once
 
 #include <assert.h>
-
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <Windows.h>
+#include <cstdint>
 #include "types.h"
-
-#define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
 
 namespace Pixie
 {
@@ -92,14 +87,14 @@ namespace Pixie
 			// Returns the backing buffer for the window.
 			Buffer* GetBuffer() const;
 
+			void SetMouseButtonDown(MouseButton button, bool down);
+			void SetKeyDown(int key, bool down);
+			void AddInputCharacter(char c);
+
 		private:
-			void AddInputChar(char c);
 
 			void UpdateMouse();
 			void UpdateKeyboard();
-
-			int m_width;
-			int m_height;
 
 			int m_mouseX;
 			int m_mouseY;
@@ -116,12 +111,9 @@ namespace Pixie
 
 			Buffer* m_buffer;
 
-			HWND m_window;
+			void* m_window;
 			__int64 m_lastTime;
 			__int64 m_freq;
-
-			static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-			LRESULT CALLBACK WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 
 	inline int Window::GetMouseX() const
@@ -210,5 +202,15 @@ namespace Pixie
 	inline void Window::ClearInputCharacters()
 	{
 		m_inputCharacters[0] = 0;
+	}
+
+	inline void Window::SetMouseButtonDown(MouseButton button, bool down)
+	{
+		m_mouseButtonDown[button] = down;
+	}
+
+	inline void Window::SetKeyDown(int key, bool down)
+	{
+		m_keyDown[key] = down;
 	}
 }

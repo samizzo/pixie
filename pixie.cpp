@@ -3,12 +3,25 @@
 #include "buffer.h"
 #include <assert.h>
 
+#if PIXIE_PLATFORM_WIN
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#include <Windows.h>
+#endif
+
 using namespace Pixie;
 
+#if PIXIE_PLATFORM_WIN
 static const char* PixieWindowClass = "PixieWindowClass";
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif;
 
 Window::Window()
 {
+#if PIXIE_PLATFORM_WIN
+	assert(sizeof(HWND) == sizeof(void*));
+#endif
+
 	m_delta = 0.0f;
 	m_buffer = 0;
 
@@ -21,6 +34,7 @@ Window::Window()
 	memset(m_lastKeyDown, 0, sizeof(m_lastKeyDown));
 	memset(m_keyDown, 0, sizeof(m_keyDown));
 
+#if PIXIE_PLATFORM_WIN
 	for (int i = 0; i < Key_Num; i++)
 		m_keyMap[i] = -1;
 	m_keyMap[Key_Escape] = VK_ESCAPE;
@@ -32,6 +46,7 @@ Window::Window()
 	m_keyMap[Key_Delete] = VK_DELETE;
 	m_keyMap[Key_LeftShift] = VK_LSHIFT;
 	m_keyMap[Key_RightShift] = VK_RSHIFT;
+#endif
 }
 
 Window::~Window()
@@ -41,6 +56,7 @@ Window::~Window()
 
 bool Window::Open(const char* title, int width, int height)
 {
+#if PIXIE_PLATFORM_WIN
 	HINSTANCE hInstance = GetModuleHandle(0);
 
 	WNDCLASS wc;
@@ -56,10 +72,7 @@ bool Window::Open(const char* title, int width, int height)
 	wc.lpszClassName = PixieWindowClass;
 
 	if (!RegisterClass(&wc))
-		return 0;
-
-	m_width = width;
-	m_height = height;
+		return false;
 
 	int style = WS_BORDER | WS_CAPTION;
 	RECT rect;
@@ -68,23 +81,26 @@ bool Window::Open(const char* title, int width, int height)
 	rect.top = 0;
 	rect.bottom = height;
 	AdjustWindowRect(&rect, style, FALSE);
-	m_window = CreateWindow(PixieWindowClass, title, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
-	if (m_window != 0)
-	{
-		SetWindowLongPtr(m_window, GWLP_USERDATA, (LONG_PTR)this);
-		ShowWindow(m_window, SW_SHOW);
-	}
+	HWND window = CreateWindow(PixieWindowClass, title, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
+	m_window = (HWND)window;
+	if (window == 0)
+		return false;
+
+	SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
+	ShowWindow(window, SW_SHOW);
 
 	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
 	QueryPerformanceCounter((LARGE_INTEGER*)&m_lastTime);
+#endif
 
 	m_buffer = new Buffer(width, height);
 
-	return m_window != 0;
+	return true;
 }
 
 bool Window::Update()
 {
+#if PIXIE_PLATFORM_WIN
 	__int64 time;
 	QueryPerformanceCounter((LARGE_INTEGER*)&time);
 	__int64 delta = time - m_lastTime;
@@ -105,12 +121,15 @@ bool Window::Update()
 	}
 
 	// Copy buffer to the window.
-	HDC hdc = GetDC(m_window);
+	int width = m_buffer->GetWidth();
+	int height = m_buffer->GetHeight();
+
+	HDC hdc = GetDC((HWND)m_window);
 	BITMAPINFO bitmapInfo;
 	BITMAPINFOHEADER& bmiHeader = bitmapInfo.bmiHeader;
 	bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmiHeader.biWidth = m_width;
-	bmiHeader.biHeight = -m_height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
+	bmiHeader.biWidth = width;
+	bmiHeader.biHeight = -height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
 	bmiHeader.biPlanes = 1;
 	bmiHeader.biBitCount = 32;
 	bmiHeader.biCompression = BI_RGB;
@@ -119,24 +138,30 @@ bool Window::Update()
 	bmiHeader.biYPelsPerMeter = 0;
 	bmiHeader.biClrUsed = 0;
 	bmiHeader.biClrImportant = 0;
-	SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, m_buffer->GetPixels(), &bitmapInfo, DIB_RGB_COLORS);
-	ReleaseDC(m_window, hdc);
+	SetDIBitsToDevice(hdc, 0, 0, width, height, 0, 0, 0, height, m_buffer->GetPixels(), &bitmapInfo, DIB_RGB_COLORS);
+	ReleaseDC((HWND)m_window, hdc);
+#endif
 
 	return true;
 }
 
 void Window::Close()
 {
-	DestroyWindow(m_window);
+#if PIXIE_PLATFORM_WIN
+	DestroyWindow((HWND)m_window);
+#endif
 }
 
 void Window::UpdateMouse()
 {
+#if PIXIE_PLATFORM_WIN
 	POINT p;
 	GetCursorPos(&p);
-	ScreenToClient(m_window, &p);
+	ScreenToClient((HWND)m_window, &p);
 	m_mouseX = p.x;
 	m_mouseY = p.y;
+#endif
+
 	memcpy(m_lastMouseButtonDown, m_mouseButtonDown, sizeof(m_mouseButtonDown));
 }
 
@@ -146,12 +171,12 @@ void Window::UpdateKeyboard()
 	memcpy(m_lastKeyDown, m_keyDown, sizeof(m_keyDown));
 }
 
-void Window::AddInputChar(char c)
+void Window::AddInputCharacter(char c)
 {
 	if (!isprint(c))
 		return;
 
-	int length = strlen(m_inputCharacters);
+	int length = (int)strlen(m_inputCharacters);
 	if (length + 1 < sizeof(m_inputCharacters))
 	{
 		m_inputCharacters[length] = c;
@@ -159,81 +184,76 @@ void Window::AddInputChar(char c)
 	}
 }
 
-LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+#if PIXIE_PLATFORM_WIN
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	Window* window = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	if (window)
 	{
-		return window->WndProc(msg, wParam, lParam);
+		switch (msg)
+		{
+			case WM_LBUTTONDOWN:
+			case WM_MBUTTONDOWN:
+			case WM_RBUTTONDOWN:
+			{
+				MouseButton button = MouseButton_Left;
+				if (msg == WM_MBUTTONDOWN) button = MouseButton_Middle;
+				if (msg == WM_RBUTTONDOWN) button = MouseButton_Right;
+				window->SetMouseButtonDown(button, true);
+				break;
+			}
+
+			case WM_LBUTTONUP:
+			case WM_MBUTTONUP:
+			case WM_RBUTTONUP:
+			{
+				MouseButton button = MouseButton_Left;
+				if (msg == WM_MBUTTONUP) button = MouseButton_Middle;
+				if (msg == WM_RBUTTONUP) button = MouseButton_Right;
+				window->SetMouseButtonDown(button, false);
+				break;
+			}
+
+			case WM_KEYDOWN:
+			case WM_SYSKEYDOWN:
+			{
+				if (wParam < 256)
+					window->SetKeyDown((int)wParam, true);
+				break;
+			}
+
+			case WM_KEYUP:
+			case WM_SYSKEYUP:
+			{
+				if (wParam < 256)
+					window->SetKeyDown((int)wParam, false);
+				break;
+			}
+
+			case WM_CHAR:
+			{
+				if (wParam < 256)
+					window->AddInputCharacter((char)wParam);
+				break;
+			}
+
+			case WM_DESTROY:
+			{
+				PostQuitMessage(0);
+				break;
+			}
+		}
 	}
-	else
-	{
-		return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
-
-LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	switch (msg)
-	{
-		case WM_LBUTTONDOWN:
-		case WM_MBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		{
-			int button = MouseButton_Left;
-			if (msg == WM_MBUTTONDOWN) button = MouseButton_Middle;
-			if (msg == WM_RBUTTONDOWN) button = MouseButton_Right;
-			m_mouseButtonDown[button] = true;
-			break;
-		}
-
-		case WM_LBUTTONUP:
-		case WM_MBUTTONUP:
-		case WM_RBUTTONUP:
-		{
-			int button = MouseButton_Left;
-			if (msg == WM_MBUTTONUP) button = MouseButton_Middle;
-			if (msg == WM_RBUTTONUP) button = MouseButton_Right;
-			m_mouseButtonDown[button] = false;
-			break;
-		}
-
-		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-		{
-			if (wParam < 256)
-				m_keyDown[wParam] = true;
-			break;
-		}
-
-		case WM_KEYUP:
-		case WM_SYSKEYUP:
-		{
-			if (wParam < 256)
-				m_keyDown[wParam] = false;
-			break;
-		}
-
-		case WM_CHAR:
-		{
-			if (wParam < 256)
-				AddInputChar((char)wParam);
-			break;
-		}
-
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			break;
-		}
-	}
-
-	return DefWindowProc(m_window, msg, wParam, lParam);
-}
+#endif
 
 extern int main(int argc, char** argv);
 
+#if PIXIE_PLATFORM_WIN
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hInstPrev, LPSTR lpCmdLine, int nCmdShow)
 {
 	return main(__argc, __argv);
 }
+#endif
