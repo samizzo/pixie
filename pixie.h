@@ -80,6 +80,12 @@ namespace Pixie
 			// Returns the ASCII character for the specified key if valid, based on any current keyboard state (e.g. shift).
 			char GetChar(Key key) const;
 
+			// Returns an array of ASCII input for the current frame.
+			const char* GetInputCharacters() const;
+
+			// Clears the ASCII input for the current frame.
+			void ClearInputCharacters();
+
 			// Returns the current mouse X position.
 			int GetMouseX() const;
 
@@ -93,6 +99,8 @@ namespace Pixie
 			Buffer* GetBuffer() const;
 
 		private:
+			void AddInputChar(char c);
+
 			void UpdateMouse();
 			void UpdateKeyboard();
 
@@ -108,6 +116,7 @@ namespace Pixie
 			bool m_lastKeyDown[256];
 			bool m_keyDown[256];
 			bool m_anyKeyDown;
+			char m_inputCharacters[16+1];
 
 			float m_delta;
 
@@ -188,5 +197,15 @@ namespace Pixie
 		}
 
 		return false;
+	}
+
+	inline const char* Window::GetInputCharacters() const
+	{
+		return m_inputCharacters;
+	}
+
+	inline void Window::ClearInputCharacters()
+	{
+		m_inputCharacters[0] = 0;
 	}
 }

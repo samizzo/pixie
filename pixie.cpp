@@ -15,6 +15,7 @@ Window::Window()
 	memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
 	memset(m_lastMouseButtonDown, 0, sizeof(m_lastMouseButtonDown));
 
+	memset(m_inputCharacters, 0, sizeof(m_inputCharacters));
 	memset(m_lastKeyDown, 0, sizeof(m_lastKeyDown));
 	memset(m_keyDown, 0, sizeof(m_keyDown));
 	m_anyKeyDown = false;
@@ -73,7 +74,6 @@ bool Window::Open(const char* title, int width, int height)
 	{
 		SetWindowLongPtr(m_window, GWLP_USERDATA, (LONG_PTR)this);
 		ShowWindow(m_window, SW_SHOW);
-		UpdateKeyboard();
 	}
 
 	QueryPerformanceFrequency((LARGE_INTEGER*)&m_freq);
@@ -143,6 +143,7 @@ void Window::UpdateMouse()
 
 void Window::UpdateKeyboard()
 {
+	memset(m_inputCharacters, 0, sizeof(m_inputCharacters));
 	m_anyKeyDown = false;
 	memcpy(m_lastKeyDown, m_keyDown, sizeof(m_keyDown));
 }
@@ -199,6 +200,19 @@ static const uint8 s_vkKeyMap[] =
 char Window::GetChar(Key key) const
 {
 	return 0;
+}
+
+void Window::AddInputChar(char c)
+{
+	if (!isprint(c))
+		return;
+
+	int length = strlen(m_inputCharacters);
+	if (length + 1 < sizeof(m_inputCharacters))
+	{
+		m_inputCharacters[length] = c;
+		m_inputCharacters[length + 1] = 0;
+	}
 }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -260,6 +274,13 @@ LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 			// TODO: Move this to Update().
 			if (wParam == VK_ESCAPE)
 				DestroyWindow(m_window);
+			break;
+		}
+
+		case WM_CHAR:
+		{
+			if (wParam < 256)
+				AddInputChar((char)wParam);
 			break;
 		}
 

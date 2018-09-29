@@ -166,6 +166,9 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 
 			// Move the cursor to whereever the user clicked.
 			s_state.keyboardCursorPosition = min((mouseX - textX) / s_state.font->GetCharacterWidth(), textLength);
+
+			// Also force the cursor to be visible.
+			s_state.cursorBlinkTimer = CursorBlinkTime;
 		}
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
@@ -249,30 +252,30 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 			{
 				s_state.keyboardCursorPosition = textLength;
 			}
-			else if (s_state.keyboardCursorPosition < textBufferLength - 1)
+
+			// Process remaining ASCII input.
+			const char* inputCharacters = window->GetInputCharacters();
+			if (*inputCharacters)
 			{
-				for (int i = Pixie::Key::A; i < Pixie::Key::Nine; i++)
+				for ( ; *inputCharacters; inputCharacters++)
 				{
-					if (window->IsKeyDown((Pixie::Key)i))
-					{
-						// Ignore the numbers if shift is held down.
-						if ((Pixie::Key)i >= Pixie::Key::Zero && window->IsKeyDown(Pixie::Key::LeftShift) || window->IsKeyDown(Pixie::Key::RightShift))
-							continue;
-
-						// Overwrite the character at the current position.
-						int position = s_state.keyboardCursorPosition;
-						char character = window->GetChar((Pixie::Key)i);
-						text[position] = character;
-
-						// If at the end of the string, add a null because we've just extended the string.
-						if (position == textLength)
-							text[position+1] = 0;
-
-						// Move the cursor.
-						s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
+					if (s_state.keyboardCursorPosition == textBufferLength - 1)
 						break;
-					}
+
+					// Overwrite the character at the current position.
+					int position = s_state.keyboardCursorPosition;
+					text[position] = *inputCharacters;
+
+					// If at the end of the string, add a null because we've just extended the string.
+					if (position == textLength)
+						text[position+1] = 0;
+
+					// Move the cursor.
+					s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
 				}
+
+				// We have consumed the input so remove it from the buffer.
+				window->ClearInputCharacters();
 			}
 		}
 	}
