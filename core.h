@@ -1,7 +1,6 @@
 #pragma once
 
-typedef unsigned int uint32;
-typedef unsigned char uint8;
+#include <cstdint>
 
 #ifndef max
 #define max(a,b)            (((a) > (b)) ? (a) : (b))

@@ -35,13 +35,13 @@
     <ClInclude Include="Font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

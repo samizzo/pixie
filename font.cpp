@@ -48,7 +48,7 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
 	m_height = bmih.biHeight;
 
 	int size = 256 * m_characterSizeX * m_characterSizeY;
-	m_fontBuffer = new uint32[size];
+	m_fontBuffer = new uint32_t[size];
 	fread(m_fontBuffer, 1, size*4, infile);
 
 	fclose(infile);
@@ -58,14 +58,14 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
 
 void Font::Draw(const char* msg, int x, int y, Pixie::Buffer* buffer)
 {
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	int width = buffer->GetWidth();
 	int height = buffer->GetHeight();
 
 	for ( ; *msg; msg++)
 	{
-		uint8 c = *msg;
-		uint32* charStart = m_fontBuffer + (c * m_characterSizeX);
+		uint8_t c = *msg;
+		uint32_t* charStart = m_fontBuffer + (c * m_characterSizeX);
 
 		for (int cx = 0; cx < m_characterSizeX; cx++)
 		{
@@ -75,7 +75,7 @@ void Font::Draw(const char* msg, int x, int y, Pixie::Buffer* buffer)
 				int sy = cy + y;
 				if (sx >= 0 && sx < width && sy >= 0 && sy < height)
 				{
-					uint32 pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
+					uint32_t pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
 					if (pixel != 0xff000000)
 						pixels[sx+(sy*width)] = pixel;
 				}
@@ -86,16 +86,16 @@ void Font::Draw(const char* msg, int x, int y, Pixie::Buffer* buffer)
 	}
 }
 
-void Font::DrawColour(const char* msg, int x, int y, uint32 colour, Pixie::Buffer* buffer)
+void Font::DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Buffer* buffer)
 {
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	int width = buffer->GetWidth();
 	int height = buffer->GetHeight();
 
 	for (; *msg; msg++)
 	{
-		uint8 c = *msg;
-		uint32* charStart = m_fontBuffer + (c * m_characterSizeX);
+		uint8_t c = *msg;
+		uint32_t* charStart = m_fontBuffer + (c * m_characterSizeX);
 
 		for (int cx = 0; cx < m_characterSizeX; cx++)
 		{
@@ -105,7 +105,7 @@ void Font::DrawColour(const char* msg, int x, int y, uint32 colour, Pixie::Buffe
 				int sy = cy + y;
 				if (sx >= 0 && sx < width && sy >= 0 && sy < height)
 				{
-					uint32 pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
+					uint32_t pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
 					if (pixel != 0xff000000)
 						pixels[sx + (sy*width)] = colour;
 				}

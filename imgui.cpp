@@ -25,7 +25,7 @@ struct State
 	float keyRepeatTimer;
 	float keyRepeatTime;
 	float cursorBlinkTimer;
-	uint32 defaultTextColour;
+	uint32_t defaultTextColour;
 
 	Window* window;
 	Font* font;
@@ -63,7 +63,7 @@ void ImGui::End()
 	s_state.window = 0;
 }
 
-void ImGui::Label(const char* text, int x, int y, uint32 colour)
+void ImGui::Label(const char* text, int x, int y, uint32_t colour)
 {
 	assert(text);
 	assert(s_state.HasStarted());
@@ -77,11 +77,11 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 	Window* window = s_state.window;
 	int id = s_state.GetNextId();
 
-	const uint32 NormalColour = MAKE_RGB(32, 50, 77);
-	const uint32 HoverColour = MAKE_RGB(39, 73, 114);
-	const uint32 PressedColour = MAKE_RGB(22, 40, 67);
-	const uint32 BorderColour = MAKE_RGB(68, 79, 103);
-	const uint32 FocusBorderColour = MAKE_RGB(200, 200, 229);
+	const uint32_t NormalColour = MAKE_RGB(32, 50, 77);
+	const uint32_t HoverColour = MAKE_RGB(39, 73, 114);
+	const uint32_t PressedColour = MAKE_RGB(22, 40, 67);
+	const uint32_t BorderColour = MAKE_RGB(68, 79, 103);
+	const uint32_t FocusBorderColour = MAKE_RGB(200, 200, 229);
 
 	int mouseX = window->GetMouseX();
 	int mouseY = window->GetMouseY();
@@ -101,11 +101,11 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 		pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
 	}
 
-	uint32 buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
-	uint32 borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
+	uint32_t buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
+	uint32_t borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
 	Buffer* buffer = window->GetBuffer();
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	int bufferWidth = buffer->GetWidth();
 	int bufferHeight = buffer->GetHeight();
 
@@ -132,11 +132,11 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 	int id = s_state.GetNextId();
 
 	const int LeftMargin = 8;
-	const uint32 NormalColour = MAKE_RGB(64, 68, 71);
-	const uint32 HoverColour = MAKE_RGB(74, 78, 81);
-	const uint32 BorderColour = MAKE_RGB(104, 108, 111);
-	const uint32 FocusBorderColour = MAKE_RGB(200, 200, 200);
-	const uint32 CursorColour = MAKE_RGB(220, 220, 220);
+	const uint32_t NormalColour = MAKE_RGB(64, 68, 71);
+	const uint32_t HoverColour = MAKE_RGB(74, 78, 81);
+	const uint32_t BorderColour = MAKE_RGB(104, 108, 111);
+	const uint32_t FocusBorderColour = MAKE_RGB(200, 200, 200);
+	const uint32_t CursorColour = MAKE_RGB(220, 220, 220);
 	const int CursorWidth = 8;
 	const float KeyRepeatTimeInit = 0.2f;
 	const float KeyRepeatTimeRepeat = 0.05f;
@@ -176,8 +176,8 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
 	}
 
-	uint32 boxColour = pressed || hover || s_state.focusId == id ? HoverColour : NormalColour;
-	uint32 borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
+	uint32_t boxColour = pressed || hover || s_state.focusId == id ? HoverColour : NormalColour;
+	uint32_t borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
 	// Draw the input field.
 	FilledRect(x, y, width, height, boxColour, borderColour);
@@ -312,7 +312,7 @@ bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
 		int checkY = y + ((BoxSize - CheckSize) >> 1);
 		Buffer* buffer = s_state.window->GetBuffer();
 		int bufferWidth = buffer->GetWidth();
-		uint32* pixels = buffer->GetPixels();
+		uint32_t* pixels = buffer->GetPixels();
 		y = checkY;
 		for (int yy = y*bufferWidth, x = 0; y < checkY + CheckSize; y++, x++, yy += bufferWidth)
 		{
@@ -332,7 +332,7 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
 	const int TextLeftMargin = 8;
 	const int BoxSize = 18;
 	const int CheckSize = 8;
-	const uint32 FontColour = s_state.defaultTextColour;
+	const uint32_t FontColour = s_state.defaultTextColour;
 
 	Font* font = s_state.font;
 	int charHeight = font->GetCharacterHeight();
@@ -354,11 +354,11 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
 	return checked;
 }
 
-void ImGui::Rect(int x, int y, int width, int height, uint32 borderColour)
+void ImGui::Rect(int x, int y, int width, int height, uint32_t borderColour)
 {
 	assert(s_state.HasStarted());
 	Buffer* buffer = s_state.window->GetBuffer();
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	int bufferWidth = buffer->GetWidth();
 	int bufferHeight = buffer->GetHeight();
 
@@ -392,11 +392,11 @@ void ImGui::Rect(int x, int y, int width, int height, uint32 borderColour)
 	}
 }
 
-void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
+void ImGui::FilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
 {
 	assert(s_state.HasStarted());
 	Buffer* buffer = s_state.window->GetBuffer();
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	int bufferWidth = buffer->GetWidth();
 	int bufferHeight = buffer->GetHeight();
 
@@ -416,11 +416,11 @@ void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint3
 	}
 }
 
-void ImGui::FilledRoundedRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
+void ImGui::FilledRoundedRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
 {
 	assert(s_state.HasStarted());
 	Buffer* buffer = s_state.window->GetBuffer();
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	int bufferWidth = buffer->GetWidth();
 	int bufferHeight = buffer->GetHeight();
 

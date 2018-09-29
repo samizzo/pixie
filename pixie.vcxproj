@@ -133,7 +133,7 @@
     <ClInclude Include="buffer.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="pixie.h" />
-    <ClInclude Include="types.h" />
+    <ClInclude Include="core.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

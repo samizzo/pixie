@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.h"
+#include "core.h"
 
 namespace Pixie
 {
@@ -20,7 +20,7 @@ namespace Pixie
 			void Draw(const char* msg, int x, int y, Pixie::Buffer* buffer);
 
 			// Draws the specified font to the pixel buffer in the given colour.
-			void DrawColour(const char* msg, int x, int y, uint32 colour, Pixie::Buffer* buffer);
+			void DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Buffer* buffer);
 
 			// Returns the width of the specified string in this font.
 			int GetStringWidth(const char* msg) const;
@@ -32,11 +32,11 @@ namespace Pixie
 			int GetCharacterWidth() const;
 
 		private:
-			uint32* m_fontBuffer;
-			uint32 m_width;
-			uint32 m_height;
-			uint8 m_characterSizeX;
-			uint8 m_characterSizeY;
+			uint32_t* m_fontBuffer;
+			uint32_t m_width;
+			uint32_t m_height;
+			uint8_t m_characterSizeX;
+			uint8_t m_characterSizeY;
 	};
 
 	inline Font::Font()

@@ -11,7 +11,7 @@ static const int WindowHeight = 400;
 
 static void draw(int x, int y, Pixie::Buffer* buffer)
 {
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 	for (int i = x; i < x+4; i++)
 	{
 		for (int j = y; j < y+4; j++)
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 		return 0;
 
 	Pixie::Buffer* buffer = window.GetBuffer();
-	uint32* pixels = buffer->GetPixels();
+	uint32_t* pixels = buffer->GetPixels();
 
 	const float SPEED = 100.0f;
 	float x = 0, y = 0;
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 			yadd = SPEED;
 		}
 
-		memset(pixels, 0, WindowWidth * WindowHeight * sizeof(uint32));
+		memset(pixels, 0, WindowWidth * WindowHeight * sizeof(uint32_t));
 
 		int cx = 0, cy = 0;
 		for (int i = 0; i < 256; i++)
