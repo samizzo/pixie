@@ -111,6 +111,18 @@ int main(int argc, char** argv)
 		if (Pixie::ImGui::RadioButton("Pear", selection == 3, 300, 250))
 			selection = 3;
 
+		for (int i = 0; i < Pixie::MouseButton_Num; i++)
+		{
+			if (window.IsMouseDown((Pixie::MouseButton)i))
+			{
+				Pixie::ImGui::FilledRect((i*33) + 240, 250, 32, 32, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
+			}
+			else
+			{
+				Pixie::ImGui::Rect((i*33) + 240, 250, 32, 32, MAKE_RGB(255, 0, 0));
+			}
+		}
+
 		Pixie::ImGui::End();
 
 		if (!window.Update())

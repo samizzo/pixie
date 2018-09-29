@@ -49,7 +49,7 @@ void ImGui::End()
 {
 	s_state.flags = 0;
 
-	if (s_state.window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+	if (s_state.window->HasMouseGoneDown(Pixie::MouseButton_Left))
 	{
 		// If mouse has gone down over empty space, clear the current focus.
 		if (s_state.hoverId == 0)
@@ -93,11 +93,11 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 		s_state.hoverId = id;
 
 		// Mouse has just gone down over this element, so give it focus.
-		if (window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+		if (window->HasMouseGoneDown(Pixie::MouseButton_Left))
 			s_state.focusId = id;
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
-		pressed = window->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
+		pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
 	}
 
 	uint32 buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
@@ -119,7 +119,7 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 		Label(label, textX, textY, s_state.defaultTextColour);
 	}
 
-	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::Mouse::LeftButton);
+	return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::MouseButton_Left);
 }
 
 void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int height)
@@ -155,7 +155,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		s_state.hoverId = id;
 
 		// Mouse has just gone down over this element, so give it focus.
-		if (window->HasMouseGoneDown(Pixie::Mouse::LeftButton))
+		if (window->HasMouseGoneDown(Pixie::MouseButton_Left))
 		{
 			if (s_state.focusId != id)
 			{
@@ -169,7 +169,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		}
 
 		// If mouse is still down over this element and it has focus, then it is pressed.
-		pressed = window->IsMouseDown(Pixie::Mouse::LeftButton) && s_state.focusId == id;
+		pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
 	}
 
 	uint32 boxColour = pressed || hover || s_state.focusId == id ? HoverColour : NormalColour;
@@ -343,6 +343,44 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
 	}
 
 	return checked;
+}
+
+void ImGui::Rect(int x, int y, int width, int height, uint32 borderColour)
+{
+	assert(s_state.HasStarted());
+	Buffer* buffer = s_state.window->GetBuffer();
+	uint32* pixels = buffer->GetPixels();
+	int bufferWidth = buffer->GetWidth();
+	int bufferHeight = buffer->GetHeight();
+
+	pixels += x + (y*bufferWidth);
+
+	for (int j = 0, ypos = y; j < height && ypos < bufferHeight; j++, ypos++)
+	{
+		int left = x;
+		if (left >= 0 && left < bufferWidth)
+			*pixels = borderColour;
+
+		int right = x + width - 1;
+		if (right >= 0 && right < bufferWidth)
+			*(pixels + width - 1) = borderColour;
+
+		pixels += bufferWidth;
+	}
+
+	pixels = buffer->GetPixels() + x + (y*bufferWidth);
+	for (int i = 0, xpos = x; i < width; i++, xpos++)
+	{
+		int top = y;
+		if (top >= 0 && top < bufferHeight)
+			*pixels = borderColour;
+
+		int bottom = y + height - 1;
+		if (bottom >= 0 && bottom < bufferHeight)
+			*(pixels + ((height-1)*bufferWidth)) = borderColour;
+
+		pixels++;
+	}
 }
 
 void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)

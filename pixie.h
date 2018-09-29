@@ -11,10 +11,12 @@ namespace Pixie
 {
 	class Buffer;
 
-	enum Mouse
+	enum MouseButton
 	{
-		LeftButton = 1 << 0,
-		RightButton = 1 << 1
+		MouseButton_Left	= 0,
+		MouseButton_Middle	= 1,
+		MouseButton_Right	= 2,
+		MouseButton_Num
 	};
 
 	enum Key
@@ -50,13 +52,13 @@ namespace Pixie
 			bool Update();
 
 			// Returns true in the frame the mouse button went down.
-			bool HasMouseGoneDown(Mouse button) const;
+			bool HasMouseGoneDown(MouseButton button) const;
 
 			// Returns true in the frame the mouse button went up.
-			bool HasMouseGoneUp(Mouse button) const;
+			bool HasMouseGoneUp(MouseButton button) const;
 
 			// Returns true if the mouse button is currently down.
-			bool IsMouseDown(Mouse button) const;
+			bool IsMouseDown(MouseButton button) const;
 
 			// Returns true in the frame the key specified went down.
 			bool HasKeyGoneDown(Key key) const;
@@ -97,8 +99,8 @@ namespace Pixie
 
 			int m_mouseX;
 			int m_mouseY;
-			uint32 m_lastMouseButtonDown;
-			uint32 m_mouseButtonDown;
+			bool m_lastMouseButtonDown[MouseButton_Num];
+			bool m_mouseButtonDown[MouseButton_Num];
 
 			uint8 m_lastKeyboardState[256];
 			uint8 m_keyboardState[256];
@@ -140,19 +142,19 @@ namespace Pixie
 		return m_buffer;
 	}
 
-	inline bool Window::HasMouseGoneDown(Mouse button) const
+	inline bool Window::HasMouseGoneDown(MouseButton button) const
 	{
-		return (m_lastMouseButtonDown & button) == 0 && (m_mouseButtonDown & button) != 0;
+		return !m_lastMouseButtonDown[button] && m_mouseButtonDown[button];
 	}
 
-	inline bool Window::HasMouseGoneUp(Mouse button) const
+	inline bool Window::HasMouseGoneUp(MouseButton button) const
 	{
-		return (m_lastMouseButtonDown & button) != 0 && (m_mouseButtonDown & button) == 0;
+		return m_lastMouseButtonDown[button] && !m_mouseButtonDown[button];
 	}
 
-	inline bool Window::IsMouseDown(Mouse button) const
+	inline bool Window::IsMouseDown(MouseButton button) const
 	{
-		return (m_mouseButtonDown & button) != 0;
+		return m_mouseButtonDown[button];
 	}
 
 	inline bool Window::HasAnyKeyGoneDown() const

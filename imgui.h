@@ -21,6 +21,7 @@ namespace Pixie
 			static bool RadioButton(const char* label, bool checked, int x, int y);
 
 			// Basic drawing
+			static void Rect(int x, int y, int width, int height, uint32 borderColour);
 			static void FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour);
 			static void FilledRoundedRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour);
 	};
