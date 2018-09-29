@@ -189,10 +189,10 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		s_state.cursorBlinkTimer -= delta;
 		if (s_state.cursorBlinkTimer >= CursorBlinkTime * 0.5f)
 			FilledRect(textX + (s_state.keyboardCursorPosition * s_state.font->GetCharacterWidth()), textY, CursorWidth, s_state.font->GetCharacterHeight(), CursorColour, CursorColour);
-		if (s_state.cursorBlinkTimer <= 0.0f)
+		if (s_state.cursorBlinkTimer <= 0.0f || window->IsAnyKeyDown())
 			s_state.cursorBlinkTimer = CursorBlinkTime;
 
-
+		// TODO: Not sure if this is the right way to do this. The timer should probably be per-key.
 		if (window->HasAnyKeyGoneDown())
 		{
 			s_state.keyRepeatTimer = 0.0f;
