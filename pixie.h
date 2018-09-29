@@ -77,9 +77,6 @@ namespace Pixie
 			// Returns true if any key is currently down.
 			bool IsAnyKeyDown() const;
 
-			// Returns the ASCII character for the specified key if valid, based on any current keyboard state (e.g. shift).
-			char GetChar(Key key) const;
-
 			// Returns an array of ASCII input for the current frame.
 			const char* GetInputCharacters() const;
 

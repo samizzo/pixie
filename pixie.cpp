@@ -148,60 +148,6 @@ void Window::UpdateKeyboard()
 	memcpy(m_lastKeyDown, m_keyDown, sizeof(m_keyDown));
 }
 
-static const uint8 s_vkKeyMap[] =
-{
-	VK_LEFT,
-	VK_RIGHT,
-	VK_HOME,
-	VK_END,
-	VK_BACK,
-	VK_DELETE,
-	VK_LSHIFT,
-	VK_RSHIFT,
-	'A',
-	'B',
-	'C',
-	'D',
-	'E',
-	'F',
-	'G',
-	'H',
-	'I',
-	'J',
-	'K',
-	'L',
-	'M',
-	'N',
-	'O',
-	'P',
-	'Q',
-	'R',
-	'S',
-	'T',
-	'U',
-	'V',
-	'W',
-	'X',
-	'Y',
-	'Z',
-	'0',
-	'1',
-	'2',
-	'3',
-	'4',
-	'5',
-	'6',
-	'7',
-	'8',
-	'9',
-	VK_OEM_PERIOD
-};
-
-char Window::GetChar(Key key) const
-{
-	return 0;
-}
-
 void Window::AddInputChar(char c)
 {
 	if (!isprint(c))
