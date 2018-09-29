@@ -74,6 +74,9 @@ namespace Pixie
 			// Returns true if the key specified is currently down.
 			bool IsKeyDown(Key key) const;
 
+			// Returns true if any key is currently down.
+			bool IsAnyKeyDown() const;
+
 			// Returns the ASCII character for the specified key if valid, based on any current keyboard state (e.g. shift).
 			char GetChar(Key key) const;
 
@@ -104,6 +107,7 @@ namespace Pixie
 			int m_keyMap[Key::Num];
 			bool m_lastKeyDown[256];
 			bool m_keyDown[256];
+			bool m_anyKeyDown;
 
 			float m_delta;
 
@@ -154,13 +158,7 @@ namespace Pixie
 
 	inline bool Window::HasAnyKeyGoneDown() const
 	{
-		for (int i = 0; i < Key::Num; i++)
-		{
-			if (HasKeyGoneDown((Key)i))
-				return true;
-		}
-
-		return false;
+		return m_anyKeyDown;
 	}
 
 	inline bool Window::HasKeyGoneDown(Key key) const
@@ -179,5 +177,16 @@ namespace Pixie
 	{
 		uint8 index = m_keyMap[key];
 		return m_keyDown[index];
+	}
+
+	inline bool Window::IsAnyKeyDown() const
+	{
+		for (int i = 0; i < Key::Num; i++)
+		{
+			if (IsKeyDown((Key)i))
+				return true;
+		}
+
+		return false;
 	}
 }

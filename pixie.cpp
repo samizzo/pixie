@@ -11,10 +11,13 @@ Window::Window()
 {
 	m_delta = 0.0f;
 	m_buffer = 0;
+
 	memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
 	memset(m_lastMouseButtonDown, 0, sizeof(m_lastMouseButtonDown));
+
 	memset(m_lastKeyDown, 0, sizeof(m_lastKeyDown));
 	memset(m_keyDown, 0, sizeof(m_keyDown));
+	m_anyKeyDown = false;
 
 	for (int i = 0; i < Key::Num; i++)
 		m_keyMap[i] = -1;
@@ -140,6 +143,7 @@ void Window::UpdateMouse()
 
 void Window::UpdateKeyboard()
 {
+	m_anyKeyDown = false;
 	memcpy(m_lastKeyDown, m_keyDown, sizeof(m_keyDown));
 }
 
@@ -240,7 +244,10 @@ LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_SYSKEYDOWN:
 		{
 			if (wParam < 256)
+			{
 				m_keyDown[wParam] = true;
+				m_anyKeyDown = true;
+			}
 			break;
 		}
 
