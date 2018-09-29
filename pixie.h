@@ -149,7 +149,7 @@ namespace Pixie
 
 	inline bool Window::HasMouseGoneUp(MouseButton button) const
 	{
-		return m_lastMouseButtonDown[button] && m_mouseButtonDown[button];
+		return m_lastMouseButtonDown[button] && !m_mouseButtonDown[button];
 	}
 
 	inline bool Window::IsMouseDown(MouseButton button) const
