@@ -87,12 +87,12 @@ namespace Pixie
 			// Returns the backing buffer for the window.
 			Buffer* GetBuffer() const;
 
+			// Used by the window procedure to update key and mouse state.
 			void SetMouseButtonDown(MouseButton button, bool down);
 			void SetKeyDown(int key, bool down);
 			void AddInputCharacter(char c);
 
 		private:
-
 			void UpdateMouse();
 			void UpdateKeyboard();
 
