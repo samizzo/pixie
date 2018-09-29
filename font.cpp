@@ -47,21 +47,20 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
 	m_characterSizeX = characterSizeX;
 	m_characterSizeY = characterSizeY;
 
-	FILE* infile = 0;
-	fopen_s(&infile, filename, "rb");
+	FILE* infile = fopen(filename, "rb");
 	if (!infile)
 		return false;
 
 	BITMAPFILEHEADER bmfh;
-	fread_s(&bmfh, sizeof(bmfh), sizeof(bmfh), 1, infile);
-	if (bmfh.bfType != 'MB')
+	fread(&bmfh, sizeof(bmfh), 1, infile);
+	if (bmfh.bfType != 0x4d42) // 'MB'
 	{
 		fclose(infile);
 		return false;
 	}
 
 	BITMAPINFOHEADER bmih;
-	fread_s(&bmih, sizeof(bmih), sizeof(bmih), 1, infile);
+	fread(&bmih, sizeof(bmih), 1, infile);
 	if (bmih.biSize != sizeof(bmih))
 	{
 		fclose(infile);
