@@ -81,9 +81,6 @@ namespace Pixie
 			// Returns the current mouse Y position.
 			int GetMouseY() const;
 
-			// Returns true if the mouse is currently over the window.
-			bool IsMouseOverWindow() const;
-
 			// Returns the time delta since the last time the window was updated.
 			float GetDelta() const;
 
@@ -125,11 +122,6 @@ namespace Pixie
 	inline int Window::GetMouseY() const
 	{
 		return m_mouseY;
-	}
-
-	inline bool Window::IsMouseOverWindow() const
-	{
-		return m_mouseX >= 0 && m_mouseX < m_width && m_mouseY >= 0 && m_mouseY < m_height;
 	}
 
 	inline float Window::GetDelta() const
