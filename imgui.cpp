@@ -304,6 +304,44 @@ bool ImGui::Checkbox(const char* text, bool checked, int x, int y)
 	return checked;
 }
 
+void ImGui::Rect(int x, int y, int width, int height, uint32 borderColour)
+{
+	assert(s_state.HasStarted());
+	Buffer* buffer = s_state.window->GetBuffer();
+	uint32* pixels = buffer->GetPixels();
+	int bufferWidth = buffer->GetWidth();
+	int bufferHeight = buffer->GetHeight();
+
+	pixels += x + (y*bufferWidth);
+
+	for (int j = 0, ypos = y; j < height && ypos < bufferHeight; j++, ypos++)
+	{
+		int left = x;
+		if (left >= 0 && left < bufferWidth)
+			*pixels = borderColour;
+
+		int right = x + width - 1;
+		if (right >= 0 && right < bufferWidth)
+			*(pixels + width - 1) = borderColour;
+
+		pixels += bufferWidth;
+	}
+
+	pixels = buffer->GetPixels() + x + (y*bufferWidth);
+	for (int i = 0, xpos = x; i < width; i++, xpos++)
+	{
+		int top = y;
+		if (top >= 0 && top < bufferHeight)
+			*pixels = borderColour;
+
+		int bottom = y + height - 1;
+		if (bottom >= 0 && bottom < bufferHeight)
+			*(pixels + ((height-1)*bufferWidth)) = borderColour;
+
+		pixels++;
+	}
+}
+
 void ImGui::FilledRect(int x, int y, int width, int height, uint32 colour, uint32 borderColour)
 {
 	assert(s_state.HasStarted());
