@@ -19,3 +19,9 @@
 #else
 #error "Unsupported platform"
 #endif
+
+#if PIXIE_PLATFORM_OSX
+#define strcat_s(dst, size, src) strlcat(dst, src, size)
+#define sprintf_s(dst, size, fmt, ...) snprintf(dst, size, fmt, __VA_ARGS__)
+#define strcpy_s(dst, size, src) snprintf(dst, size, "%s", src)
+#endif
