@@ -12,8 +12,10 @@
 
 #define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
 
-#if defined(_MSC_VER)
+#ifdef _WIN32
 #define PIXIE_PLATFORM_WIN 1
+#elif __APPLE__
+#define PIXIE_PLATFORM_OSX 1
 #else
 #error "Unsupported platform"
 #endif
