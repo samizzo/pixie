@@ -216,10 +216,6 @@ LRESULT CALLBACK Window::WndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			if (wParam < 256)
 				m_keyDown[wParam] = false;
-
-			// TODO: Move this to Update().
-			if (wParam == VK_ESCAPE)
-				DestroyWindow(m_window);
 			break;
 		}
 
