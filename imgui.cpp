@@ -188,7 +188,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 		// Input field has focus, draw the keyboard cursor and process input.
 		s_state.cursorBlinkTimer -= delta;
 		if (s_state.cursorBlinkTimer >= CursorBlinkTime * 0.5f)
-			FilledRect(textX + (s_state.keyboardCursorPosition * s_state.font->GetCharacterWidth()), textY, CursorWidth, s_state.font->GetCharacterHeight(), CursorColour, CursorColour);
+			FilledRect(textX + (s_state.keyboardCursorPosition * s_state.font->GetCharacterWidth()), textY + s_state.font->GetCharacterHeight() - 2, CursorWidth, 2, CursorColour, CursorColour);
 		if (s_state.cursorBlinkTimer <= 0.0f || window->IsAnyKeyDown())
 			s_state.cursorBlinkTimer = CursorBlinkTime;
 
