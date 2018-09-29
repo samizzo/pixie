@@ -169,21 +169,21 @@ namespace Pixie
 
 	inline bool Window::HasKeyGoneDown(Key key) const
 	{
-		uint8_t index = m_keyMap[key];
+		int index = m_keyMap[key];
 		assert(index >= 0 && index < sizeof(m_keyDown));
 		return !m_lastKeyDown[index] && m_keyDown[index];
 	}
 
 	inline bool Window::HasKeyGoneUp(Key key) const
 	{
-		uint8_t index = m_keyMap[key];
+		int index = m_keyMap[key];
 		assert(index >= 0 && index < sizeof(m_keyDown));
 		return m_lastKeyDown[index] && !m_keyDown[index];
 	}
 
 	inline bool Window::IsKeyDown(Key key) const
 	{
-		uint8_t index = m_keyMap[key];
+		int index = m_keyMap[key];
 		assert(index >= 0 && index < sizeof(m_keyDown));
 		return m_keyDown[index];
 	}
