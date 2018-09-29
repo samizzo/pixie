@@ -264,11 +264,16 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 
 					// Overwrite the character at the current position.
 					int position = s_state.keyboardCursorPosition;
+					assert(position >= 0 && position < textBufferLength - 1);
 					text[position] = *inputCharacters;
 
 					// If at the end of the string, add a null because we've just extended the string.
 					if (position == textLength)
-						text[position+1] = 0;
+					{
+						position++;
+						assert(position >= 0 && position < textBufferLength);
+						text[position] = 0;
+					}
 
 					// Move the cursor.
 					s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
