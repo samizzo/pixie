@@ -25,6 +25,20 @@ static const int FrameBufferBitDepth = 8;
 	pixieWindow = thePixieWindow;
 }
 
+- (void)keyDown:(NSEvent *) theEvent
+{
+	if (theEvent.keyCode < 256)
+		pixieWindow->SetKeyDown(theEvent.keyCode, true);
+	if (theEvent.characters.length > 0)
+		pixieWindow->AddInputCharacter([theEvent.characters characterAtIndex:0]);
+}
+
+- (void)keyUp:(NSEvent *) theEvent
+{
+	if (theEvent.keyCode < 256)
+		pixieWindow->SetKeyDown(theEvent.keyCode, false);
+}
+
 - (void)mouseDown:(NSEvent *) theEvent
 {
 	pixieWindow->SetMouseButtonDown(MouseButton_Left, true);
