@@ -117,6 +117,9 @@ namespace Pixie
 			Buffer* m_buffer;
 
 			void* m_window;
+			#if PIXIE_PLATFORM_OSX
+			void* m_backingBitmap;
+			#endif
 			int64_t m_lastTime;
 			int64_t m_freq;
 	};

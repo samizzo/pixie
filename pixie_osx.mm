@@ -13,6 +13,8 @@ static const int FrameBufferBitDepth = 8;
 
 void Window::PlatformInit()
 {
+	m_backingBitmap = 0;
+
 	for (int i = 0; i < Key_Num; i++)
 		m_keyMap[i] = -1;
 
@@ -53,17 +55,18 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	[window setTitle:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[window makeKeyAndOrderFront:nil];
 	[NSApp activateIgnoringOtherApps:YES];
+	m_window = window;
 
 	// Create the window backing bitmap context.
 	CGContextRef bitmapContext = CGBitmapContextCreate(m_buffer->GetPixels(), width, height, FrameBufferBitDepth, width*4,
 		CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast);
 	assert(bitmapContext != 0);
-	m_window = bitmapContext;
+	m_backingBitmap = bitmapContext;
 
-	// Configure the current graphics context.
+	// Create and configure the current graphics context.
 	NSGraphicsContext* graphicsContext = [NSGraphicsContext graphicsContextWithWindow:window];
 	assert(graphicsContext != 0);
-	[ NSGraphicsContext setCurrentContext:graphicsContext ];
+	[NSGraphicsContext setCurrentContext:graphicsContext];
 
 	// Initialise the timer.
 	m_lastTime = mach_absolute_time();
@@ -76,7 +79,14 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 
 bool Window::PlatformUpdate()
 {
-	// TODO: Update mouse position.
+	int width = m_buffer->GetWidth();
+	int height = m_buffer->GetHeight();
+
+	NSWindow* window = (NSWindow*)m_window;
+	NSPoint mousePos;
+	mousePos = [window mouseLocationOutsideOfEventStream];
+	m_mouseX = clamp(mousePos.x, 0, width);
+	m_mouseY = clamp(height - mousePos.y - 1, 0, height);
 
 	uint64_t time = mach_absolute_time();
 	uint64_t delta = time - m_lastTime;
@@ -90,10 +100,7 @@ bool Window::PlatformUpdate()
 	[pool release];
 
 	// Copy buffer to window.
-	int width = m_buffer->GetWidth();
-	int height = m_buffer->GetHeight();
-
-	CGImageRef img = CGBitmapContextCreateImage((CGContextRef)m_window);
+	CGImageRef img = CGBitmapContextCreateImage((CGContextRef)m_backingBitmap);
 	CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
 	assert(currentContext != 0);
 	CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
@@ -105,8 +112,7 @@ bool Window::PlatformUpdate()
 
 void Window::PlatformClose()
 {
-	// NOTE: m_window is really the bitmap context.
-	CGContextRelease((CGContextRef)m_window);
+	CGContextRelease((CGContextRef)m_backingBitmap);
 	// TODO: Release window context?
 	// TODO: Release colour space context?
 }
