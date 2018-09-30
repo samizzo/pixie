@@ -6,8 +6,6 @@
 
 namespace Pixie
 {
-	class Buffer;
-
 	enum MouseButton
 	{
 		MouseButton_Left	= 0,
@@ -85,7 +83,13 @@ namespace Pixie
 			float GetDelta() const;
 
 			// Returns the backing buffer for the window.
-			Buffer* GetBuffer() const;
+			uint32_t* GetPixels() const;
+
+			// Returns the width of the window.
+			uint32_t GetWidth() const;
+
+			// Returns the height of the window.
+			uint32_t GetHeight() const;
 
 			// Used by the window procedure to update key and mouse state.
 			void SetMouseButtonDown(MouseButton button, bool down);
@@ -114,7 +118,9 @@ namespace Pixie
 
 			float m_delta;
 
-			Buffer* m_buffer;
+			uint32_t* m_pixels;
+			uint32_t m_width;
+			uint32_t m_height;
 
 			void* m_window;
 			#if PIXIE_PLATFORM_OSX
@@ -139,9 +145,19 @@ namespace Pixie
 		return m_delta;
 	}
 
-	inline Pixie::Buffer* Window::GetBuffer() const
+	inline uint32_t* Window::GetPixels() const
 	{
-		return m_buffer;
+		return m_pixels;
+	}
+
+	inline uint32_t Window::GetWidth() const
+	{
+		return m_width;
+	}
+
+	inline uint32_t Window::GetHeight() const
+	{
+		return m_height;
 	}
 
 	inline bool Window::HasMouseGoneDown(MouseButton button) const

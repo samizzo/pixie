@@ -131,7 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui.h" />
-    <ClInclude Include="buffer.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="pixie.h" />
     <ClInclude Include="core.h" />

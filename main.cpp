@@ -1,6 +1,5 @@
 ﻿#include "pixie.h"
 #include "font.h"
-#include "buffer.h"
 #include "imgui.h"
 #include <string.h>
 #include <stdio.h>
@@ -9,9 +8,8 @@ static const char* WindowTitle = "Hello, World!";
 static const int WindowWidth = 640;
 static const int WindowHeight = 400;
 
-static void draw(int x, int y, Pixie::Buffer* buffer)
+static void draw(int x, int y, uint32_t* pixels)
 {
-	uint32_t* pixels = buffer->GetPixels();
 	for (int i = x; i < x+4; i++)
 	{
 		for (int j = y; j < y+4; j++)
@@ -35,8 +33,7 @@ int main(int argc, char** argv)
 	if (!window.Open(WindowTitle, WindowWidth, WindowHeight))
 		return 0;
 
-	Pixie::Buffer* buffer = window.GetBuffer();
-	uint32_t* pixels = buffer->GetPixels();
+	uint32_t* pixels = window.GetPixels();
 
 	const float SPEED = 100.0f;
 	float x = 0, y = 0;
@@ -86,11 +83,11 @@ int main(int argc, char** argv)
 				cx = 0;
 				cy += 16;
 			}
-			font.Draw(buf, cx, cy, buffer);
+			font.Draw(buf, cx, cy, &window);
 			cx += 9;
 		}
 
-		draw((int)x, (int)y, buffer);
+		draw((int)x, (int)y, pixels);
 
 		Pixie::ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
 		Pixie::ImGui::FilledRoundedRect(120, 240, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));

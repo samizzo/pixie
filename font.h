@@ -4,7 +4,7 @@
 
 namespace Pixie
 {
-	class Buffer;
+	class Window;
 
 	// BMP font loader. Expects the entire character set (256 characters) on one line.
 	class Font
@@ -16,11 +16,11 @@ namespace Pixie
 			// Loads the font in the given BMP filename using the specified character size.
 			bool Load(const char* filename, int characterSizeX, int characterSizeY);
 
-			// Draws the specified font to the pixel buffer in the font colour.
-			void Draw(const char* msg, int x, int y, Pixie::Buffer* buffer);
+			// Draws the specified font to the window in the font colour.
+			void Draw(const char* msg, int x, int y, Pixie::Window* window);
 
-			// Draws the specified font to the pixel buffer in the given colour.
-			void DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Buffer* buffer);
+			// Draws the specified font to the window in the given colour.
+			void DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Window* window);
 
 			// Returns the width of the specified string in this font.
 			int GetStringWidth(const char* msg) const;

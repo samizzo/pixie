@@ -1,5 +1,5 @@
 #include "font.h"
-#include "buffer.h"
+#include "pixie.h"
 #include <stdio.h>
 #if PIXIE_PLATFORM_WIN
 #include <Windows.h>
@@ -87,11 +87,11 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
 	return true;
 }
 
-void Font::Draw(const char* msg, int x, int y, Pixie::Buffer* buffer)
+void Font::Draw(const char* msg, int x, int y, Pixie::Window* window)
 {
-	uint32_t* pixels = buffer->GetPixels();
-	int width = buffer->GetWidth();
-	int height = buffer->GetHeight();
+	uint32_t* pixels = window->GetPixels();
+	int width = window->GetWidth();
+	int height = window->GetHeight();
 
 	for ( ; *msg; msg++)
 	{
@@ -117,11 +117,11 @@ void Font::Draw(const char* msg, int x, int y, Pixie::Buffer* buffer)
 	}
 }
 
-void Font::DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Buffer* buffer)
+void Font::DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Window* window)
 {
-	uint32_t* pixels = buffer->GetPixels();
-	int width = buffer->GetWidth();
-	int height = buffer->GetHeight();
+	uint32_t* pixels = window->GetPixels();
+	int width = window->GetWidth();
+	int height = window->GetHeight();
 
 	for (; *msg; msg++)
 	{

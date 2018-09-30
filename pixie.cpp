@@ -1,7 +1,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "pixie.h"
-#include "buffer.h"
 #include <assert.h>
 
 using namespace Pixie;
@@ -9,7 +8,7 @@ using namespace Pixie;
 Window::Window()
 {
 	m_delta = 0.0f;
-	m_buffer = 0;
+	m_pixels = 0;
 
 	assert(sizeof(m_mouseButtonDown) == sizeof(m_lastMouseButtonDown));
 	memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
@@ -25,18 +24,20 @@ Window::Window()
 
 Window::~Window()
 {
-	delete m_buffer;
+	delete[] m_pixels;
 }
 
 bool Window::Open(const char* title, int width, int height)
 {
 	// Create the buffer first because on OSX we need it to exist when initialising.
-	m_buffer = new Buffer(width, height);
+	m_pixels = new uint32_t[width * height];
+	m_width = width;
+	m_height = height;
 
 	if (!PlatformOpen(title, width,  height))
 	{
-		delete m_buffer;
-		m_buffer = 0;
+		delete[] m_pixels;
+		m_pixels = 0;
 		return false;
 	}
 

@@ -1,5 +1,4 @@
 #include "pixie.h"
-#include "buffer.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -95,15 +94,12 @@ bool Window::PlatformUpdate()
 	}
 
 	// Copy buffer to the window.
-	int width = m_buffer->GetWidth();
-	int height = m_buffer->GetHeight();
-
 	HDC hdc = GetDC((HWND)m_window);
 	BITMAPINFO bitmapInfo;
 	BITMAPINFOHEADER& bmiHeader = bitmapInfo.bmiHeader;
 	bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmiHeader.biWidth = width;
-	bmiHeader.biHeight = -height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
+	bmiHeader.biWidth = m_width;
+	bmiHeader.biHeight = -(int32_t)m_height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
 	bmiHeader.biPlanes = 1;
 	bmiHeader.biBitCount = 32;
 	bmiHeader.biCompression = BI_RGB;
@@ -112,7 +108,7 @@ bool Window::PlatformUpdate()
 	bmiHeader.biYPelsPerMeter = 0;
 	bmiHeader.biClrUsed = 0;
 	bmiHeader.biClrImportant = 0;
-	SetDIBitsToDevice(hdc, 0, 0, width, height, 0, 0, 0, height, m_buffer->GetPixels(), &bitmapInfo, DIB_RGB_COLORS);
+	SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS);
 	ReleaseDC((HWND)m_window, hdc);
 
 	return true;

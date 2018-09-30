@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #include "pixie.h"
-#include "buffer.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <Carbon/Carbon.h>
@@ -126,7 +125,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	m_window = window;
 
 	// Create the window backing bitmap context.
-	CGContextRef bitmapContext = CGBitmapContextCreate(m_buffer->GetPixels(), width, height, FrameBufferBitDepth, width*4,
+	CGContextRef bitmapContext = CGBitmapContextCreate(m_pixels, width, height, FrameBufferBitDepth, width*4,
 		CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast);
 	assert(bitmapContext != 0);
 	m_backingBitmap = bitmapContext;
@@ -147,15 +146,12 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 
 bool Window::PlatformUpdate()
 {
-	int width = m_buffer->GetWidth();
-	int height = m_buffer->GetHeight();
-
 	// Update mouse cursor position.
 	PixieWindow* window = (PixieWindow*)m_window;
 	NSPoint mousePos;
 	mousePos = [window mouseLocationOutsideOfEventStream];
-	m_mouseX = clamp(mousePos.x, 0, width);
-	m_mouseY = clamp(height - mousePos.y - 1, 0, height);
+	m_mouseX = clamp(mousePos.x, 0, m_width);
+	m_mouseY = clamp(m_height - mousePos.y - 1, 0, m_height);
 
 	uint64_t time = mach_absolute_time();
 	uint64_t delta = time - m_lastTime;
@@ -181,7 +177,7 @@ bool Window::PlatformUpdate()
 	CGImageRef img = CGBitmapContextCreateImage((CGContextRef)m_backingBitmap);
 	CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
 	assert(currentContext != 0);
-	CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
+	CGContextDrawImage(currentContext, CGRectMake(0, 0, m_width, m_height), img);
 	CGContextFlush(currentContext);
 	CGImageRelease(img);
 

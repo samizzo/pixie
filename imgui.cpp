@@ -1,5 +1,4 @@
 ﻿#include "imgui.h"
-#include "buffer.h"
 #include "pixie.h"
 #include "font.h"
 #include <string.h>
@@ -67,7 +66,7 @@ void ImGui::Label(const char* text, int x, int y, uint32_t colour)
 {
 	assert(text);
 	assert(s_state.HasStarted());
-	s_state.font->DrawColour(text, x, y, colour, s_state.window->GetBuffer());
+	s_state.font->DrawColour(text, x, y, colour, s_state.window);
 }
 
 bool ImGui::Button(const char* label, int x, int y, int width, int height)
@@ -104,10 +103,9 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
 	uint32_t buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
 	uint32_t borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
-	Buffer* buffer = window->GetBuffer();
-	uint32_t* pixels = buffer->GetPixels();
-	int bufferWidth = buffer->GetWidth();
-	int bufferHeight = buffer->GetHeight();
+	uint32_t* pixels = window->GetPixels();
+	int windowWidth = window->GetWidth();
+	int windowHeight = window->GetHeight();
 
 	FilledRect(x, y, width, height, buttonColour, borderColour);
 
@@ -310,11 +308,11 @@ bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
 		// Draw check mark.
 		int checkX = x + ((BoxSize - CheckSize) >> 1);
 		int checkY = y + ((BoxSize - CheckSize) >> 1);
-		Buffer* buffer = s_state.window->GetBuffer();
-		int bufferWidth = buffer->GetWidth();
-		uint32_t* pixels = buffer->GetPixels();
+		Window* window = s_state.window;
+		int windowWidth = window->GetWidth();
+		uint32_t* pixels = window->GetPixels();
 		y = checkY;
-		for (int yy = y*bufferWidth, x = 0; y < checkY + CheckSize; y++, x++, yy += bufferWidth)
+		for (int yy = y*windowWidth, x = 0; y < checkY + CheckSize; y++, x++, yy += windowWidth)
 		{
 			pixels[checkX + x + yy] = MAKE_RGB(255, 255, 255);
 			pixels[checkX + CheckSize - x - 1 + yy] = MAKE_RGB(255, 255, 255);
@@ -357,36 +355,36 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
 void ImGui::Rect(int x, int y, int width, int height, uint32_t borderColour)
 {
 	assert(s_state.HasStarted());
-	Buffer* buffer = s_state.window->GetBuffer();
-	uint32_t* pixels = buffer->GetPixels();
-	int bufferWidth = buffer->GetWidth();
-	int bufferHeight = buffer->GetHeight();
+	Window* window = s_state.window;
+	uint32_t* pixels = window->GetPixels();
+	int windowWidth = window->GetWidth();
+	int windowHeight = window->GetHeight();
 
-	pixels += x + (y*bufferWidth);
+	pixels += x + (y*windowWidth);
 
-	for (int j = 0, ypos = y; j < height && ypos < bufferHeight; j++, ypos++)
+	for (int j = 0, ypos = y; j < height && ypos < windowHeight; j++, ypos++)
 	{
 		int left = x;
-		if (left >= 0 && left < bufferWidth)
+		if (left >= 0 && left < windowWidth)
 			*pixels = borderColour;
 
 		int right = x + width - 1;
-		if (right >= 0 && right < bufferWidth)
+		if (right >= 0 && right < windowWidth)
 			*(pixels + width - 1) = borderColour;
 
-		pixels += bufferWidth;
+		pixels += windowWidth;
 	}
 
-	pixels = buffer->GetPixels() + x + (y*bufferWidth);
+	pixels = window->GetPixels() + x + (y*windowWidth);
 	for (int i = 0, xpos = x; i < width; i++, xpos++)
 	{
 		int top = y;
-		if (top >= 0 && top < bufferHeight)
+		if (top >= 0 && top < windowHeight)
 			*pixels = borderColour;
 
 		int bottom = y + height - 1;
-		if (bottom >= 0 && bottom < bufferHeight)
-			*(pixels + ((height-1)*bufferWidth)) = borderColour;
+		if (bottom >= 0 && bottom < windowHeight)
+			*(pixels + ((height-1)*windowWidth)) = borderColour;
 
 		pixels++;
 	}
@@ -395,44 +393,44 @@ void ImGui::Rect(int x, int y, int width, int height, uint32_t borderColour)
 void ImGui::FilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
 {
 	assert(s_state.HasStarted());
-	Buffer* buffer = s_state.window->GetBuffer();
-	uint32_t* pixels = buffer->GetPixels();
-	int bufferWidth = buffer->GetWidth();
-	int bufferHeight = buffer->GetHeight();
+	Window* window = s_state.window;
+	uint32_t* pixels = window->GetPixels();
+	int windowWidth = window->GetWidth();
+	int windowHeight = window->GetHeight();
 
-	pixels += x + (y*bufferWidth);
+	pixels += x + (y*windowWidth);
 
-	for (int j = 0, ypos = y; j < height && ypos < bufferHeight; j++, ypos++)
+	for (int j = 0, ypos = y; j < height && ypos < windowHeight; j++, ypos++)
 	{
 		for (int i = 0, xpos = x; i < width; i++, xpos++)
 		{
-			if (xpos < 0 || xpos >= bufferWidth || ypos < 0 || ypos >= bufferHeight)
+			if (xpos < 0 || xpos >= windowWidth || ypos < 0 || ypos >= windowHeight)
 				continue;
 			*pixels = (i == 0 || i == width - 1 || j == 0 || j == height - 1) ? borderColour : colour;
 			pixels++;
 		}
 
-		pixels += bufferWidth - width;
+		pixels += windowWidth - width;
 	}
 }
 
 void ImGui::FilledRoundedRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
 {
 	assert(s_state.HasStarted());
-	Buffer* buffer = s_state.window->GetBuffer();
-	uint32_t* pixels = buffer->GetPixels();
-	int bufferWidth = buffer->GetWidth();
-	int bufferHeight = buffer->GetHeight();
+	Window* window = s_state.window;
+	uint32_t* pixels = window->GetPixels();
+	int windowWidth = window->GetWidth();
+	int windowHeight = window->GetHeight();
 
 	const int NumPixels = 1;
 
-	pixels += x + (y*bufferWidth);
+	pixels += x + (y*windowWidth);
 
-	for (int j = 0, ypos = y; j < height && ypos < bufferHeight; j++, ypos++)
+	for (int j = 0, ypos = y; j < height && ypos < windowHeight; j++, ypos++)
 	{
 		for (int i = 0, xpos = x; i < width; i++, xpos++)
 		{
-			if (xpos < 0 || xpos >= bufferWidth || ypos < 0 || ypos >= bufferHeight)
+			if (xpos < 0 || xpos >= windowWidth || ypos < 0 || ypos >= windowHeight)
 				continue;
 			if ((i < NumPixels || i >= width - NumPixels) && (j < NumPixels || j >= height - NumPixels))
 			{
@@ -444,6 +442,6 @@ void ImGui::FilledRoundedRect(int x, int y, int width, int height, uint32_t colo
 			pixels++;
 		}
 
-		pixels += bufferWidth - width;
+		pixels += windowWidth - width;
 	}
 }
