@@ -7,10 +7,11 @@ Pixie is a minimal, cross-platform pixel framebuffer library for Windows and mac
 
 Copy the following files into your project:
 
-    `pixie.cpp`
-    `pixie.h`
-    `core.h`
-    `pixie_win.cpp` or `pixie_osx.mm` depending on your platform
+    pixie.cpp
+    pixie.h
+    core.h
+    Windows: pixie_win.cpp
+    macOS: pixie_osx.cpp
 
 To use Pixie:
 
@@ -38,9 +39,9 @@ int main(int argc, char** argv)
 
 Pixie has some basic keyboard and mouse handling. You can check for:
 
-    * Mouse or key down in the current frame: `HasMouseGoneDown`, `HasKeyGoneDown`, `HasAnyKeyGoneDown`
-    * Mouse or key up in the current frame: `HasMouseGoneUp`, `HasKeyGoneUp`
-    * Mouse or key down currently: `IsMouseDown`, `IsKeyDown`, `IsAnyKeyDown`
+* Mouse or key down in the current frame: `HasMouseGoneDown`, `HasKeyGoneDown`, `HasAnyKeyGoneDown`
+* Mouse or key up in the current frame: `HasMouseGoneUp`, `HasKeyGoneUp`
+* Mouse or key currently down: `IsMouseDown`, `IsKeyDown`, `IsAnyKeyDown`
 
 The mouse position (in window coordinates) can be obtained with `GetMouseX` and `GetMouseY`.
 
@@ -50,44 +51,44 @@ Additionally the current time delta in seconds can be obtained with `GetDelta`.
 
 Pixie has a basic ImGui with support for:
 
-    * Labels
-    * Buttons
-    * Input fields
-    * Check boxes
-    * Radio boxes
-    * Drawing rects, filled rects, and filled rounded rects
+* Labels
+* Buttons
+* Input fields
+* Check boxes
+* Radio boxes
+* Drawing rects, filled rects, and filled rounded rects
 
 To use the ImGui, add the following files to your project:
 
-    `imgui.cpp`
-    `imgui.h`
-    `font.h`
+    imgui.cpp
+    imgui.h
+    font.h
 
 and ensure that `font.bmp` is in your working directory.
 
 To load the font:
 
 ```cpp
-    Pixie::Font font;
-    if (!font.Load("font.bmp", 9, 16)) // 9x16 is the font character cell size.
-        return 0;
+Pixie::Font font;
+if (!font.Load("font.bmp", 9, 16)) // 9x16 is the font character cell size.
+    return 0;
 ```
 
 In your main loop:
 
 ```cpp
-    while (!window.HasKeyGoneUp(Pixie::Key_Escape))
-    {
-        Pixie::ImGui::Begin(&window, &font);
+while (!window.HasKeyGoneUp(Pixie::Key_Escape))
+{
+    Pixie::ImGui::Begin(&window, &font);
 
-        if (Pixie::ImGui::Button("Hello", 100, 100, 100, 30))
-            printf("Hello button was pressed\n");
+    if (Pixie::ImGui::Button("Hello", 100, 100, 100, 30))
+        printf("Hello button was pressed\n");
 
-        Pixie::ImGui::End();
+    Pixie::ImGui::End();
 
-        if (!window.Update())
-            break;
-    }
+    if (!window.Update())
+        break;
+}
 ```
 
 ### License
