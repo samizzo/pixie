@@ -1,5 +1,17 @@
 #pragma once
 
+#ifdef _WIN32
+#define PIXIE_PLATFORM_WIN 1
+#elif __APPLE__
+#define PIXIE_PLATFORM_OSX 1
+#else
+#error "Unsupported platform"
+#endif
+
+#if PIXIE_PLATFORM_WIN
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <cstdint>
 
 #ifndef max
@@ -12,14 +24,6 @@
 
 #ifndef clamp
 #define clamp(x, a, b)			min(max((x), (a)), (b))
-#endif
-
-#ifdef _WIN32
-#define PIXIE_PLATFORM_WIN 1
-#elif __APPLE__
-#define PIXIE_PLATFORM_OSX 1
-#else
-#error "Unsupported platform"
 #endif
 
 #if PIXIE_PLATFORM_OSX
