@@ -37,6 +37,9 @@ int main(int argc, char** argv)
 }
 ```
 
+Note that the pixel byte order differs depending on the platform, so it is best to use
+the MAKE_RGB(r, g, b) macro to set pixels.
+
 ### Examples
 
 Pixie has an example program in `main.cpp`. It can be compiled for Windows with the
@@ -46,7 +49,7 @@ make -f makefile_osx
 
 This will generate an executable `pixie_demo`.
 
-For macOS Pixie requires the `CoreGraphics` and `AppKit` frameworks.
+On macOS Pixie requires the `CoreGraphics` and `AppKit` frameworks.
 
 ### API
 
