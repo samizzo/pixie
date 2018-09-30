@@ -30,7 +30,6 @@
 #define strcat_s(dst, size, src) strlcat(dst, src, size)
 #define sprintf_s(dst, size, fmt, ...) snprintf(dst, size, fmt, __VA_ARGS__)
 #define strcpy_s(dst, size, src) snprintf(dst, size, "%s", src)
-#define MAKE_RGB(r, g, b) ((r)|((g)<<8)|((b)<<16))
-#else
-#define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
 #endif
+
+#define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
