@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <Carbon/Carbon.h>
+#include <mach/mach_time.h>
 //#include <CoreGraphics/CoreGraphics.h>
 
 using namespace Pixie;
@@ -31,6 +32,8 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	[NSAutoreleasePool new];
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+
+	// Configure app menu.
 	id menubar = [[NSMenu new] autorelease];
 	id appMenuItem = [[NSMenuItem new] autorelease];
 	[menubar addItem:appMenuItem];
@@ -42,23 +45,31 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
 	[appMenu addItem:quitMenuItem];
 	[appMenuItem setSubmenu:appMenu];
+
+	// Create the application window.
 	id window = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
-	styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO] autorelease];
+		styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO] autorelease];
 	[window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
 	[window setTitle:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[window makeKeyAndOrderFront:nil];
 	[NSApp activateIgnoringOtherApps:YES];
 
-	CGContextRef osx_bitmap_context = CGBitmapContextCreate(m_buffer->GetPixels(), width, height, FrameBufferBitDepth, width*4,
-		CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast); //kCGImageAlphaPremultipliedFirst);
-	assert(osx_bitmap_context != 0);
-	m_window = osx_bitmap_context;
+	// Create the window backing bitmap context.
+	CGContextRef bitmapContext = CGBitmapContextCreate(m_buffer->GetPixels(), width, height, FrameBufferBitDepth, width*4,
+		CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast);
+	assert(bitmapContext != 0);
+	m_window = bitmapContext;
 
-	NSGraphicsContext* ctx = [NSGraphicsContext graphicsContextWithWindow:window];
-	assert(ctx != 0);
-	CGContextRef osx_window_context = [ ctx CGContext ];
-	assert(osx_window_context != 0);
-	[ NSGraphicsContext setCurrentContext:ctx ];
+	// Configure the current graphics context.
+	NSGraphicsContext* graphicsContext = [NSGraphicsContext graphicsContextWithWindow:window];
+	assert(graphicsContext != 0);
+	[ NSGraphicsContext setCurrentContext:graphicsContext ];
+
+	// Initialise the timer.
+	m_lastTime = mach_absolute_time();
+	mach_timebase_info_data_t timebase;
+	mach_timebase_info(&timebase);
+	m_freq = (timebase.denom * 1e9) / timebase.numer;
 
 	return true;
 }
@@ -66,7 +77,11 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 bool Window::PlatformUpdate()
 {
 	// TODO: Update mouse position.
-	// TODO: Update time.
+
+	uint64_t time = mach_absolute_time();
+	uint64_t delta = time - m_lastTime;
+	m_delta = delta / (float)m_freq;
+	m_lastTime = time;
 
 	// Pump messages.
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
@@ -80,6 +95,7 @@ bool Window::PlatformUpdate()
 
 	CGImageRef img = CGBitmapContextCreateImage((CGContextRef)m_window);
 	CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
+	assert(currentContext != 0);
 	CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
 	CGContextFlush(currentContext);
 	CGImageRelease(img);
