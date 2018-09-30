@@ -11,6 +11,56 @@ using namespace Pixie;
 
 static const int FrameBufferBitDepth = 8;
 
+@interface PixieWindow : NSWindow <NSWindowDelegate>
+{
+	Window* pixieWindow;
+}
+
+- (void)setPixieWindow:(Window *) thePixieWindow;
+@end
+
+@implementation PixieWindow
+- (void)setPixieWindow:(Window *) thePixieWindow
+{
+	pixieWindow = thePixieWindow;
+}
+
+- (void)mouseDown:(NSEvent *) theEvent
+{
+	pixieWindow->SetMouseButtonDown(MouseButton_Left, true);
+}
+
+- (void)mouseUp:(NSEvent *) theEvent
+{
+	pixieWindow->SetMouseButtonDown(MouseButton_Left, false);
+}
+
+- (void)rightMouseDown:(NSEvent *) theEvent
+{
+	pixieWindow->SetMouseButtonDown(MouseButton_Right, true);
+}
+
+- (void)rightMouseUp:(NSEvent *) theEvent
+{
+	pixieWindow->SetMouseButtonDown(MouseButton_Right, false);
+}
+
+- (void)otherMouseDown:(NSEvent *) theEvent
+{
+	pixieWindow->SetMouseButtonDown(MouseButton_Middle, true);
+}
+
+- (void)otherMouseUp:(NSEvent *) theEvent
+{
+	pixieWindow->SetMouseButtonDown(MouseButton_Middle, false);
+}
+
+- (BOOL)acceptsFirstResponder
+{
+	return YES;
+}
+@end
+
 void Window::PlatformInit()
 {
 	m_backingBitmap = 0;
@@ -49,11 +99,13 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	[appMenuItem setSubmenu:appMenu];
 
 	// Create the application window.
-	id window = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
+	id window = [[[PixieWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
 		styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO] autorelease];
+	[window setDelegate:window];
 	[window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
 	[window setTitle:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[window makeKeyAndOrderFront:nil];
+	[window setPixieWindow:this];
 	[NSApp activateIgnoringOtherApps:YES];
 	m_window = window;
 
@@ -89,11 +141,6 @@ bool Window::PlatformUpdate()
 	m_mouseX = clamp(mousePos.x, 0, width);
 	m_mouseY = clamp(height - mousePos.y - 1, 0, height);
 
-	// Update mouse button state.
-	SetMouseButtonDown(MouseButton_Left, CGEventSourceButtonState(kCGEventSourceStateCombinedSessionState, kCGMouseButtonLeft));
-	SetMouseButtonDown(MouseButton_Middle, CGEventSourceButtonState(kCGEventSourceStateCombinedSessionState, kCGMouseButtonCenter));
-	SetMouseButtonDown(MouseButton_Right, CGEventSourceButtonState(kCGEventSourceStateCombinedSessionState, kCGMouseButtonRight));
-
 	uint64_t time = mach_absolute_time();
 	uint64_t delta = time - m_lastTime;
 	m_delta = delta / (float)m_freq;
@@ -102,7 +149,10 @@ bool Window::PlatformUpdate()
 	// Pump messages.
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	NSEvent* event;
-	while (nil != (event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode	dequeue:YES])) { }
+	while (nil != (event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode	dequeue:YES]))
+	{
+		[NSApp sendEvent:event];
+	}
 	[pool release];
 
 	// Copy buffer to window.
