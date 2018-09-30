@@ -37,8 +37,8 @@ int main(int argc, char** argv)
 }
 ```
 
-Note that the pixel byte order differs depending on the platform, so it is best to use
-the MAKE_RGB(r, g, b) macro to set pixels.
+The pixel byte order is BGRx (from LSB to MSB). On macOS, the pixel buffer is transformed
+from BGR to RGB.
 
 ### Examples
 
