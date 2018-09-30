@@ -6,7 +6,7 @@ OBJDIR=obj
 LIBS=-lc++
 FRAMEWORKS=-framework CoreGraphics -framework AppKit
 
-DEPS = buffer.h core.h font.h imgui.h pixie.h
+DEPS = core.h font.h imgui.h pixie.h
 
 _OBJ = main.o pixie.o pixie_osx.o imgui.o font.o
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
