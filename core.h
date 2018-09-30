@@ -15,15 +15,15 @@
 #include <cstdint>
 
 #ifndef max
-#define max(a, b)					(((a) > (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
 #ifndef min
-#define min(a, b)					(((a) < (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef clamp
-#define clamp(x, a, b)			min(max((x), (a)), (b))
+#define clamp(x, a, b) min(max((x), (a)), (b))
 #endif
 
 #if PIXIE_PLATFORM_OSX
