@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	char buf[16] = { 0 };
 	strcat_s(buf, sizeof(buf), "Hello, World!");
 
-	while (true)
+	while (!window.HasKeyGoneUp(Pixie::Key_Escape))
 	{
 		Pixie::ImGui::Begin(&window, &font);
 
@@ -138,12 +138,6 @@ int main(int argc, char** argv)
 		Pixie::ImGui::FilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
 
 		Pixie::ImGui::End();
-
-		if (window.HasKeyGoneUp(Pixie::Key_Escape))
-		{
-			window.Close();
-			break;
-		}
 
 		if (!window.Update())
 			break;
