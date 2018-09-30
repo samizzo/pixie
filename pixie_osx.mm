@@ -182,7 +182,9 @@ bool Window::PlatformUpdate()
 
 void Window::PlatformClose()
 {
-	CGContextRelease((CGContextRef)m_backingBitmap);
+	if (m_backingBitmap)
+		CGContextRelease((CGContextRef)m_backingBitmap);
+	m_backingBitmap = 0;
 	// TODO: Release window context?
 	// TODO: Release colour space context?
 }
