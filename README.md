@@ -45,7 +45,7 @@ the MAKE_RGB(r, g, b) macro to set pixels.
 Pixie has an example program in `main.cpp`. It can be compiled for Windows with the
 Visual Studio 2017 project, or for macOS with `makefile_osx` as follows:
 
-make -f makefile_osx
+    make -f makefile_osx
 
 This will generate an executable `pixie_demo`.
 
