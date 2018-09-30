@@ -82,11 +82,17 @@ bool Window::PlatformUpdate()
 	int width = m_buffer->GetWidth();
 	int height = m_buffer->GetHeight();
 
+	// Update mouse cursor position.
 	NSWindow* window = (NSWindow*)m_window;
 	NSPoint mousePos;
 	mousePos = [window mouseLocationOutsideOfEventStream];
 	m_mouseX = clamp(mousePos.x, 0, width);
 	m_mouseY = clamp(height - mousePos.y - 1, 0, height);
+
+	// Update mouse button state.
+	SetMouseButtonDown(MouseButton_Left, CGEventSourceButtonState(kCGEventSourceStateCombinedSessionState, kCGMouseButtonLeft));
+	SetMouseButtonDown(MouseButton_Middle, CGEventSourceButtonState(kCGEventSourceStateCombinedSessionState, kCGMouseButtonCenter));
+	SetMouseButtonDown(MouseButton_Right, CGEventSourceButtonState(kCGEventSourceStateCombinedSessionState, kCGMouseButtonRight));
 
 	uint64_t time = mach_absolute_time();
 	uint64_t delta = time - m_lastTime;
