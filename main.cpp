@@ -19,7 +19,7 @@ static void draw(int x, int y, Pixie::Buffer* buffer)
 			if (i < WindowWidth && j < WindowHeight)
 			{
 				int index = (i + (j * WindowWidth));
-				pixels[index] = 0xff;
+				pixels[index] = MAKE_RGB(0, 0, 255);
 			}
 		}
 	}
@@ -49,6 +49,7 @@ int main(int argc, char** argv)
 		Pixie::ImGui::Begin(&window, &font);
 
 		float delta = window.GetDelta();
+
 		x += xadd*delta;
 		y += yadd*delta;
 		if (x >= WindowWidth - 1)
@@ -123,6 +124,21 @@ int main(int argc, char** argv)
 				Pixie::ImGui::Rect((i*33) + 240, 280, 32, 32, MAKE_RGB(255, 0, 0));
 			}
 		}
+
+		static float accumTime = 0.0f;
+		static int numFrames = 0;
+		static float avgFrameTime = 0.0f;
+		numFrames++;
+		accumTime += delta;
+		if (numFrames == 8)
+		{
+			avgFrameTime = accumTime / (float)numFrames;
+			numFrames = 0;
+			accumTime = 0.0f;
+		}
+
+		int fpsWidth = min(WindowWidth, (avgFrameTime*20.0f)*WindowWidth);
+		Pixie::ImGui::FilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
 
 		Pixie::ImGui::End();
 
