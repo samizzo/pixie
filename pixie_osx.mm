@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <Carbon/Carbon.h>
 #include <mach/mach_time.h>
-//#include <CoreGraphics/CoreGraphics.h>
 
 using namespace Pixie;
 
