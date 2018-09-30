@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 			accumTime = 0.0f;
 		}
 
-		int fpsWidth = min(WindowWidth, (avgFrameTime*20.0f)*WindowWidth);
+		int fpsWidth = (int)min(WindowWidth, (avgFrameTime*20.0f)*WindowWidth);
 		Pixie::ImGui::FilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
 
 		Pixie::ImGui::End();
