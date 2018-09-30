@@ -143,7 +143,10 @@ int main(int argc, char** argv)
 		Pixie::ImGui::End();
 
 		if (window.HasKeyGoneUp(Pixie::Key_Escape))
+		{
 			window.Close();
+			break;
+		}
 
 		if (!window.Update())
 			break;
@@ -151,5 +154,5 @@ int main(int argc, char** argv)
 
 	window.Close();
 
-	printf("done");
+	printf("done\n");
 }
