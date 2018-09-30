@@ -16,6 +16,7 @@ static const int FrameBufferBitDepth = 8;
 	Window* pixieWindow;
 }
 
+@property bool isActivated;
 - (void)setPixieWindow:(Window *) thePixieWindow;
 @end
 
@@ -23,6 +24,7 @@ static const int FrameBufferBitDepth = 8;
 - (void)setPixieWindow:(Window *) thePixieWindow
 {
 	pixieWindow = thePixieWindow;
+	[self setIsActivated:false];
 }
 
 - (void)keyDown:(NSEvent *) theEvent
@@ -97,7 +99,6 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 {
 	[NSAutoreleasePool new];
 	[NSApplication sharedApplication];
-	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
 	// Configure app menu.
 	id menubar = [[NSMenu new] autorelease];
@@ -107,8 +108,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	id appMenu = [[NSMenu new] autorelease];
 	id appName = [[NSProcessInfo processInfo] processName];
 	id quitTitle = [@"Quit " stringByAppendingString:appName];
-	id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle
-	action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
+	id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle	action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
 	[appMenu addItem:quitMenuItem];
 	[appMenuItem setSubmenu:appMenu];
 
@@ -120,7 +120,9 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	[window setTitle:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[window makeKeyAndOrderFront:nil];
 	[window setPixieWindow:this];
-	[NSApp activateIgnoringOtherApps:YES];
+
+	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+	[NSApp finishLaunching];
 	m_window = window;
 
 	// Create the window backing bitmap context.
@@ -149,7 +151,7 @@ bool Window::PlatformUpdate()
 	int height = m_buffer->GetHeight();
 
 	// Update mouse cursor position.
-	NSWindow* window = (NSWindow*)m_window;
+	PixieWindow* window = (PixieWindow*)m_window;
 	NSPoint mousePos;
 	mousePos = [window mouseLocationOutsideOfEventStream];
 	m_mouseX = clamp(mousePos.x, 0, width);
@@ -168,6 +170,12 @@ bool Window::PlatformUpdate()
 		[NSApp sendEvent:event];
 	}
 	[pool release];
+
+	if (![window isActivated])
+	{
+		[NSApp activateIgnoringOtherApps:YES];
+		[window setIsActivated:true];
+	}
 
 	// Copy buffer to window.
 	CGImageRef img = CGBitmapContextCreateImage((CGContextRef)m_backingBitmap);
