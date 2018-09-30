@@ -37,6 +37,19 @@ int main(int argc, char** argv)
 }
 ```
 
+### Examples
+
+Pixie has an example program in `main.cpp`. It can be compiled for Windows with the
+Visual Studio 2017 project, or for macOS with `makefile_osx` as follows:
+
+make -f makefile_osx
+
+This will generate an executable `pixie_demo`.
+
+For macOS Pixie requires the `CoreGraphics` and `AppKit` frameworks.
+
+### API
+
 Pixie has some basic keyboard and mouse handling. You can check for:
 
 * Mouse or key down in the current frame: `HasMouseGoneDown`, `HasKeyGoneDown`, `HasAnyKeyGoneDown`
