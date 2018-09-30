@@ -173,6 +173,8 @@ namespace Pixie
 	inline bool Window::HasKeyGoneDown(Key key) const
 	{
 		int index = m_keyMap[key];
+		if (index == -1)
+			return false;
 		assert(index >= 0 && index < sizeof(m_keyDown));
 		return !m_lastKeyDown[index] && m_keyDown[index];
 	}
@@ -180,6 +182,8 @@ namespace Pixie
 	inline bool Window::HasKeyGoneUp(Key key) const
 	{
 		int index = m_keyMap[key];
+		if (index == -1)
+			return false;
 		assert(index >= 0 && index < sizeof(m_keyDown));
 		return m_lastKeyDown[index] && !m_keyDown[index];
 	}
@@ -187,6 +191,8 @@ namespace Pixie
 	inline bool Window::IsKeyDown(Key key) const
 	{
 		int index = m_keyMap[key];
+		if (index == -1)
+			return false;
 		assert(index >= 0 && index < sizeof(m_keyDown));
 		return m_keyDown[index];
 	}
