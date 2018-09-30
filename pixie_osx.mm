@@ -12,17 +12,51 @@ static const int FrameBufferBitDepth = 8;
 @interface PixieWindow : NSWindow <NSWindowDelegate>
 {
 	Window* pixieWindow;
+	CGContextRef backingBitmapContext;
+	CGColorSpaceRef colourSpace;
 }
 
 @property bool isActivated;
 - (void)setPixieWindow:(Window *) thePixieWindow;
+- (void)createBackingBitmapContext;
+- (void)copyBufferToWindow;
 @end
 
 @implementation PixieWindow
+- (void)dealloc
+{
+	CGColorSpaceRelease(colourSpace);
+	CGContextRelease(backingBitmapContext);
+	[super dealloc];
+}
+
 - (void)setPixieWindow:(Window *) thePixieWindow
 {
 	pixieWindow = thePixieWindow;
 	[self setIsActivated:false];
+}
+
+- (void)createBackingBitmapContext
+{
+	uint32_t* pixels = pixieWindow->GetPixels();
+	uint32_t width = pixieWindow->GetWidth();
+	uint32_t height = pixieWindow->GetHeight();
+	colourSpace = CGColorSpaceCreateDeviceRGB();
+	backingBitmapContext = CGBitmapContextCreate(pixels, width, height, FrameBufferBitDepth, width*4,
+		colourSpace, kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast);
+	assert(backingBitmapContext != 0);
+}
+
+- (void)copyBufferToWindow
+{
+	uint32_t width = pixieWindow->GetWidth();
+	uint32_t height = pixieWindow->GetHeight();
+	CGImageRef img = CGBitmapContextCreateImage(backingBitmapContext);
+	CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
+	assert(currentContext != 0);
+	CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
+	CGContextFlush(currentContext);
+	CGImageRelease(img);
 }
 
 - (void)keyDown:(NSEvent *) theEvent
@@ -77,8 +111,6 @@ static const int FrameBufferBitDepth = 8;
 
 void Window::PlatformInit()
 {
-	m_backingBitmap = 0;
-
 	for (int i = 0; i < Key_Num; i++)
 		m_keyMap[i] = -1;
 
@@ -123,11 +155,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 	[NSApp finishLaunching];
 	m_window = window;
 
-	// Create the window backing bitmap context.
-	CGContextRef bitmapContext = CGBitmapContextCreate(m_pixels, width, height, FrameBufferBitDepth, width*4,
-		CGColorSpaceCreateDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast);
-	assert(bitmapContext != 0);
-	m_backingBitmap = bitmapContext;
+	[window createBackingBitmapContext];
 
 	// Create and configure the current graphics context.
 	NSGraphicsContext* graphicsContext = [NSGraphicsContext graphicsContextWithWindow:window];
@@ -182,21 +210,11 @@ bool Window::PlatformUpdate()
 	}
 
 	// Copy buffer to window.
-	CGImageRef img = CGBitmapContextCreateImage((CGContextRef)m_backingBitmap);
-	CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
-	assert(currentContext != 0);
-	CGContextDrawImage(currentContext, CGRectMake(0, 0, m_width, m_height), img);
-	CGContextFlush(currentContext);
-	CGImageRelease(img);
+	[window copyBufferToWindow];
 
 	return true;
 }
 
 void Window::PlatformClose()
 {
-	if (m_backingBitmap)
-		CGContextRelease((CGContextRef)m_backingBitmap);
-	m_backingBitmap = 0;
-	// TODO: Release window context?
-	// TODO: Release colour space context?
 }
