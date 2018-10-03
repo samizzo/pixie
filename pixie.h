@@ -1,7 +1,7 @@
 #pragma once
 
 #include <assert.h>
-#include <cstdint>
+#include <stdint.h>
 #include "core.h"
 
 namespace Pixie
