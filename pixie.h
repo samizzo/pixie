@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <cstdint>
 #include "core.h"
 
 namespace Pixie
@@ -82,13 +83,13 @@ namespace Pixie
 			float GetDelta() const;
 
 			// Returns the backing buffer for the window.
-			std::uint32_t* GetPixels() const;
+			uint32_t* GetPixels() const;
 
 			// Returns the width of the window.
-			std::uint32_t GetWidth() const;
+			uint32_t GetWidth() const;
 
 			// Returns the height of the window.
-			std::uint32_t GetHeight() const;
+			uint32_t GetHeight() const;
 
 			// Used by the window procedure to update key and mouse state.
 			void SetMouseButtonDown(MouseButton button, bool down);
@@ -117,14 +118,14 @@ namespace Pixie
 
 			float m_delta;
 
-			std::uint32_t* m_pixels;
-			std::uint32_t m_width;
-			std::uint32_t m_height;
+			uint32_t* m_pixels;
+			uint32_t m_width;
+			uint32_t m_height;
 
 			void* m_window;
 
-			std::int64_t m_lastTime;
-			std::int64_t m_freq;
+			int64_t m_lastTime;
+			int64_t m_freq;
 	};
 
 	inline int Window::GetMouseX() const
@@ -142,17 +143,17 @@ namespace Pixie
 		return m_delta;
 	}
 
-	inline std::uint32_t* Window::GetPixels() const
+	inline uint32_t* Window::GetPixels() const
 	{
 		return m_pixels;
 	}
 
-	inline std::uint32_t Window::GetWidth() const
+	inline uint32_t Window::GetWidth() const
 	{
 		return m_width;
 	}
 
-	inline std::uint32_t Window::GetHeight() const
+	inline uint32_t Window::GetHeight() const
 	{
 		return m_height;
 	}

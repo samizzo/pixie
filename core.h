@@ -16,12 +16,6 @@
 #error "Unsupported platform"
 #endif
 
-#if PIXIE_PLATFORM_WIN
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-#include <cstdint>
-
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif

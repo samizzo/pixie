@@ -1,6 +1,10 @@
+#include "core.h"
+#if PIXIE_PLATFORM_WIN
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#include <stdio.h>
 #include "font.h"
 #include "pixie.h"
-#include <stdio.h>
 #if PIXIE_PLATFORM_WIN
 #include <Windows.h>
 #else
