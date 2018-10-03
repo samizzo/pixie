@@ -1,5 +1,13 @@
 #pragma once
 
+// Define PIXIE_NORMALISE_MAIN (either here or in your compiler command-line
+// arguments) to allow Pixie to normalise the program entry point regardless
+// of platform and console/GUI subsystem to:
+//
+//           int main(int argc, char** argv)
+//
+//#define PIXIE_NORMALISE_MAIN
+
 #ifdef _WIN32
 #define PIXIE_PLATFORM_WIN 1
 #elif __APPLE__

@@ -182,9 +182,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+#if defined(PIXIE_NORMALISE_MAIN)
 extern int main(int argc, char** argv);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hInstPrev, LPSTR lpCmdLine, int nCmdShow)
 {
 	return main(__argc, __argv);
 }
+#endif
