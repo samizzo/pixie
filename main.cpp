@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
 		int fpsWidth = (int)min(WindowWidth, (avgFrameTime*20.0f)*WindowWidth);
 		Pixie::ImGui::FilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
-		Pixie::ImGui::FilledRect((1.0f/60.0f)*20.0f*WindowWidth, 0, 2, 10, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 255, 0));
+		Pixie::ImGui::FilledRect((int)((1.0f/60.0f)*20.0f*WindowWidth), 0, 2, 10, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 255, 0));
 
 		Pixie::ImGui::End();
 
