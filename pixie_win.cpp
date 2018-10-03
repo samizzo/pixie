@@ -47,6 +47,12 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     if (!RegisterClass(&wc))
         return false;
 
+    if (m_zoom2x)
+    {
+        width <<= 1;
+        height <<= 1;
+    }
+
     int style = WS_BORDER | WS_CAPTION;
     RECT rect;
     rect.left = 0;
@@ -58,7 +64,10 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     int xPos = (GetSystemMetrics(SM_CXSCREEN) - rect.right) >> 1;
     int yPos = (GetSystemMetrics(SM_CYSCREEN) - rect.bottom) >> 1;
 
-    HWND window = CreateWindow(PixieWindowClass, title, style, xPos, yPos, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
+    width = rect.right - rect.left;
+    height = rect.bottom - rect.top;
+
+    HWND window = CreateWindow(PixieWindowClass, title, style, xPos, yPos, width, height, NULL, NULL, hInstance, NULL);
     m_window = (HWND)window;
     if (window == 0)
         return false;
@@ -80,6 +89,12 @@ bool Window::PlatformUpdate()
     ScreenToClient((HWND)m_window, &p);
     m_mouseX = p.x;
     m_mouseY = p.y;
+
+    if (m_zoom2x)
+    {
+        m_mouseX >>= 1;
+        m_mouseY >>= 1;
+    }
 
     __int64 time;
     QueryPerformanceCounter((LARGE_INTEGER*)&time);
@@ -112,7 +127,14 @@ bool Window::PlatformUpdate()
     bmiHeader.biYPelsPerMeter = 0;
     bmiHeader.biClrUsed = 0;
     bmiHeader.biClrImportant = 0;
-    SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS);
+    if (m_zoom2x)
+    {
+        StretchDIBits(hdc, 0, 0, m_width << 1, m_height << 1, 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+    }
+    else
+    {
+        SetDIBitsToDevice(hdc, 0, 0, m_width, m_height, 0, 0, 0, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS);
+    }
     ReleaseDC((HWND)m_window, hdc);
 
     return true;

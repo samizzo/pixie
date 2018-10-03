@@ -9,6 +9,7 @@ Window::Window()
 {
     m_delta = 0.0f;
     m_pixels = 0;
+    m_zoom2x = false;
 
     assert(sizeof(m_mouseButtonDown) == sizeof(m_lastMouseButtonDown));
     memset(m_mouseButtonDown, 0, sizeof(m_mouseButtonDown));
@@ -27,12 +28,13 @@ Window::~Window()
     delete[] m_pixels;
 }
 
-bool Window::Open(const char* title, int width, int height)
+bool Window::Open(const char* title, int width, int height, bool zoom2x /*= false*/)
 {
     // Create the buffer first because on OSX we need it to exist when initialising.
     m_pixels = new uint32_t[width * height];
     m_width = width;
     m_height = height;
+    m_zoom2x = zoom2x;
 
     if (!PlatformOpen(title, width,  height))
     {
