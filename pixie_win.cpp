@@ -99,7 +99,7 @@ bool Window::PlatformUpdate()
 	BITMAPINFOHEADER& bmiHeader = bitmapInfo.bmiHeader;
 	bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bmiHeader.biWidth = m_width;
-	bmiHeader.biHeight = -(int32_t)m_height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
+	bmiHeader.biHeight = -(std::int32_t)m_height; // Negative indicates a top-down DIB. Otherwise DIB is bottom up.
 	bmiHeader.biPlanes = 1;
 	bmiHeader.biBitCount = 32;
 	bmiHeader.biCompression = BI_RGB;

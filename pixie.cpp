@@ -30,7 +30,7 @@ Window::~Window()
 bool Window::Open(const char* title, int width, int height)
 {
 	// Create the buffer first because on OSX we need it to exist when initialising.
-	m_pixels = new uint32_t[width * height];
+	m_pixels = new std::uint32_t[width * height];
 	m_width = width;
 	m_height = height;
 
