@@ -54,7 +54,11 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     rect.top = 0;
     rect.bottom = height;
     AdjustWindowRect(&rect, style, FALSE);
-    HWND window = CreateWindow(PixieWindowClass, title, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
+
+    int xPos = (GetSystemMetrics(SM_CXSCREEN) - rect.right) >> 1;
+    int yPos = (GetSystemMetrics(SM_CYSCREEN) - rect.bottom) >> 1;
+
+    HWND window = CreateWindow(PixieWindowClass, title, style, xPos, yPos, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
     m_window = (HWND)window;
     if (window == 0)
         return false;
