@@ -115,6 +115,8 @@ void Window::PlatformInit()
         m_keyMap[i] = -1;
 
     m_keyMap[Key_Escape] = kVK_Escape;
+    m_keyMap[Key_Up] = kVK_UpArrow;
+    m_keyMap[Key_Down] = kVK_DownArrow;
     m_keyMap[Key_Left] = kVK_LeftArrow;
     m_keyMap[Key_Right] = kVK_RightArrow;
     m_keyMap[Key_Home] = kVK_Home;
@@ -123,6 +125,13 @@ void Window::PlatformInit()
     m_keyMap[Key_Delete] = -1; //VK_DELETE;
     m_keyMap[Key_LeftShift] = kVK_Shift;
     m_keyMap[Key_RightShift] = kVK_RightShift;
+    m_keyMap[Key_Space] = kVK_Space;
+    m_keyMap[Key_F1] = kVK_F1;
+    m_keyMap[Key_F2] = kVK_F2
+    m_keyMap[Key_F3] = kVK_F3;
+    m_keyMap[Key_Plus] = kVK_ANSI_KeypadPlus;
+    m_keyMap[Key_Minus] = kVK_ANSI_KeypadMinus;
+    m_keyMap[Key_A] = kVK_ANSI_A;
 }
 
 bool Window::PlatformOpen(const char* title, int width, int height)
