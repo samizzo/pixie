@@ -17,6 +17,8 @@ namespace Pixie
     enum Key
     {
         Key_Escape,
+        Key_Up,
+        Key_Down,
         Key_Left,
         Key_Right,
         Key_Home,
@@ -25,6 +27,13 @@ namespace Pixie
         Key_Delete,
         Key_LeftShift,
         Key_RightShift,
+        Key_Space,
+        Key_F1,
+        Key_F2,
+        Key_F3,
+        Key_Plus,
+        Key_Minus,
+        Key_A,
         Key_Num
     };
 

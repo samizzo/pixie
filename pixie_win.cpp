@@ -18,6 +18,8 @@ void Window::PlatformInit()
     for (int i = 0; i < Key_Num; i++)
         m_keyMap[i] = -1;
     m_keyMap[Key_Escape] = VK_ESCAPE;
+    m_keyMap[Key_Up] = VK_UP;
+    m_keyMap[Key_Down] = VK_DOWN;
     m_keyMap[Key_Left] = VK_LEFT;
     m_keyMap[Key_Right] = VK_RIGHT;
     m_keyMap[Key_Home] = VK_HOME;
@@ -26,6 +28,13 @@ void Window::PlatformInit()
     m_keyMap[Key_Delete] = VK_DELETE;
     m_keyMap[Key_LeftShift] = VK_LSHIFT;
     m_keyMap[Key_RightShift] = VK_RSHIFT;
+    m_keyMap[Key_Space] = VK_SPACE;
+    m_keyMap[Key_F1] = VK_F1;
+    m_keyMap[Key_F2] = VK_F2;
+    m_keyMap[Key_F3] = VK_F3;
+    m_keyMap[Key_Plus] = VK_OEM_PLUS;
+    m_keyMap[Key_Minus] = VK_OEM_MINUS;
+    m_keyMap[Key_A] = 'A';
 }
 
 bool Window::PlatformOpen(const char* title, int width, int height)
