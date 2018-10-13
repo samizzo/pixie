@@ -50,7 +50,9 @@ bool Window::Update()
 {
     UpdateMouse();
     UpdateKeyboard();
-    return PlatformUpdate();
+    bool result = PlatformUpdate();
+    m_time += m_delta;
+    return result;
 }
 
 void Window::Close()

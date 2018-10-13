@@ -93,6 +93,9 @@ namespace Pixie
             // Returns the time delta since the last time the window was updated.
             float GetDelta() const;
 
+            // Returns the time in seconds since the application was started.
+            float GetTime() const;
+
             // Returns the backing buffer for the window.
             uint32_t* GetPixels() const;
 
@@ -153,6 +156,11 @@ namespace Pixie
     inline float Window::GetDelta() const
     {
         return m_delta;
+    }
+
+    inline float Window::GetTime() const
+    {
+        return m_time;
     }
 
     inline uint32_t* Window::GetPixels() const
