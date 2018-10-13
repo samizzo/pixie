@@ -35,6 +35,7 @@ bool Window::Open(const char* title, int width, int height, bool zoom2x /*= fals
     m_width = width;
     m_height = height;
     m_zoom2x = zoom2x;
+    m_time = 0.0f;
 
     if (!PlatformOpen(title, width,  height))
     {

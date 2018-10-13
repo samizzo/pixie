@@ -87,6 +87,12 @@ int main(int argc, char** argv)
             cx += 9;
         }
 
+        {
+            char buf[128];
+            sprintf_s(buf, sizeof(buf), "%.4f", window.GetTime());
+            font.Draw(buf, 10, 90, &window);
+        }
+
         draw((int)x, (int)y, pixels);
 
         Pixie::ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));

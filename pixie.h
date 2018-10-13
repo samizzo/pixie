@@ -90,10 +90,10 @@ namespace Pixie
             // Returns the current mouse Y position.
             int GetMouseY() const;
 
-            // Returns the time delta since the last time the window was updated.
+            // Returns the time delta in seconds since the last time the window was updated.
             float GetDelta() const;
 
-            // Returns the time in seconds since the application was started.
+            // Returns the time in seconds since the window was opened.
             float GetTime() const;
 
             // Returns the backing buffer for the window.
@@ -139,6 +139,7 @@ namespace Pixie
 
             void* m_window;
 
+            float m_time;
             int64_t m_lastTime;
             int64_t m_freq;
     };
