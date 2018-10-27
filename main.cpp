@@ -96,7 +96,6 @@ int main(int argc, char** argv)
         draw((int)x, (int)y, pixels);
 
         Pixie::ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
-        Pixie::ImGui::FilledRoundedRect(120, 240, 100, 100, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 128, 0));
 
         if (Pixie::ImGui::Button("Hello", 100, 100, 100, 30))
             strcpy_s(buf, sizeof(buf), "Hello, World!");

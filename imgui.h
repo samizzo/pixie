@@ -24,6 +24,5 @@ namespace Pixie
             // Basic drawing
             static void Rect(int x, int y, int width, int height, uint32_t borderColour);
             static void FilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour);
-            static void FilledRoundedRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour);
     };
 }

@@ -414,34 +414,3 @@ void ImGui::FilledRect(int x, int y, int width, int height, uint32_t colour, uin
     }
 }
 
-void ImGui::FilledRoundedRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
-{
-    assert(s_state.HasStarted());
-    Window* window = s_state.window;
-    uint32_t* pixels = window->GetPixels();
-    int windowWidth = window->GetWidth();
-    int windowHeight = window->GetHeight();
-
-    const int NumPixels = 1;
-
-    pixels += x + (y*windowWidth);
-
-    for (int j = 0, ypos = y; j < height && ypos < windowHeight; j++, ypos++)
-    {
-        for (int i = 0, xpos = x; i < width; i++, xpos++)
-        {
-            if (xpos < 0 || xpos >= windowWidth || ypos < 0 || ypos >= windowHeight)
-                continue;
-            if ((i < NumPixels || i >= width - NumPixels) && (j < NumPixels || j >= height - NumPixels))
-            {
-                pixels++;
-                continue;
-            }
-
-            *pixels = (i == 0 || i == width - 1 || j == 0 || j == height - 1) ? borderColour : colour;
-            pixels++;
-        }
-
-        pixels += windowWidth - width;
-    }
-}

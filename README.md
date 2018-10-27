@@ -72,7 +72,7 @@ Pixie has a basic ImGui with support for:
 * Input fields
 * Check boxes
 * Radio boxes
-* Drawing rects, filled rects, and filled rounded rects
+* Drawing rectangles and filled rectangles
 
 To use the ImGui, add the following files to your project:
 
