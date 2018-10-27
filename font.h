@@ -7,7 +7,7 @@ namespace Pixie
 {
     class Window;
 
-    // BMP font loader. Expects the entire character set (256 characters) on one line.
+    // BMP font loader. Expects the entire character set (256 ASCII characters) on one line.
     class Font
     {
         public:

@@ -86,7 +86,9 @@ To load the font:
 
 ```cpp
 Pixie::Font font;
-if (!font.Load("font.bmp", 9, 16)) // 9x16 is the font character cell size.
+const int FontWidth = 9;
+const int FontHeight = 16;
+if (!font.Load("font.bmp", FontWidth, FontHeight))
     return 0;
 ```
 
