@@ -37,7 +37,7 @@ bool Window::Open(const char* title, int width, int height, bool zoom2x /*= fals
     m_zoom2x = zoom2x;
     m_time = 0.0f;
 
-    if (!PlatformOpen(title, width,  height))
+    if (!PlatformOpen(title, width, height))
     {
         delete[] m_pixels;
         m_pixels = 0;
