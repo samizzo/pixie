@@ -122,7 +122,7 @@ void Window::PlatformInit()
     m_keyMap[Key_Home] = kVK_Home;
     m_keyMap[Key_End] = kVK_End;
     m_keyMap[Key_Backspace] = kVK_Delete;
-    m_keyMap[Key_Delete] = -1; //VK_DELETE;
+    m_keyMap[Key_Delete] = kVK_ForwardDelete;
     m_keyMap[Key_LeftShift] = kVK_Shift;
     m_keyMap[Key_RightShift] = kVK_RightShift;
     m_keyMap[Key_Space] = kVK_Space;
