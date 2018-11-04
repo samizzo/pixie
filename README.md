@@ -3,7 +3,7 @@ Pixie
 
 Pixie is a minimal, cross-platform pixel framebuffer library for Windows and macOS.
 
-![screenshot.png](/screenshot.png)
+![example.gif](/example.gif)
 
 ### Quick Start
 

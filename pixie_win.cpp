@@ -154,6 +154,43 @@ void Window::PlatformClose()
     DestroyWindow((HWND)m_window);
 }
 
+WPARAM MapLeftRightKeys(WPARAM vk, LPARAM lParam)
+{
+    WPARAM newVk = vk;
+    UINT scancode = (lParam & 0x00ff0000) >> 16;
+    int extended = (lParam & 0x01000000) != 0;
+
+    switch (vk)
+    {
+        case VK_SHIFT:
+        {
+            newVk = MapVirtualKey(scancode, MAPVK_VSC_TO_VK_EX);
+            break;
+        }
+
+        case VK_CONTROL:
+        {
+            newVk = extended ? VK_RCONTROL : VK_LCONTROL;
+            break;
+        }
+
+        case VK_MENU:
+        {
+            newVk = extended ? VK_RMENU : VK_LMENU;
+            break;
+        }
+
+        default:
+        {
+            // Not a key we map from generic to left/right specialized.
+            newVk = vk;
+            break;
+        }
+    }
+
+    return newVk;
+}
+
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     Window* window = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
@@ -187,7 +224,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             case WM_SYSKEYDOWN:
             {
                 if (wParam < 256)
+                {
+                    wParam = MapLeftRightKeys(wParam, lParam);
                     window->SetKeyDown((int)wParam, true);
+                }
                 break;
             }
 
@@ -195,7 +235,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             case WM_SYSKEYUP:
             {
                 if (wParam < 256)
+                {
+                    wParam = MapLeftRightKeys(wParam, lParam);
                     window->SetKeyDown((int)wParam, false);
+                }
                 break;
             }
 
