@@ -127,7 +127,7 @@ void Window::PlatformInit()
     m_keyMap[Key_RightShift] = kVK_RightShift;
     m_keyMap[Key_Space] = kVK_Space;
     m_keyMap[Key_F1] = kVK_F1;
-    m_keyMap[Key_F2] = kVK_F2
+    m_keyMap[Key_F2] = kVK_F2;
     m_keyMap[Key_F3] = kVK_F3;
     m_keyMap[Key_Plus] = kVK_ANSI_KeypadPlus;
     m_keyMap[Key_Minus] = kVK_ANSI_KeypadMinus;
