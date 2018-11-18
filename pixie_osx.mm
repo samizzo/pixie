@@ -5,6 +5,11 @@
 #include <Carbon/Carbon.h>
 #include <mach/mach_time.h>
 
+#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101200
+#define NSWindowStyleMaskTitled NSTitledWindowMask
+#define NSEventMaskAny NSAnyEventMask
+#endif
+
 using namespace Pixie;
 
 static const int FrameBufferBitDepth = 8;
@@ -197,7 +202,7 @@ bool Window::PlatformUpdate()
     // Pump messages.
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSEvent* event;
-    while (nil != (event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode	dequeue:YES]))
+    while (nil != (event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]))
     {
         [NSApp sendEvent:event];
     }
