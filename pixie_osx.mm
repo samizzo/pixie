@@ -48,7 +48,7 @@ static const int FrameBufferBitDepth = 8;
     uint32_t height = pixieWindow->GetHeight();
     colourSpace = CGColorSpaceCreateDeviceRGB();
     backingBitmapContext = CGBitmapContextCreate(pixels, width, height, FrameBufferBitDepth, width*4,
-        colourSpace, kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast);
+        colourSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst);
     assert(backingBitmapContext != 0);
 }
 
@@ -152,7 +152,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     id appMenu = [[NSMenu new] autorelease];
     id appName = [[NSProcessInfo processInfo] processName];
     id quitTitle = [@"Quit " stringByAppendingString:appName];
-    id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle	action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
+    id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
     [appMenu addItem:quitMenuItem];
     [appMenuItem setSubmenu:appMenu];
 
@@ -212,15 +212,6 @@ bool Window::PlatformUpdate()
     {
         [NSApp activateIgnoringOtherApps:YES];
         [window setIsActivated:true];
-    }
-
-    // Convert BGR to RGB.
-    uint32_t* pixels = m_pixels;
-    for (int i = 0; i < m_width * m_height; i++, pixels++)
-    {
-        uint32_t p = *pixels;
-        p = ((p & 0x000000ff) << 16) | (p & 0x0000ff00) | ((p & 0x00ff0000) >> 16);
-        *pixels = p;
     }
 
     // Copy buffer to window.
