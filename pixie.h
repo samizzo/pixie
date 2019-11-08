@@ -44,9 +44,9 @@ namespace Pixie
             ~Window();
 
             // Open the Pixie window with the specified title bar, width, and height.
-            // If zoom2x is true, the window will be rendered 2x larger and the buffer
-            // will be stretched to fit.
-            bool Open(const char* title, int width, int height, bool zoom2x = false);
+            // If scale is greater than 1 the window will be rendered scale times larger
+            // and the buffer will be stretched to fit.
+            bool Open(const char* title, int width, int height, int scale = 1);
 
             // Close the Pixie window.
             void Close();
@@ -135,7 +135,7 @@ namespace Pixie
             uint32_t* m_pixels;
             uint32_t m_width;
             uint32_t m_height;
-            bool m_zoom2x;
+            int m_scale;
 
             void* m_window;
 

@@ -56,11 +56,8 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     if (!RegisterClass(&wc))
         return false;
 
-    if (m_zoom2x)
-    {
-        width <<= 1;
-        height <<= 1;
-    }
+    width *= m_scale;
+    height *= m_scale;
 
     int style = WS_BORDER | WS_CAPTION;
     RECT rect;
@@ -99,11 +96,8 @@ bool Window::PlatformUpdate()
     m_mouseX = p.x;
     m_mouseY = p.y;
 
-    if (m_zoom2x)
-    {
-        m_mouseX >>= 1;
-        m_mouseY >>= 1;
-    }
+    m_mouseX /= m_scale;
+    m_mouseY /= m_scale;
 
     __int64 time;
     QueryPerformanceCounter((LARGE_INTEGER*)&time);
@@ -136,9 +130,9 @@ bool Window::PlatformUpdate()
     bmiHeader.biYPelsPerMeter = 0;
     bmiHeader.biClrUsed = 0;
     bmiHeader.biClrImportant = 0;
-    if (m_zoom2x)
+    if (m_scale > 1)
     {
-        StretchDIBits(hdc, 0, 0, m_width << 1, m_height << 1, 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+        StretchDIBits(hdc, 0, 0, m_width * m_scale, m_height * m_scale, 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
     }
     else
     {
