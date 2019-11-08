@@ -56,22 +56,40 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     if (!RegisterClass(&wc))
         return false;
 
-    width *= m_scale;
-    height *= m_scale;
+    m_scalex = (float)m_scale;
+    m_scaley = (float)m_scale;
 
-    int style = WS_BORDER | WS_CAPTION;
-    RECT rect;
-    rect.left = 0;
-    rect.right = width;
-    rect.top = 0;
-    rect.bottom = height;
-    AdjustWindowRect(&rect, style, FALSE);
+    int style = 0;
+    int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
+    int desktopHeight = GetSystemMetrics(SM_CYSCREEN);
+    int xPos, yPos;
 
-    int xPos = (GetSystemMetrics(SM_CXSCREEN) - rect.right) >> 1;
-    int yPos = (GetSystemMetrics(SM_CYSCREEN) - rect.bottom) >> 1;
+    if (m_fullscreen)
+    {
+        style = WS_POPUP;
+        xPos = yPos = 0;
+        width = desktopWidth;
+        height = desktopHeight;
+        m_scalex = width / (float)m_width;
+        m_scaley = m_scalex; //height / (float)m_height;
+    }
+    else
+    {
+        style = WS_BORDER | WS_CAPTION;
 
-    width = rect.right - rect.left;
-    height = rect.bottom - rect.top;
+        RECT rect;
+        rect.left = 0;
+        rect.right = width;
+        rect.top = 0;
+        rect.bottom = height;
+        AdjustWindowRect(&rect, style, FALSE);
+
+        xPos = (desktopWidth - rect.right) >> 1;
+        yPos = (desktopHeight - rect.bottom) >> 1;
+
+        width = rect.right - rect.left;
+        height = rect.bottom - rect.top;
+    }
 
     HWND window = CreateWindow(PixieWindowClass, title, style, xPos, yPos, width, height, NULL, NULL, hInstance, NULL);
     m_window = (HWND)window;
@@ -96,8 +114,16 @@ bool Window::PlatformUpdate()
     m_mouseX = p.x;
     m_mouseY = p.y;
 
-    m_mouseX /= m_scale;
-    m_mouseY /= m_scale;
+    if (m_fullscreen)
+    {
+        m_mouseX = (int)(m_mouseX / m_scalex);
+        m_mouseY = (int)(m_mouseY / m_scaley);
+    }
+    else
+    {
+        m_mouseX /= m_scale;
+        m_mouseY /= m_scale;
+    }
 
     __int64 time;
     QueryPerformanceCounter((LARGE_INTEGER*)&time);
@@ -130,9 +156,9 @@ bool Window::PlatformUpdate()
     bmiHeader.biYPelsPerMeter = 0;
     bmiHeader.biClrUsed = 0;
     bmiHeader.biClrImportant = 0;
-    if (m_scale > 1)
+    if (m_scale > 1 || m_fullscreen)
     {
-        StretchDIBits(hdc, 0, 0, m_width * m_scale, m_height * m_scale, 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+        StretchDIBits(hdc, 0, 0, (int)(m_width * m_scalex), (int)(m_height * m_scaley), 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
     }
     else
     {

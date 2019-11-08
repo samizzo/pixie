@@ -30,7 +30,7 @@ int main(int argc, char** argv)
         return 0;
 
     Pixie::Window window;
-    if (!window.Open(WindowTitle, WindowWidth, WindowHeight))
+    if (!window.Open(WindowTitle, WindowWidth, WindowHeight, true))
         return 0;
 
     uint32_t* pixels = window.GetPixels();

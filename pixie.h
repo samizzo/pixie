@@ -46,7 +46,7 @@ namespace Pixie
             // Open the Pixie window with the specified title bar, width, and height.
             // If scale is greater than 1 the window will be rendered scale times larger
             // and the buffer will be stretched to fit.
-            bool Open(const char* title, int width, int height, int scale = 1);
+            bool Open(const char* title, int width, int height, bool fullscreen, int scale = 1);
 
             // Close the Pixie window.
             void Close();
@@ -136,6 +136,8 @@ namespace Pixie
             uint32_t m_width;
             uint32_t m_height;
             int m_scale;
+            bool m_fullscreen;
+            float m_scalex, m_scaley;
 
             void* m_window;
 
