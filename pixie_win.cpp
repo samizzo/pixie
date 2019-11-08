@@ -71,7 +71,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
         width = desktopWidth;
         height = desktopHeight;
         m_scalex = width / (float)m_width;
-        m_scaley = height / (float)m_height;
+        m_scaley = m_maintainAspectRatio ? m_scalex : (height / (float)m_height);
     }
     else
     {
@@ -90,6 +90,9 @@ bool Window::PlatformOpen(const char* title, int width, int height)
         width = rect.right - rect.left;
         height = rect.bottom - rect.top;
     }
+
+    m_windowWidth = width;
+    m_windowHeight = height;
 
     HWND window = CreateWindow(PixieWindowClass, title, style, xPos, yPos, width, height, NULL, NULL, hInstance, NULL);
     m_window = (HWND)window;
@@ -158,7 +161,28 @@ bool Window::PlatformUpdate()
     bmiHeader.biClrImportant = 0;
     if (m_scale > 1 || m_fullscreen)
     {
-        StretchDIBits(hdc, 0, 0, (int)(m_width * m_scalex), (int)(m_height * m_scaley), 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+        int yofs = 0;
+        int destWidth = (int)(m_width * m_scalex);
+        int destHeight = (int)(m_height * m_scaley);
+        if (m_maintainAspectRatio)
+            yofs = (m_windowHeight - destHeight) >> 1;
+
+        if (m_maintainAspectRatio && yofs > 0)
+        {
+            // Fill top/bottom with black for letterboxing.
+            HBRUSH blackBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+            RECT rect;
+            rect.left = 0;
+            rect.top = 0;
+            rect.right = m_windowWidth;
+            rect.bottom = yofs;
+            FillRect(hdc, &rect, blackBrush);
+            rect.top = m_windowHeight - yofs;
+            rect.bottom = m_windowHeight;
+            FillRect(hdc, &rect, blackBrush);
+        }
+
+        StretchDIBits(hdc, 0, yofs, destWidth, destHeight, 0, 0, m_width, m_height, m_pixels, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
     }
     else
     {

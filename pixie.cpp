@@ -28,7 +28,7 @@ Window::~Window()
     delete[] m_pixels;
 }
 
-bool Window::Open(const char* title, int width, int height, bool fullscreen, int scale /*= 1*/)
+bool Window::Open(const char* title, int width, int height, bool fullscreen, bool maintainAspectRatio /*= false*/, int scale /*= 1*/)
 {
     // Create the buffer first because on OSX we need it to exist when initialising.
     m_pixels = new uint32_t[width * height];
@@ -37,6 +37,7 @@ bool Window::Open(const char* title, int width, int height, bool fullscreen, int
     m_scale = scale;
     m_time = 0.0f;
     m_fullscreen = fullscreen;
+    m_maintainAspectRatio = maintainAspectRatio;
 
     if (!PlatformOpen(title, width, height))
     {
