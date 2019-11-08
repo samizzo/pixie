@@ -71,7 +71,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
         width = desktopWidth;
         height = desktopHeight;
         m_scalex = width / (float)m_width;
-        m_scaley = m_scalex; //height / (float)m_height;
+        m_scaley = height / (float)m_height;
     }
     else
     {
@@ -79,9 +79,9 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 
         RECT rect;
         rect.left = 0;
-        rect.right = width;
+        rect.right = width * m_scale;
         rect.top = 0;
-        rect.bottom = height;
+        rect.bottom = height * m_scale;
         AdjustWindowRect(&rect, style, FALSE);
 
         xPos = (desktopWidth - rect.right) >> 1;
