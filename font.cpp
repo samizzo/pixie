@@ -71,7 +71,7 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
         return false;
     }
 
-    if (bmih.biBitCount != 32 || bmih.biCompression != BI_RGB)
+    if ((bmih.biBitCount != 32 && bmih.biBitCount != 24) || bmih.biCompression != BI_RGB)
     {
         fclose(infile);
         return false;
@@ -80,11 +80,65 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
     fseek(infile, bmfh.bfOffBits, SEEK_SET);
 
     m_width = bmih.biWidth;
-    m_height = bmih.biHeight;
+    m_height = abs(bmih.biHeight);
 
     int size = 256 * m_characterSizeX * m_characterSizeY;
     m_fontBuffer = new uint32_t[size];
-    fread(m_fontBuffer, 1, size*4, infile);
+
+    if (bmih.biBitCount == 32)
+    {
+        fread(m_fontBuffer, 1, size * 4, infile);
+    }
+    else if (bmih.biBitCount == 24)
+    {
+        // read into 24bit buf and expand
+        uint8_t* buf24 = new uint8_t[size * 3];
+        fread(buf24, 1, size * 3, infile);
+
+        uint8_t* pcurr = buf24;
+        for (uint32_t i = 0; i < size; ++i)
+        {
+            // from: R,G,B
+            // to:   xRGB
+            m_fontBuffer[i] =
+                0xff000000 |
+                (*(pcurr) << 16) |
+                (*(pcurr + 1) << 8) |
+                (*(pcurr + 2));
+
+            pcurr += 3;
+        }
+
+        delete[] buf24;
+    }
+
+    // if we don't have a negative height, the bmp is stored upside-down, so go through and flip it
+    if (bmih.biHeight > 0)
+    {
+        uint32_t* rowbuf = new uint32_t[m_width];
+        // flip all rows apart from the middle one if the image has an odd height
+        // h = 4; h/2 = 2; y 0,fy 3 | y 1,fy 2
+        // h = 5; h/2 = 2; y 0,fy 4 | y 1,fy 3  [row 2 unchanged]
+        for (uint32_t y = 0; y < m_height / 2; ++y)
+        {
+            uint32_t flipy = (m_height - (y + 1));
+
+            void* row = m_fontBuffer + (m_width * y);
+            void* fliprow = m_fontBuffer + (m_width * flipy);
+            uint32_t rowsize = m_width * sizeof(uint32_t);
+
+            // 1. copy fliprow into rowbuf
+            memcpy(rowbuf, fliprow, rowsize);
+
+            // 2. copy row into fliprow
+            memcpy(fliprow, row, rowsize);
+
+            // 3. copy rowbuf into row
+            memcpy(row, rowbuf, rowsize);
+        }
+
+        delete[] rowbuf;
+    }
 
     fclose(infile);
 
@@ -111,7 +165,7 @@ void Font::Draw(const char* msg, int x, int y, Pixie::Window* window)
                 if (sx >= 0 && sx < width && sy >= 0 && sy < height)
                 {
                     uint32_t pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
-                    if (pixel != 0xff000000)
+                    if (pixel & 0xffffff)
                         pixels[sx+(sy*width)] = pixel;
                 }
             }
@@ -141,7 +195,7 @@ void Font::DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Win
                 if (sx >= 0 && sx < width && sy >= 0 && sy < height)
                 {
                     uint32_t pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
-                    if (pixel != 0xff000000)
+                    if (pixel & 0xffffff)
                         pixels[sx + (sy*width)] = colour;
                 }
             }
