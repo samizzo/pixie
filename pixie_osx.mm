@@ -17,6 +17,8 @@ static const int FrameBufferBitDepth = 8;
 @interface PixieNSWindow : NSWindow <NSWindowDelegate>
 @property Window* pixieWindow;
 @property bool isActivated;
+@property bool isRunning;
+@property(assign) NSAutoreleasePool* autoreleasePool;
 @end
 
 @implementation PixieNSWindow
@@ -24,7 +26,13 @@ static const int FrameBufferBitDepth = 8;
 {
     self = [super initWithContentRect:contentRect styleMask:windowStyle backing:backingType defer:deferCreation];
     _isActivated = false;
+    _isRunning = true;
     return self;
+}
+
+- (void)quit
+{
+    _isRunning = false;
 }
 
 - (void)keyDown:(NSEvent *) theEvent
@@ -156,20 +164,8 @@ void Window::PlatformInit()
 
 bool Window::PlatformOpen(const char* title, int width, int height)
 {
-    [NSAutoreleasePool new];
+    NSAutoreleasePool* autoreleasePool = [NSAutoreleasePool new];
     [NSApplication sharedApplication];
-
-    // Configure the default app menu.
-    id menubar = [[NSMenu new] autorelease];
-    id appMenuItem = [[NSMenuItem new] autorelease];
-    [menubar addItem:appMenuItem];
-    [NSApp setMainMenu:menubar];
-    id appMenu = [[NSMenu new] autorelease];
-    id appName = [[NSProcessInfo processInfo] processName];
-    id quitTitle = [@"Quit " stringByAppendingString:appName];
-    id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
-    [appMenu addItem:quitMenuItem];
-    [appMenuItem setSubmenu:appMenu];
 
     // Create the application window.
     id window = [[[PixieNSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
@@ -180,9 +176,23 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     [window setTitle:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
     [window makeKeyAndOrderFront:window];
     [window setReleasedWhenClosed:TRUE];
+    [window setAutoreleasePool:autoreleasePool];
+
+    // Configure the default app menu.
+    id menubar = [[NSMenu new] autorelease];
+    id appMenuItem = [[NSMenuItem new] autorelease];
+    [menubar addItem:appMenuItem];
+    [NSApp setMainMenu:menubar];
+    id appMenu = [[NSMenu new] autorelease];
+    id appName = [[NSProcessInfo processInfo] processName];
+    id quitTitle = [@"Quit " stringByAppendingString:appName];
+    id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(quit) keyEquivalent:@"q"] autorelease];
+    [quitMenuItem setTarget:window];
+    [appMenu addItem:quitMenuItem];
+    [appMenuItem setSubmenu:appMenu];
 
     // Create the custom NSView which will draw our pixel buffer to the screen.
-    PixieNSView* view = [[PixieNSView alloc] initWithFrame:NSMakeRect(0, 0, width, height) pixieWindow:this];
+    PixieNSView* view = [[[PixieNSView alloc] initWithFrame:NSMakeRect(0, 0, width, height) pixieWindow:this] autorelease];
 
     // Assign the view to the window.
     [window setContentView:view];
@@ -192,7 +202,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     m_window = window;
 
     // Create and configure the current graphics context.
-    NSGraphicsContext* graphicsContext = [NSGraphicsContext graphicsContextWithWindow:window];
+    NSGraphicsContext* graphicsContext = [[NSGraphicsContext graphicsContextWithWindow:window] autorelease];
     assert(graphicsContext != 0);
     [NSGraphicsContext setCurrentContext:graphicsContext];
 
@@ -207,8 +217,9 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 
 bool Window::PlatformUpdate()
 {
-    // Update mouse cursor position.
     PixieNSWindow* window = (PixieNSWindow*)m_window;
+
+    // Update mouse cursor position.
     NSPoint mousePos;
     mousePos = [window mouseLocationOutsideOfEventStream];
     m_mouseX = clamp(mousePos.x, 0, m_width);
@@ -241,9 +252,12 @@ bool Window::PlatformUpdate()
 
     [pool release];
 
-    return true;
+    return [window isRunning];
 }
 
 void Window::PlatformClose()
 {
+    PixieNSWindow* window = (PixieNSWindow*)m_window;
+    NSAutoreleasePool* autoreleasePool = [window autoreleasePool];
+    [autoreleasePool release];
 }
