@@ -132,7 +132,7 @@ int main(int argc, char** argv)
         static float avgFrameTime = 0.0f;
         numFrames++;
         accumTime += delta;
-        if (numFrames == 8)
+        if (numFrames == 16)
         {
             avgFrameTime = accumTime / (float)numFrames;
             numFrames = 0;
@@ -142,6 +142,12 @@ int main(int argc, char** argv)
         int fpsWidth = (int)min(WindowWidth, (avgFrameTime*20.0f)*WindowWidth);
         Pixie::ImGui::FilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
         Pixie::ImGui::FilledRect((int)((1.0f/60.0f)*20.0f*WindowWidth), 0, 2, 10, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 255, 0));
+
+        {
+            char buf[128];
+            sprintf_s(buf, sizeof(buf), "%.2f fps", 1.0f / avgFrameTime);
+            font.Draw(buf, 10, 106, &window);
+        }
 
         Pixie::ImGui::End();
 
