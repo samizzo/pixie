@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. -Wall
 
 OBJDIR=obj
 
@@ -14,10 +14,10 @@ OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 TARGET = pixie_demo
 
 $(OBJDIR)/%.o: %.cpp $(DEPS)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -g -c $< -o $@
 
 $(OBJDIR)/%.o: %.mm $(DEPS)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -g -c $< -o $@
 
 all: $(OBJDIR) $(TARGET)
 
@@ -25,7 +25,7 @@ $(OBJDIR):
 	mkdir -p $@
 
 $(TARGET): $(OBJ)
-	$(CC) $(FRAMEWORKS) $(LIBS) -o $@ $^
+	$(CC) $(FRAMEWORKS) $(LIBS) -g -o $@ $^
 
 .PHONY: clean
 
