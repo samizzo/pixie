@@ -16,9 +16,17 @@ static const int FrameBufferBitDepth = 8;
 
 @interface PixieNSWindow : NSWindow <NSWindowDelegate>
 @property Window* pixieWindow;
+@property bool isActivated;
 @end
 
 @implementation PixieNSWindow
+- (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)windowStyle backing:(NSBackingStoreType)backingType defer:(BOOL)deferCreation
+{
+    self = [super initWithContentRect:contentRect styleMask:windowStyle backing:backingType defer:deferCreation];
+    _isActivated = false;
+    return self;
+}
+
 - (void)keyDown:(NSEvent *) theEvent
 {
     if (theEvent.keyCode < 256)
@@ -223,6 +231,13 @@ bool Window::PlatformUpdate()
 
     // Force the display to refresh.
     [[window contentView] setNeedsDisplay:TRUE];
+
+    // Steal focus the first chance we get.
+    if (![window isActivated])
+    {
+        [NSApp activateIgnoringOtherApps:YES];
+        [window setIsActivated:TRUE];
+    }
 
     [pool release];
 
