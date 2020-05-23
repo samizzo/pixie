@@ -330,3 +330,5 @@ ASALocalRun/
 .mfractor/
 
 pixie_demo
+pixie-xcode/**
+
