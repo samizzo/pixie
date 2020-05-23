@@ -103,10 +103,6 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
     uint32_t buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
     uint32_t borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
-    uint32_t* pixels = window->GetPixels();
-    int windowWidth = window->GetWidth();
-    int windowHeight = window->GetHeight();
-
     FilledRect(x, y, width, height, buttonColour, borderColour);
 
     if (label)
