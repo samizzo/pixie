@@ -14,31 +14,98 @@ using namespace Pixie;
 
 static const int FrameBufferBitDepth = 8;
 
-@interface PixieWindow : NSWindow <NSWindowDelegate>
+@interface PixieNSWindow : NSWindow <NSWindowDelegate>
+@property Window* pixieWindow;
+@end
+
+@implementation PixieNSWindow
+- (void)keyDown:(NSEvent *) theEvent
+{
+    if (theEvent.keyCode < 256)
+        _pixieWindow->SetKeyDown(theEvent.keyCode, true);
+    if (theEvent.characters.length > 0)
+        _pixieWindow->AddInputCharacter([theEvent.characters characterAtIndex:0]);
+}
+
+- (void)keyUp:(NSEvent *) theEvent
+{
+    if (theEvent.keyCode < 256)
+        _pixieWindow->SetKeyDown(theEvent.keyCode, false);
+}
+
+- (void)mouseDown:(NSEvent *) theEvent
+{
+    _pixieWindow->SetMouseButtonDown(MouseButton_Left, true);
+}
+
+- (void)mouseUp:(NSEvent *) theEvent
+{
+    _pixieWindow->SetMouseButtonDown(MouseButton_Left, false);
+}
+
+- (void)rightMouseDown:(NSEvent *) theEvent
+{
+    _pixieWindow->SetMouseButtonDown(MouseButton_Right, true);
+}
+
+- (void)rightMouseUp:(NSEvent *) theEvent
+{
+    _pixieWindow->SetMouseButtonDown(MouseButton_Right, false);
+}
+
+- (void)otherMouseDown:(NSEvent *) theEvent
+{
+    _pixieWindow->SetMouseButtonDown(MouseButton_Middle, true);
+}
+
+- (void)otherMouseUp:(NSEvent *) theEvent
+{
+    _pixieWindow->SetMouseButtonDown(MouseButton_Middle, false);
+}
+
+- (BOOL)acceptsFirstResponder
+{
+    return YES;
+}
+@end
+
+@interface PixieNSView : NSView
 {
     Window* pixieWindow;
     CGContextRef backingBitmapContext;
     CGColorSpaceRef colourSpace;
 }
 
-@property bool isActivated;
-- (void)setPixieWindow:(Window *) thePixieWindow;
-- (void)createBackingBitmapContext;
-- (void)copyBufferToWindow;
+- (void)drawRect:(NSRect)dirtyRect;
 @end
 
-@implementation PixieWindow
+@implementation PixieNSView
+- (void)drawRect:(NSRect)dirtyRect
+{
+    // Copy buffer to window.
+    uint32_t width = pixieWindow->GetWidth();
+    uint32_t height = pixieWindow->GetHeight();
+    assert(backingBitmapContext != 0);
+    CGImageRef img = CGBitmapContextCreateImage(backingBitmapContext);
+    CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
+    assert(currentContext != 0);
+    CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
+    CGImageRelease(img);
+}
+
+- (id)initWithFrame:(NSRect)frameRect pixieWindow:(Window*) inPixieWindow
+{
+    self = [super initWithFrame:frameRect];
+    pixieWindow = inPixieWindow;
+    [self createBackingBitmapContext];
+    return self;
+}
+
 - (void)dealloc
 {
     CGColorSpaceRelease(colourSpace);
     CGContextRelease(backingBitmapContext);
     [super dealloc];
-}
-
-- (void)setPixieWindow:(Window *) thePixieWindow
-{
-    pixieWindow = thePixieWindow;
-    [self setIsActivated:false];
 }
 
 - (void)createBackingBitmapContext
@@ -52,66 +119,6 @@ static const int FrameBufferBitDepth = 8;
     assert(backingBitmapContext != 0);
 }
 
-- (void)copyBufferToWindow
-{
-    uint32_t width = pixieWindow->GetWidth();
-    uint32_t height = pixieWindow->GetHeight();
-    CGImageRef img = CGBitmapContextCreateImage(backingBitmapContext);
-    CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
-    assert(currentContext != 0);
-    CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
-    CGContextFlush(currentContext);
-    CGImageRelease(img);
-}
-
-- (void)keyDown:(NSEvent *) theEvent
-{
-    if (theEvent.keyCode < 256)
-        pixieWindow->SetKeyDown(theEvent.keyCode, true);
-    if (theEvent.characters.length > 0)
-        pixieWindow->AddInputCharacter([theEvent.characters characterAtIndex:0]);
-}
-
-- (void)keyUp:(NSEvent *) theEvent
-{
-    if (theEvent.keyCode < 256)
-        pixieWindow->SetKeyDown(theEvent.keyCode, false);
-}
-
-- (void)mouseDown:(NSEvent *) theEvent
-{
-    pixieWindow->SetMouseButtonDown(MouseButton_Left, true);
-}
-
-- (void)mouseUp:(NSEvent *) theEvent
-{
-    pixieWindow->SetMouseButtonDown(MouseButton_Left, false);
-}
-
-- (void)rightMouseDown:(NSEvent *) theEvent
-{
-    pixieWindow->SetMouseButtonDown(MouseButton_Right, true);
-}
-
-- (void)rightMouseUp:(NSEvent *) theEvent
-{
-    pixieWindow->SetMouseButtonDown(MouseButton_Right, false);
-}
-
-- (void)otherMouseDown:(NSEvent *) theEvent
-{
-    pixieWindow->SetMouseButtonDown(MouseButton_Middle, true);
-}
-
-- (void)otherMouseUp:(NSEvent *) theEvent
-{
-    pixieWindow->SetMouseButtonDown(MouseButton_Middle, false);
-}
-
-- (BOOL)acceptsFirstResponder
-{
-    return YES;
-}
 @end
 
 void Window::PlatformInit()
@@ -144,7 +151,7 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     [NSAutoreleasePool new];
     [NSApplication sharedApplication];
 
-    // Configure app menu.
+    // Configure the default app menu.
     id menubar = [[NSMenu new] autorelease];
     id appMenuItem = [[NSMenuItem new] autorelease];
     [menubar addItem:appMenuItem];
@@ -157,19 +164,24 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     [appMenuItem setSubmenu:appMenu];
 
     // Create the application window.
-    id window = [[[PixieWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
+    id window = [[[PixieNSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
         styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO] autorelease];
+    [window setPixieWindow:this];
     [window setDelegate:window];
     [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [window setTitle:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
-    [window makeKeyAndOrderFront:nil];
-    [window setPixieWindow:this];
+    [window makeKeyAndOrderFront:window];
+    [window setReleasedWhenClosed:TRUE];
+
+    // Create the custom NSView which will draw our pixel buffer to the screen.
+    PixieNSView* view = [[PixieNSView alloc] initWithFrame:NSMakeRect(0, 0, width, height) pixieWindow:this];
+
+    // Assign the view to the window.
+    [window setContentView:view];
 
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [NSApp finishLaunching];
     m_window = window;
-
-    [window createBackingBitmapContext];
 
     // Create and configure the current graphics context.
     NSGraphicsContext* graphicsContext = [NSGraphicsContext graphicsContextWithWindow:window];
@@ -188,34 +200,31 @@ bool Window::PlatformOpen(const char* title, int width, int height)
 bool Window::PlatformUpdate()
 {
     // Update mouse cursor position.
-    PixieWindow* window = (PixieWindow*)m_window;
+    PixieNSWindow* window = (PixieNSWindow*)m_window;
     NSPoint mousePos;
     mousePos = [window mouseLocationOutsideOfEventStream];
     m_mouseX = clamp(mousePos.x, 0, m_width);
     m_mouseY = clamp(m_height - mousePos.y - 1, 0, m_height);
 
+    // Update the delta time.
     uint64_t time = mach_absolute_time();
     uint64_t delta = time - m_lastTime;
     m_delta = delta / (float)m_freq;
     m_lastTime = time;
 
-    // Pump messages.
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+    // Pump messages.
     NSEvent* event;
     while (nil != (event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]))
     {
         [NSApp sendEvent:event];
     }
+
+    // Force the display to refresh.
+    [[window contentView] setNeedsDisplay:TRUE];
+
     [pool release];
-
-    if (![window isActivated])
-    {
-        [NSApp activateIgnoringOtherApps:YES];
-        [window setIsActivated:true];
-    }
-
-    // Copy buffer to window.
-    [window copyBufferToWindow];
 
     return true;
 }
