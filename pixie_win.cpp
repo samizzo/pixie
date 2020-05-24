@@ -45,6 +45,17 @@ void Window::PlatformInit()
     m_keyMap[Key_F10] = VK_F10;
     m_keyMap[Key_F11] = VK_F11;
     m_keyMap[Key_F12] = VK_F12;
+    m_keyMap['['] = VK_OEM_4;
+    m_keyMap['\\'] = VK_OEM_5;
+    m_keyMap[']'] = VK_OEM_6;
+    m_keyMap['`'] = VK_OEM_3;
+    m_keyMap['\''] = VK_OEM_7;
+    //m_keyMap['='] = kVK_ANSI_Equal;
+    m_keyMap['-'] = VK_OEM_MINUS;
+    m_keyMap['.'] = VK_OEM_PERIOD;
+    m_keyMap['/'] = VK_OEM_2;
+    m_keyMap[';'] = VK_OEM_1;
+    m_keyMap[','] = VK_OEM_COMMA;
 }
 
 bool Window::PlatformOpen(const char* title, int width, int height)
