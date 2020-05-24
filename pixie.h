@@ -16,29 +16,48 @@ namespace Pixie
 
     enum Key
     {
+		Key_Backspace = 0,
+		Key_Tab,
+		Key_Enter,
         Key_Escape,
+
         Key_Up,
         Key_Down,
         Key_Left,
         Key_Right,
+
         Key_Home,
         Key_End,
-        Key_Backspace,
+		Key_PageUp,
+		Key_PageDown,
+
         Key_Delete,
-        Key_LeftShift,
+		Key_Insert,
+
+		Key_LeftShift,
         Key_RightShift,
-        Key_Space,
+		Key_LeftControl,
+		Key_RightControl,
+
         Key_F1,
         Key_F2,
         Key_F3,
-        Key_Plus,
-        Key_Minus,
-        Key_A,
-		Key_D,
-        Key_W,
-        Key_S,
-        Key_Tilde,
-		Key_Enter,
+		Key_F4,
+		Key_F5,
+		Key_F6,
+		Key_F7,
+		Key_F8,
+		Key_F9,
+		Key_F10,
+		Key_F11,
+		Key_F12,
+
+		Key_ASCII_Start = 32,
+
+		// 32 to 127 are ASCII printable characters
+
+		Key_ASCII_End = 127,
+
         Key_Num
     };
 
