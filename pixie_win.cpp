@@ -35,6 +35,11 @@ void Window::PlatformInit()
     m_keyMap[Key_Plus] = VK_OEM_PLUS;
     m_keyMap[Key_Minus] = VK_OEM_MINUS;
     m_keyMap[Key_A] = 'A';
+	m_keyMap[Key_D] = 'D';
+    m_keyMap[Key_W] = 'W';
+    m_keyMap[Key_S] = 'S';
+    m_keyMap[Key_Tilde] = VK_OEM_3;
+	m_keyMap[Key_Enter] = VK_RETURN;
 }
 
 bool Window::PlatformOpen(const char* title, int width, int height)

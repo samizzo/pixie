@@ -160,6 +160,11 @@ void Window::PlatformInit()
     m_keyMap[Key_Plus] = kVK_ANSI_KeypadPlus;
     m_keyMap[Key_Minus] = kVK_ANSI_KeypadMinus;
     m_keyMap[Key_A] = kVK_ANSI_A;
+    m_keyMap[Key_D] = kVK_ANSI_D;
+    m_keyMap[Key_W] = kVK_ANSI_W;
+    m_keyMap[Key_S] = kVK_ANSI_S;
+    m_keyMap[Key_Tilde] = kVK_ANSI_Grave;
+    m_keyMap[Key_Enter] = kVK_Return;
 }
 
 bool Window::PlatformOpen(const char* title, int width, int height)

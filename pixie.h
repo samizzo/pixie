@@ -34,6 +34,11 @@ namespace Pixie
         Key_Plus,
         Key_Minus,
         Key_A,
+		Key_D,
+        Key_W,
+        Key_S,
+        Key_Tilde,
+		Key_Enter,
         Key_Num
     };
 
