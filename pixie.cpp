@@ -20,9 +20,9 @@ Window::Window()
     memset(m_lastKeyDown, 0, sizeof(m_lastKeyDown));
     memset(m_keyDown, 0, sizeof(m_keyDown));
 
-	// Initialise ASCII entries in keymap.
-	for (int i = 0; i < Key_Num; i++)
-		m_keyMap[i] = i >= Key_ASCII_Start && i <= Key_ASCII_End ? i : -1;
+    // Initialise ASCII entries in keymap.
+    for (int i = 0; i < Key_Num; i++)
+        m_keyMap[i] = i >= Key_ASCII_Start && i <= Key_ASCII_End ? i : -1;
 
     PlatformInit();
 }

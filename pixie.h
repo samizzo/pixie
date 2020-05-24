@@ -16,9 +16,9 @@ namespace Pixie
 
     enum Key
     {
-		Key_Backspace = 0,
-		Key_Tab,
-		Key_Enter,
+        Key_Backspace = 0,
+        Key_Tab,
+        Key_Enter,
         Key_Escape,
 
         Key_Up,
@@ -28,44 +28,44 @@ namespace Pixie
 
         Key_Home,
         Key_End,
-		Key_PageUp,
-		Key_PageDown,
+        Key_PageUp,
+        Key_PageDown,
 
         Key_Delete,
-		Key_Insert,
+        Key_Insert,
 
-		Key_LeftShift,
+        Key_LeftShift,
         Key_RightShift,
-		Key_LeftControl,
-		Key_RightControl,
+        Key_LeftControl,
+        Key_RightControl,
 
         Key_F1,
         Key_F2,
         Key_F3,
-		Key_F4,
-		Key_F5,
-		Key_F6,
-		Key_F7,
-		Key_F8,
-		Key_F9,
-		Key_F10,
-		Key_F11,
-		Key_F12,
+        Key_F4,
+        Key_F5,
+        Key_F6,
+        Key_F7,
+        Key_F8,
+        Key_F9,
+        Key_F10,
+        Key_F11,
+        Key_F12,
 
-		Key_ASCII_Start = 32,
+        Key_ASCII_Start = 32,
 
-		// 32 to 127 are ASCII printable characters.
-		// Note: these are unshifted keys.
+        // 32 to 127 are ASCII printable characters.
+        // Note: these are unshifted keys.
 
-		Key_ASCII_End = 127,
+        Key_ASCII_End = 127,
 
         Key_Num
     };
 
-	enum
-	{
-		MaxPlatformKeys = 256
-	};
+    enum
+    {
+        MaxPlatformKeys = 256
+    };
 
     class Window
     {
@@ -135,9 +135,9 @@ namespace Pixie
             // Returns the height of the window.
             uint32_t GetHeight() const;
 
-			// Key callback handler. Called on any key state change.
-			typedef void(*KeyCallback)(Key key, bool down);
-			void SetKeyCallback(KeyCallback callback);
+            // Key callback handler. Called on any key state change.
+            typedef void(*KeyCallback)(Key key, bool down);
+            void SetKeyCallback(KeyCallback callback);
 
             // Used by the window procedure to update key and mouse state.
             void SetMouseButtonDown(MouseButton button, bool down);
@@ -182,7 +182,7 @@ namespace Pixie
             int64_t m_lastTime;
             int64_t m_freq;
 
-			KeyCallback m_keyCallback;
+            KeyCallback m_keyCallback;
     };
 
     inline int Window::GetMouseX() const
@@ -302,22 +302,22 @@ namespace Pixie
     inline void Window::SetKeyDown(int platformKey, bool down)
     {
         m_keyDown[platformKey] = down;
-		if (m_keyCallback)
-		{
-			for (int i = 0; i < Key_Num; i++)
-			{
-				int key = m_keyMap[i];
-				if (key == platformKey)
-				{
-					m_keyCallback((Key)i, down);
-					return;
-				}
-			}
-		}
+        if (m_keyCallback)
+        {
+            for (int i = 0; i < Key_Num; i++)
+            {
+                int key = m_keyMap[i];
+                if (key == platformKey)
+                {
+                    m_keyCallback((Key)i, down);
+                    return;
+                }
+            }
+        }
     }
 
-	inline void Window::SetKeyCallback(KeyCallback callback)
-	{
-		m_keyCallback = callback;
-	}
+    inline void Window::SetKeyCallback(KeyCallback callback)
+    {
+        m_keyCallback = callback;
+    }
 }
