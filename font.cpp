@@ -82,7 +82,7 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
     m_width = bmih.biWidth;
     m_height = abs(bmih.biHeight);
 
-    int size = 256 * m_characterSizeX * m_characterSizeY;
+    uint32_t size = 256 * m_characterSizeX * m_characterSizeY;
     m_fontBuffer = new uint32_t[size];
 
     if (bmih.biBitCount == 32)
