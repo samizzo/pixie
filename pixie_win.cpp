@@ -277,7 +277,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             case WM_KEYDOWN:
             case WM_SYSKEYDOWN:
             {
-                if (wParam < 256)
+                if (wParam < MaxPlatformKeys)
                 {
                     wParam = MapLeftRightKeys(wParam, lParam);
                     window->SetKeyDown((int)wParam, true);
@@ -288,7 +288,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             case WM_KEYUP:
             case WM_SYSKEYUP:
             {
-                if (wParam < 256)
+                if (wParam < MaxPlatformKeys)
                 {
                     wParam = MapLeftRightKeys(wParam, lParam);
                     window->SetKeyDown((int)wParam, false);
@@ -298,7 +298,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
             case WM_CHAR:
             {
-                if (wParam < 256)
+                if (wParam < MaxPlatformKeys)
                     window->AddInputCharacter((char)wParam);
                 break;
             }

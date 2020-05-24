@@ -54,12 +54,18 @@ namespace Pixie
 
 		Key_ASCII_Start = 32,
 
-		// 32 to 127 are ASCII printable characters
+		// 32 to 127 are ASCII printable characters.
+		// Note: these are unshifted keys.
 
 		Key_ASCII_End = 127,
 
         Key_Num
     };
+
+	enum
+	{
+		MaxPlatformKeys = 256
+	};
 
     class Window
     {
@@ -129,6 +135,10 @@ namespace Pixie
             // Returns the height of the window.
             uint32_t GetHeight() const;
 
+			// Key callback handler. Called on any key state change.
+			typedef void(*KeyCallback)(Key key, bool down);
+			void SetKeyCallback(KeyCallback callback);
+
             // Used by the window procedure to update key and mouse state.
             void SetMouseButtonDown(MouseButton button, bool down);
             void SetKeyDown(int key, bool down);
@@ -149,8 +159,8 @@ namespace Pixie
             bool m_mouseButtonDown[MouseButton_Num];
 
             int m_keyMap[Key_Num];
-            bool m_lastKeyDown[256];
-            bool m_keyDown[256];
+            bool m_lastKeyDown[MaxPlatformKeys];
+            bool m_keyDown[MaxPlatformKeys];
             bool m_anyKeyDown;
             char m_inputCharacters[16+1];
 
@@ -171,6 +181,8 @@ namespace Pixie
             float m_time;
             int64_t m_lastTime;
             int64_t m_freq;
+
+			KeyCallback m_keyCallback;
     };
 
     inline int Window::GetMouseX() const
@@ -239,7 +251,7 @@ namespace Pixie
         int index = m_keyMap[key];
         if (index == -1)
             return false;
-        assert(index >= 0 && index < sizeof(m_keyDown));
+        assert(index >= 0 && index < MaxPlatformKeys);
         return !m_lastKeyDown[index] && m_keyDown[index];
     }
 
@@ -248,7 +260,7 @@ namespace Pixie
         int index = m_keyMap[key];
         if (index == -1)
             return false;
-        assert(index >= 0 && index < sizeof(m_keyDown));
+        assert(index >= 0 && index < MaxPlatformKeys);
         return m_lastKeyDown[index] && !m_keyDown[index];
     }
 
@@ -257,7 +269,7 @@ namespace Pixie
         int index = m_keyMap[key];
         if (index == -1)
             return false;
-        assert(index >= 0 && index < sizeof(m_keyDown));
+        assert(index >= 0 && index < MaxPlatformKeys);
         return m_keyDown[index];
     }
 
@@ -287,8 +299,25 @@ namespace Pixie
         m_mouseButtonDown[button] = down;
     }
 
-    inline void Window::SetKeyDown(int key, bool down)
+    inline void Window::SetKeyDown(int platformKey, bool down)
     {
-        m_keyDown[key] = down;
+        m_keyDown[platformKey] = down;
+		if (m_keyCallback)
+		{
+			for (int i = 0; i < Key_Num; i++)
+			{
+				int key = m_keyMap[i];
+				if (key == platformKey)
+				{
+					m_keyCallback((Key)i, down);
+					return;
+				}
+			}
+		}
     }
+
+	inline void Window::SetKeyCallback(KeyCallback callback)
+	{
+		m_keyCallback = callback;
+	}
 }
