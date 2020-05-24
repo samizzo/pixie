@@ -7,6 +7,7 @@ using namespace Pixie;
 
 Window::Window()
 {
+    m_keyCallback = NULL;
     m_delta = 0.0f;
     m_pixels = 0;
     m_scale = 1;
