@@ -142,6 +142,9 @@ void Window::PlatformInit()
     for (int i = 0; i < Key_Num; i++)
         m_keyMap[i] = -1;
 
+    m_keyMap[Key_Backspace] = kVK_Delete;
+    m_keyMap[Key_Tab] = kVK_Tab;
+    m_keyMap[Key_Enter] = kVK_Return;
     m_keyMap[Key_Escape] = kVK_Escape;
     m_keyMap[Key_Up] = kVK_UpArrow;
     m_keyMap[Key_Down] = kVK_DownArrow;
@@ -149,22 +152,25 @@ void Window::PlatformInit()
     m_keyMap[Key_Right] = kVK_RightArrow;
     m_keyMap[Key_Home] = kVK_Home;
     m_keyMap[Key_End] = kVK_End;
-    m_keyMap[Key_Backspace] = kVK_Delete;
+    m_keyMap[Key_PageUp] = kVK_PageUp;
+    m_keyMap[Key_PageDown] = kVK_PageDown;
     m_keyMap[Key_Delete] = kVK_ForwardDelete;
     m_keyMap[Key_LeftShift] = kVK_Shift;
     m_keyMap[Key_RightShift] = kVK_RightShift;
-    m_keyMap[Key_Space] = kVK_Space;
+    m_keyMap[Key_LeftControl] = kVK_Control;
+    m_keyMap[Key_RightControl] = kVK_RightControl;
     m_keyMap[Key_F1] = kVK_F1;
     m_keyMap[Key_F2] = kVK_F2;
     m_keyMap[Key_F3] = kVK_F3;
-    m_keyMap[Key_Plus] = kVK_ANSI_KeypadPlus;
-    m_keyMap[Key_Minus] = kVK_ANSI_KeypadMinus;
-    m_keyMap[Key_A] = kVK_ANSI_A;
-    m_keyMap[Key_D] = kVK_ANSI_D;
-    m_keyMap[Key_W] = kVK_ANSI_W;
-    m_keyMap[Key_S] = kVK_ANSI_S;
-    m_keyMap[Key_Tilde] = kVK_ANSI_Grave;
-    m_keyMap[Key_Enter] = kVK_Return;
+    m_keyMap[Key_F4] = kVK_F4;
+    m_keyMap[Key_F5] = kVK_F5;
+    m_keyMap[Key_F6] = kVK_F6;
+    m_keyMap[Key_F7] = kVK_F7;
+    m_keyMap[Key_F8] = kVK_F8;
+    m_keyMap[Key_F9] = kVK_F9;
+    m_keyMap[Key_F10] = kVK_F10;
+    m_keyMap[Key_F11] = kVK_F11;
+    m_keyMap[Key_F12] = kVK_F12;
 }
 
 bool Window::PlatformOpen(const char* title, int width, int height)
