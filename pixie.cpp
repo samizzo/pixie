@@ -23,7 +23,7 @@ Window::Window()
 
     // Initialise ASCII entries in keymap.
     for (int i = 0; i < Key_Num; i++)
-        m_keyMap[i] = i >= Key_ASCII_Start && i <= Key_ASCII_End ? i : -1;
+        m_keyMap[i] = i >= Key_ASCII_Start && i <= Key_ASCII_End ? i : Key_Num;
 
     PlatformInit();
 }

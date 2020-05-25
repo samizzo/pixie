@@ -139,6 +139,10 @@ static const int FrameBufferBitDepth = 8;
 
 void Window::PlatformInit()
 {
+    // Reset all keymap entries to invalid, because the ASCII values don't map directly under macOS.
+    for (int i = 0; i < Key_Num; i++)
+        m_keyMap[i] = Key_Num;
+
     m_keyMap[Key_Backspace] = kVK_Delete;
     m_keyMap[Key_Tab] = kVK_Tab;
     m_keyMap[Key_Enter] = kVK_Return;
