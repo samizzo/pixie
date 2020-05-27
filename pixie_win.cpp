@@ -33,6 +33,8 @@ void Window::PlatformInit()
     m_keyMap[Key_RightShift] = VK_RSHIFT;
     m_keyMap[Key_LeftControl] = VK_LCONTROL;
     m_keyMap[Key_RightControl] = VK_RCONTROL;
+    m_keyMap[Key_LeftAlt] = VK_LMENU;
+    m_keyMap[Key_RightAlt] = VK_RMENU;
     m_keyMap[Key_F1] = VK_F1;
     m_keyMap[Key_F2] = VK_F2;
     m_keyMap[Key_F3] = VK_F3;

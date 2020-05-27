@@ -197,6 +197,8 @@ void Window::PlatformInit()
     m_keyMap[Key_RightShift] = kVK_RightShift;
     m_keyMap[Key_LeftControl] = kVK_Control;
     m_keyMap[Key_RightControl] = kVK_RightControl;
+    m_keyMap[Key_LeftAlt] = kVK_Command;
+    m_keyMap[Key_RightAlt] = kVK_RightCommand;
     m_keyMap[Key_F1] = kVK_F1;
     m_keyMap[Key_F2] = kVK_F2;
     m_keyMap[Key_F3] = kVK_F3;

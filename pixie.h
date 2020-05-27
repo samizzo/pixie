@@ -38,6 +38,8 @@ namespace Pixie
         Key_RightShift,
         Key_LeftControl,
         Key_RightControl,
+        Key_LeftAlt,
+        Key_RightAlt,
 
         Key_F1,
         Key_F2,
