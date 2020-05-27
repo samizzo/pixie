@@ -311,6 +311,10 @@ namespace Pixie
 
     inline void Window::SetKeyDown(int platformKey, bool down)
     {
+        assert(platformKey >= 0 && platformKey < MaxPlatformKeys);
+        if (m_keyDown[platformKey] == down)
+            return;
+
         m_keyDown[platformKey] = down;
         if (m_keyCallback)
         {
