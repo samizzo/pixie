@@ -138,11 +138,12 @@ static const int FrameBufferBitDepth = 8;
     // Copy buffer to window.
     uint32_t width = pixieWindow->GetWidth();
     uint32_t height = pixieWindow->GetHeight();
+    uint32_t scale = pixieWindow->GetScale();
     assert(backingBitmapContext != 0);
     CGImageRef img = CGBitmapContextCreateImage(backingBitmapContext);
     CGContextRef currentContext = [[NSGraphicsContext currentContext] CGContext];
     assert(currentContext != 0);
-    CGContextDrawImage(currentContext, CGRectMake(0, 0, width, height), img);
+    CGContextDrawImage(currentContext, CGRectMake(0, 0, width * scale, height * scale), img);
     CGImageRelease(img);
 }
 
@@ -267,8 +268,11 @@ bool Window::PlatformOpen(const char* title, int width, int height)
     NSAutoreleasePool* autoreleasePool = [NSAutoreleasePool new];
     [NSApplication sharedApplication];
 
+    m_scalex = (float)m_scale;
+    m_scaley = (float)m_scale;
+
     // Create the application window.
-    id window = [[[PixieNSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
+    id window = [[[PixieNSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width * m_scalex, height * m_scaley)
         styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO] autorelease];
     [window setPixieWindow:this];
     [window setDelegate:window];
@@ -324,6 +328,9 @@ bool Window::PlatformUpdate()
     mousePos = [window mouseLocationOutsideOfEventStream];
     m_mouseX = clamp(mousePos.x, 0, m_width);
     m_mouseY = clamp(m_height - mousePos.y - 1, 0, m_height);
+
+    m_mouseX /= m_scalex;
+    m_mouseY /= m_scaley;
 
     // Update the delta time.
     uint64_t time = mach_absolute_time();

@@ -137,6 +137,9 @@ namespace Pixie
             // Returns the height of the window.
             uint32_t GetHeight() const;
 
+            // Returns the scale of the window.
+            uint32_t GetScale() const;
+
             // Key callback handler. Called on any key state change.
             typedef void(*KeyCallback)(Key key, bool down);
             void SetKeyCallback(KeyCallback callback);
@@ -220,6 +223,11 @@ namespace Pixie
     inline uint32_t Window::GetHeight() const
     {
         return m_height;
+    }
+
+    inline uint32_t Window::GetScale() const
+    {
+        return m_scale;
     }
 
     inline bool Window::HasMouseGoneDown(MouseButton button) const
