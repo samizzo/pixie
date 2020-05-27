@@ -35,6 +35,43 @@ static const int FrameBufferBitDepth = 8;
     _isRunning = false;
 }
 
+- (void)flagsChanged:(NSEvent *) theEvent
+{
+    if (theEvent.keyCode < 256)
+    {
+        // There doesn't seem to be any other way to get the state of the modifier key,
+        // so we have to use this crappy switch.
+        bool down = false;
+        bool foundKey = false;
+        switch (theEvent.keyCode)
+        {
+            case kVK_Shift:
+            case kVK_RightShift:
+                foundKey = true;
+                down = theEvent.modifierFlags & NSEventModifierFlagShift;
+                break;
+            case kVK_Control:
+            case kVK_RightControl:
+                foundKey = true;
+                down = theEvent.modifierFlags & NSEventModifierFlagControl;
+                break;
+            case kVK_Option:
+            case kVK_RightOption:
+                foundKey = true;
+                down = theEvent.modifierFlags & NSEventModifierFlagOption;
+                break;
+            case kVK_Command:
+            case kVK_RightCommand:
+                foundKey = true;
+                down = theEvent.modifierFlags & NSEventModifierFlagCommand;
+                break;
+        }
+
+        if (foundKey)
+            _pixieWindow->SetKeyDown(theEvent.keyCode, down);
+    }
+}
+
 - (void)keyDown:(NSEvent *) theEvent
 {
     if (theEvent.keyCode < 256)
