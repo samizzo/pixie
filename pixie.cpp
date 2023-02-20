@@ -84,7 +84,7 @@ void Window::AddInputCharacter(char c)
     if (!isprint(c))
         return;
 
-    int length = (int)strlen(m_inputCharacters);
+    size_t length = strlen(m_inputCharacters);
     if (length + 1 < sizeof(m_inputCharacters))
     {
         m_inputCharacters[length] = c;
