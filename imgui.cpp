@@ -3,6 +3,7 @@
 #include "font.h"
 #include <string.h>
 #include <assert.h>
+#include <algorithm>
 
 using namespace Pixie;
 
@@ -160,7 +161,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
             }
 
             // Move the cursor to whereever the user clicked.
-            s_state.keyboardCursorPosition = min((mouseX - textX) / s_state.font->GetCharacterWidth(), textLength);
+            s_state.keyboardCursorPosition = std::min((mouseX - textX) / s_state.font->GetCharacterWidth(), textLength);
 
             // Also force the cursor to be visible.
             s_state.cursorBlinkTimer = CursorBlinkTime;
@@ -205,11 +206,11 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
 
             if (window->IsKeyDown(Pixie::Key_Left))
             {
-                s_state.keyboardCursorPosition = max(s_state.keyboardCursorPosition - 1, 0);
+                s_state.keyboardCursorPosition = std::max(s_state.keyboardCursorPosition - 1, 0);
             }
             else if (window->IsKeyDown(Pixie::Key_Right))
             {
-                s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textLength);
+                s_state.keyboardCursorPosition = std::min(s_state.keyboardCursorPosition + 1, textLength);
             }
             else if (window->IsKeyDown(Pixie::Key_Backspace))
             {
@@ -272,7 +273,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
                 }
 
                 // Move the cursor.
-                s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
+                s_state.keyboardCursorPosition = std::min(s_state.keyboardCursorPosition + 1, textBufferLength);
             }
 
             // We have consumed the input so remove it from the buffer.

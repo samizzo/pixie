@@ -16,18 +16,6 @@
 #error "Unsupported platform"
 #endif
 
-#ifndef max
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
-#ifndef clamp
-#define clamp(x, a, b) min(max((x), (a)), (b))
-#endif
-
 #if PIXIE_PLATFORM_OSX
 #define strcat_s(dst, size, src) strlcat(dst, src, size)
 #define sprintf_s(dst, size, fmt, ...) snprintf(dst, size, fmt, __VA_ARGS__)
