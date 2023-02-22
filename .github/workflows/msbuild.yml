@@ -25,14 +25,26 @@ jobs:
       with:
         vs-version: '[17.3,)'
 
-    - name: Build Debug
+    - name: Build Debug x86
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=Debug ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /p:Configuration=Debug|Win32 ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Build Release
+    - name: Build Debug x64
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
+      run: msbuild /m /p:Configuration=Debug|x64 ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build Release x86
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=Release|Win32 ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build Release x64
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=Release|x64 ${{env.SOLUTION_FILE_PATH}}
