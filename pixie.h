@@ -78,7 +78,7 @@ namespace Pixie
             // Open the Pixie window with the specified title bar, width, and height.
             // If scale is greater than 1 the window will be rendered scale times larger
             // and the buffer will be stretched to fit.
-            bool Open(const char* title, int width, int height, bool fullscreen, bool maintainAspectRatio = false, int scale = 1);
+            bool Open(const TCHAR* title, int width, int height, bool fullscreen, bool maintainAspectRatio = false, int scale = 1);
 
             // Close the Pixie window.
             void Close();
@@ -151,7 +151,7 @@ namespace Pixie
 
         private:
             void PlatformInit();
-            bool PlatformOpen(const char* title, int width, int height);
+            bool PlatformOpen(const TCHAR* title, int width, int height);
             bool PlatformUpdate();
             void PlatformClose();
 

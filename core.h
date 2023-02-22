@@ -23,3 +23,17 @@
 #endif
 
 #define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
+
+#if PIXIE_PLATFORM_WIN
+#define NOMINMAX
+#define _CRT_SECURE_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#include <Windows.h>
+#else
+#if defined(_UNICODE) || defined(UNICODE)
+typedef wchar_t TCHAR;
+#define TEXT(x) L"\"" #x "\""
+typedef char TCHAR;
+#endif
+#endif

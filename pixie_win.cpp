@@ -2,13 +2,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <Windows.h>
-
 using namespace Pixie;
 
-static const char* PixieWindowClass = "PixieWindowClass";
+static const TCHAR* PixieWindowClass = TEXT("PixieWindowClass");
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 void Window::PlatformInit()
@@ -60,7 +56,7 @@ void Window::PlatformInit()
     m_keyMap[','] = VK_OEM_COMMA;
 }
 
-bool Window::PlatformOpen(const char* title, int width, int height)
+bool Window::PlatformOpen(const TCHAR* title, int width, int height)
 {
     HINSTANCE hInstance = GetModuleHandle(0);
 

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <algorithm>
 
-static const char* WindowTitle = "Hello, World!";
+static const TCHAR* WindowTitle = TEXT("Hello, World!");
 static const int WindowWidth = 640;
 static const int WindowHeight = 400;
 
