@@ -39,4 +39,3 @@ typedef wchar_t TCHAR;
 typedef char TCHAR;
 #endif
 #endif
-#endif
