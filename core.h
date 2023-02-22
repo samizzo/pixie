@@ -32,8 +32,11 @@
 #include <Windows.h>
 #else
 #if defined(_UNICODE) || defined(UNICODE)
-typedef wchar_t TCHAR;
 #define TEXT(x) L"\"" #x "\""
+typedef wchar_t TCHAR;
+#else
+#define TEXT(x) #x
 typedef char TCHAR;
+#endif
 #endif
 #endif
