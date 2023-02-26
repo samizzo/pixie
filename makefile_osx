@@ -19,13 +19,15 @@ $(OBJDIR)/%.o: %.cpp $(DEPS)
 $(OBJDIR)/%.o: %.mm $(DEPS)
 	$(CC) $(CFLAGS) -g -c $< -o $@
 
-all: $(OBJDIR) $(TARGET)
+all: $(INIT) $(OBJDIR) $(TARGET)
+
+$(INIT):
+	$(CC) --version
 
 $(OBJDIR):
 	mkdir -p $@
 
 $(TARGET): $(OBJ)
-	$(CC) --version
 	$(CC) $(FRAMEWORKS) $(LIBS) -g -o $@ $^
 
 .PHONY: clean
