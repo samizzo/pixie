@@ -2,6 +2,7 @@ Pixie
 =====
 
 ![msbuild](https://github.com/samizzo/pixie/actions/workflows/msbuild.yml/badge.svg)
+![mingw](https://github.com/samizzo/pixie/actions/workflows/mingw.yml/badge.svg)
 ![macOS](https://github.com/samizzo/pixie/actions/workflows/macos.yml/badge.svg)
 
 Pixie is a minimal, cross-platform pixel framebuffer library for Windows and macOS.
