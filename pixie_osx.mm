@@ -327,8 +327,8 @@ bool Window::PlatformUpdate()
     // Update mouse cursor position.
     NSPoint mousePos;
     mousePos = [window mouseLocationOutsideOfEventStream];
-    m_mouseX = std::clamp((uint32_t)mousePos.x, 0, m_width);
-    m_mouseY = std::clamp(m_height - (uint32_t)mousePos.y - 1, 0, m_height);
+    m_mouseX = std::clamp((int)mousePos.x, 0, (int)m_width);
+    m_mouseY = std::clamp((int)(m_height - mousePos.y - 1), 0, (int)m_height);
 
     m_mouseX /= m_scalex;
     m_mouseY /= m_scaley;
