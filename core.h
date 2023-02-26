@@ -25,7 +25,9 @@
 #define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
 
 #if PIXIE_PLATFORM_WIN
+#if !defined(__MINGW32__)
 #define NOMINMAX
+#endif
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
