@@ -25,6 +25,7 @@ $(OBJDIR):
 	mkdir -p $@
 
 $(TARGET): $(OBJ)
+	$(CC) --version
 	$(CC) $(FRAMEWORKS) $(LIBS) -g -o $@ $^
 
 .PHONY: clean
