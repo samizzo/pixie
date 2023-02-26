@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I. -Wall -funsigned-char
+CFLAGS=-I. -Wall
 
 OBJDIR=obj
 
