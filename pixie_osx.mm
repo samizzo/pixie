@@ -2,6 +2,7 @@
 #include "pixie.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <algorithm>
 #include <Carbon/Carbon.h>
 #include <mach/mach_time.h>
 
@@ -326,8 +327,8 @@ bool Window::PlatformUpdate()
     // Update mouse cursor position.
     NSPoint mousePos;
     mousePos = [window mouseLocationOutsideOfEventStream];
-    m_mouseX = clamp(mousePos.x, 0, m_width);
-    m_mouseY = clamp(m_height - mousePos.y - 1, 0, m_height);
+    m_mouseX = std::clamp(mousePos.x, 0, m_width);
+    m_mouseY = std::clamp(m_height - mousePos.y - 1, 0, m_height);
 
     m_mouseX /= m_scalex;
     m_mouseY /= m_scaley;
