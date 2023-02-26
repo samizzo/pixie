@@ -1,12 +1,12 @@
-CC=gcc
-CFLAGS=-I. -Wall
+CC=g++
+CFLAGS=-g -I. -Wall
 
 OBJDIR=obj
 
 LIBS=-lc++
 FRAMEWORKS=-framework CoreGraphics -framework AppKit
 
-DEPS = core.h font.h imgui.h pixie.h
+DEPS = core.h font.h imgui.h pixie.h makefile_osx
 
 _OBJ = main.o pixie.o pixie_osx.o imgui.o font.o
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
@@ -14,15 +14,15 @@ OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 TARGET = pixie_demo
 
 $(OBJDIR)/%.o: %.cpp $(DEPS)
-	$(CC) $(CFLAGS) -g -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: %.mm $(DEPS)
-	$(CC) $(CFLAGS) -g -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(INIT) $(OBJDIR) $(TARGET)
+all: init $(OBJDIR) $(TARGET)
 
-$(INIT):
-	$(CC) --version
+init:
+	@$(CC) --version
 
 $(OBJDIR):
 	mkdir -p $@
@@ -30,7 +30,7 @@ $(OBJDIR):
 $(TARGET): $(OBJ)
 	$(CC) $(FRAMEWORKS) $(LIBS) -g -o $@ $^
 
-.PHONY: clean
+.PHONY: clean init
 
 clean:
 	rm -rf $(OBJDIR) *~ core
