@@ -1,0 +1,43 @@
+CC=g++
+CFLAGS=-g -I. -Wall -DUNICODE -D_UNICODE
+
+OBJDIR=obj
+
+LIBS=
+
+DEPS = core.h font.h imgui.h pixie.h makefile_win
+
+_OBJ = main.o pixie.o pixie_win.o imgui.o font.o
+OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
+
+TARGET = $(OBJDIR)/pixie_demo.exe
+
+$(OBJDIR)/%.o: %.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.mm $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+all: init $(OBJDIR) $(TARGET)
+
+init:
+	@$(CC) --version
+
+$(OBJDIR):
+ifdef OS
+	mkdir $@
+else
+	mkdir -p $@
+endif
+
+$(TARGET): $(OBJ)
+	$(CC) $(LIBS) -mwindows -g -o $@ $^
+
+.PHONY: clean init
+
+clean:
+ifdef OS
+	if exist $(OBJDIR) rmdir /s /q $(OBJDIR)
+else
+	rm -rf $(OBJDIR)
+endif

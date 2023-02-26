@@ -1,0 +1,21 @@
+name: mingw
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup mingw
+      uses: msys2/setup-msys2@v2
+
+    - name: make
+      run: make -f makefile_win
