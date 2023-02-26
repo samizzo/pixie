@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -I. -Wall
+CFLAGS=-g -I. -Wall -std=c++17
 
 OBJDIR=obj
 
