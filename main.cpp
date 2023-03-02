@@ -29,7 +29,11 @@ int main(int argc, char** argv)
     Pixie::Font font;
     if (!font.Load("font.bmp", 9, 16))
     {
+#if PIXIE_PLATFORM_WIN
         MessageBox(NULL, "Failed to load font.bmp", "Pixie Error", MB_ICONERROR);
+#else
+        printf("pixie: failed to load font.bmp\n");
+#endif
         return 0;
     }
 
