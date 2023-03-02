@@ -1,43 +1,58 @@
-CC=g++
-CFLAGS=-g -I. -Wall -DUNICODE -D_UNICODE
+ifndef CONFIG
+# Build debug config by default
+CONFIG=debug
+endif
 
-OBJDIR=obj
+CC=g++
+
+# Compiler flags
+CFLAGS_debug=
+CFLAGS_release=-O3
+CFLAGS=-g -I. -Wall $(CFLAGS_$(CONFIG))
+
+# Linker flags
+LDFLAGS=-static -static-libgcc -static-libstdc++
 
 LIBS=
+DEPS=core.h font.h imgui.h pixie.h makefile_mingw
 
-DEPS = core.h font.h imgui.h pixie.h makefile_win
+ifeq ($(SHELL), sh.exe)
+OBJDIR=mingw\$(CONFIG)
+else
+OBJDIR=mingw/$(CONFIG)
+endif
 
-_OBJ = main.o pixie.o pixie_win.o imgui.o font.o
-OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
+_OBJ=main.o pixie.o pixie_win.o imgui.o font.o
+OBJ=$(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
 TARGET = $(OBJDIR)/pixie_demo.exe
 
 $(OBJDIR)/%.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: %.mm $(DEPS)
-	$(CC) $(CFLAGS) -c $< -o $@
-
 all: init $(OBJDIR) $(TARGET)
 
 init:
 	@$(CC) --version
+	@echo Building $(CONFIG)
 
 $(OBJDIR):
-ifdef OS
+ifeq ($(SHELL), sh.exe)
+# Most likely not running under a posix shell
 	mkdir $@
 else
 	mkdir -p $@
 endif
 
 $(TARGET): $(OBJ)
-	$(CC) $(LIBS) -mwindows -g -o $@ $^
+	$(CC) $(LIBS) $(LDFLAGS) -mwindows -g -o $@ $^
 
 .PHONY: clean init
 
-clean:
-ifdef OS
+clean: init
+ifeq ($(SHELL), sh.exe)
+# Most likely not running under a posix shell
 	if exist $(OBJDIR) rmdir /s /q $(OBJDIR)
 else
-	rm -rf $(OBJDIR)
+	-rm -rf $(OBJDIR)
 endif
