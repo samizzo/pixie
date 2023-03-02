@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     if (!font.Load("font.bmp", 9, 16))
     {
 #if PIXIE_PLATFORM_WIN
-        MessageBox(NULL, "Failed to load font.bmp", "Pixie Error", MB_ICONERROR);
+        MessageBox(NULL, TEXT("Failed to load font.bmp"), TEXT("Pixie Error"), MB_ICONERROR);
 #else
         printf("pixie: failed to load font.bmp\n");
 #endif
