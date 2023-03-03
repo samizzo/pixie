@@ -17,5 +17,8 @@ jobs:
     - name: Setup mingw
       uses: msys2/setup-msys2@v2
 
-    - name: make
-      run: make -f makefile_mingw
+    - name: Build Debug
+      run: make -f makefile_mingw CONFIG=debug
+
+    - name: Build Release
+      run: make -f makefile_mingw CONFIG=release
