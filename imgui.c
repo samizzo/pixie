@@ -1,22 +1,15 @@
-﻿#include "imgui.h"
+﻿#include <assert.h>
+#include "imgui.h"
 #include "pixie.h"
 #include "font.h"
-#include <string.h>
-#include <assert.h>
-#include <algorithm>
 
-using namespace Pixie;
-
-struct State
+enum Flags
 {
-    enum Flags
-    {
-        Flags_Started = 1 << 0,
-    };
+    Flags_Started = 1 << 0,
+};
 
-    bool HasStarted() { return (flags & Flags_Started) != 0; }
-    int GetNextId() { return nextId++; }
-
+typedef struct _State
+{
     int flags;
     int nextId;
     int hoverId;
@@ -27,18 +20,21 @@ struct State
     float cursorBlinkTimer;
     uint32_t defaultTextColour;
 
-    Window* window;
-    Font* font;
-};
+    PixieWindow* window;
+    PixieFont* font;
+} State;
 
 static State s_state = { 0 };
 
-void ImGui::Begin(Window* window, Font* font)
+char State_HasStarted() { return (s_state.flags & Flags_Started) != 0; }
+int State_GetNextId() { return s_state.nextId++; }
+
+void Pixie_ImGuiBegin(PixieWindow* window, PixieFont* font)
 {
     assert(window);
     assert(font);
 
-    s_state.flags = State::Flags_Started;
+    s_state.flags = Flags_Started;
     s_state.nextId = 1;
     s_state.hoverId = 0;
     s_state.window = window;
@@ -46,11 +42,11 @@ void ImGui::Begin(Window* window, Font* font)
     s_state.defaultTextColour = MAKE_RGB(200, 200, 200);
 }
 
-void ImGui::End()
+void Pixie_ImGuiEnd()
 {
     s_state.flags = 0;
 
-    if (s_state.window->HasMouseGoneDown(Pixie::MouseButton_Left))
+    if (Pixie_HasMouseGoneDown(s_state.window, PixieMouseButton_Left))
     {
         // If mouse has gone down over empty space, clear the current focus.
         if (s_state.hoverId == 0)
@@ -63,19 +59,19 @@ void ImGui::End()
     s_state.window = 0;
 }
 
-void ImGui::Label(const char* text, int x, int y, uint32_t colour)
+void Pixie_ImGuiLabel(const char* text, int x, int y, uint32_t colour)
 {
     assert(text);
-    assert(s_state.HasStarted());
-    s_state.font->DrawColour(text, x, y, colour, s_state.window);
+    assert(State_HasStarted());
+    Pixie_FontDrawColour(s_state.font, text, x, y, colour, s_state.window);
 }
 
-bool ImGui::Button(const char* label, int x, int y, int width, int height)
+char Pixie_ImGuiButton(const char* label, int x, int y, int width, int height)
 {
-    assert(s_state.HasStarted());
+    assert(State_HasStarted());
 
-    Window* window = s_state.window;
-    int id = s_state.GetNextId();
+    PixieWindow* window = s_state.window;
+    int id = State_GetNextId();
 
     const uint32_t NormalColour = MAKE_RGB(32, 50, 77);
     const uint32_t HoverColour = MAKE_RGB(39, 73, 114);
@@ -83,48 +79,49 @@ bool ImGui::Button(const char* label, int x, int y, int width, int height)
     const uint32_t BorderColour = MAKE_RGB(68, 79, 103);
     const uint32_t FocusBorderColour = MAKE_RGB(200, 200, 229);
 
-    int mouseX = window->GetMouseX();
-    int mouseY = window->GetMouseY();
+    int mouseX = window->mousex;
+    int mouseY = window->mousey;
 
-    bool hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-    bool pressed = false;
+    char hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+    char pressed = 0;
 
     if (hover)
     {
         s_state.hoverId = id;
 
         // Mouse has just gone down over this element, so give it focus.
-        if (window->HasMouseGoneDown(Pixie::MouseButton_Left))
+        if (Pixie_HasMouseGoneDown(window, PixieMouseButton_Left))
             s_state.focusId = id;
 
         // If mouse is still down over this element and it has focus, then it is pressed.
-        pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
+        pressed = Pixie_IsMouseDown(window, PixieMouseButton_Left) && s_state.focusId == id;
     }
 
     uint32_t buttonColour = pressed ? PressedColour : hover ? HoverColour : NormalColour;
     uint32_t borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
-    FilledRect(x, y, width, height, buttonColour, borderColour);
+    Pixie_ImGuiFilledRect(x, y, width, height, buttonColour, borderColour);
 
     if (label)
     {
-        Font* font = s_state.font;
-        int textX = x + ((width - font->GetStringWidth(label)) >> 1);
-        int textY = y + ((height - font->GetCharacterHeight()) >> 1);
+        PixieFont* font = s_state.font;
+        int textX = x + ((width - Pixie_FontGetStringWidth(font, label)) >> 1);
+        int textY = y + ((height - font->characterSizeY) >> 1);
 
-        Label(label, textX, textY, s_state.defaultTextColour);
+        Pixie_ImGuiLabel(label, textX, textY, s_state.defaultTextColour);
     }
 
-    return hover && s_state.focusId == id && window->HasMouseGoneUp(Pixie::MouseButton_Left);
+    return hover && s_state.focusId == id && Pixie_HasMouseGoneUp(window, PixieMouseButton_Left);
 }
 
-void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int height)
+void Pixie_ImGuiInput(char* text, int textBufferLength, int x, int y, int width, int height)
 {
     assert(text);
-    assert(s_state.HasStarted());
+    assert(State_HasStarted());
 
-    Window* window = s_state.window;
-    int id = s_state.GetNextId();
+    PixieWindow* window = s_state.window;
+    PixieFont* font = s_state.font;
+    int id = State_GetNextId();
 
     const int LeftMargin = 8;
     const uint32_t NormalColour = MAKE_RGB(64, 68, 71);
@@ -137,11 +134,11 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
     const float KeyRepeatTimeRepeat = 0.05f;
     const float CursorBlinkTime = 1.0f;
 
-    int mouseX = window->GetMouseX();
-    int mouseY = window->GetMouseY();
+    int mouseX = window->mousex;
+    int mouseY = window->mousey;
 
-    bool hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-    bool pressed = false;
+    char hover = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+    char pressed = 0;
     int textLength = (int)strlen(text);
 
     int textX = x + LeftMargin;
@@ -151,7 +148,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
         s_state.hoverId = id;
 
         // Mouse has just gone down over this element, so give it focus.
-        if (window->HasMouseGoneDown(Pixie::MouseButton_Left))
+        if (Pixie_HasMouseGoneDown(window, PixieMouseButton_Left))
         {
             if (s_state.focusId != id)
             {
@@ -161,38 +158,38 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
             }
 
             // Move the cursor to whereever the user clicked.
-            s_state.keyboardCursorPosition = std::min((mouseX - textX) / s_state.font->GetCharacterWidth(), textLength);
+            s_state.keyboardCursorPosition = min((mouseX - textX) / font->characterSizeX, textLength);
 
             // Also force the cursor to be visible.
             s_state.cursorBlinkTimer = CursorBlinkTime;
         }
 
         // If mouse is still down over this element and it has focus, then it is pressed.
-        pressed = window->IsMouseDown(Pixie::MouseButton_Left) && s_state.focusId == id;
+        pressed = Pixie_IsMouseDown(window, PixieMouseButton_Left) && s_state.focusId == id;
     }
 
     uint32_t boxColour = pressed || hover || s_state.focusId == id ? HoverColour : NormalColour;
     uint32_t borderColour = s_state.focusId == id ? FocusBorderColour : BorderColour;
 
     // Draw the input field.
-    FilledRect(x, y, width, height, boxColour, borderColour);
+    Pixie_ImGuiFilledRect(x, y, width, height, boxColour, borderColour);
 
-    int textY = y + ((height - s_state.font->GetCharacterHeight()) >> 1);
-    Label(text, textX, textY, s_state.defaultTextColour);
+    int textY = y + ((height - font->characterSizeY) >> 1);
+    Pixie_ImGuiLabel(text, textX, textY, s_state.defaultTextColour);
 
     if (s_state.focusId == id)
     {
-        float delta = window->GetDelta();
+        float delta = window->delta;
 
         // Input field has focus, draw the keyboard cursor and process input.
         s_state.cursorBlinkTimer -= delta;
         if (s_state.cursorBlinkTimer >= CursorBlinkTime * 0.5f)
-            FilledRect(textX + (s_state.keyboardCursorPosition * s_state.font->GetCharacterWidth()), textY + s_state.font->GetCharacterHeight() - 2, CursorWidth, 2, CursorColour, CursorColour);
-        if (s_state.cursorBlinkTimer <= 0.0f || window->IsAnyKeyDown())
+            Pixie_ImGuiFilledRect(textX + (s_state.keyboardCursorPosition * font->characterSizeX), textY + font->characterSizeY - 2, CursorWidth, 2, CursorColour, CursorColour);
+        if (s_state.cursorBlinkTimer <= 0.0f || Pixie_IsAnyKeyDown(window))
             s_state.cursorBlinkTimer = CursorBlinkTime;
 
         // TODO: Not sure if this is the right way to do this. The timer should probably be per-key.
-        if (window->HasAnyKeyGoneDown())
+        if (Pixie_HasAnyKeyGoneDown(window))
         {
             s_state.keyRepeatTimer = 0.0f;
             s_state.keyRepeatTime = KeyRepeatTimeInit;
@@ -204,15 +201,15 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
             s_state.keyRepeatTimer = s_state.keyRepeatTime;
             s_state.keyRepeatTime = KeyRepeatTimeRepeat;
 
-            if (window->IsKeyDown(Pixie::Key_Left))
+            if (Pixie_IsKeyDown(window, PixieKey_Left))
             {
-                s_state.keyboardCursorPosition = std::max(s_state.keyboardCursorPosition - 1, 0);
+                s_state.keyboardCursorPosition = max(s_state.keyboardCursorPosition - 1, 0);
             }
-            else if (window->IsKeyDown(Pixie::Key_Right))
+            else if (Pixie_IsKeyDown(window, PixieKey_Right))
             {
-                s_state.keyboardCursorPosition = std::min(s_state.keyboardCursorPosition + 1, textLength);
+                s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textLength);
             }
-            else if (window->IsKeyDown(Pixie::Key_Backspace))
+            else if (Pixie_IsKeyDown(window, PixieKey_Backspace))
             {
                 // Move cursor back.
                 s_state.keyboardCursorPosition--;
@@ -229,7 +226,7 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
                     s_state.keyboardCursorPosition = 0;
                 }
             }
-            else if (window->IsKeyDown(Pixie::Key_Delete))
+            else if (Pixie_IsKeyDown(window, PixieKey_Delete))
             {
                 // Delete the current character.
                 int position = s_state.keyboardCursorPosition;
@@ -240,18 +237,18 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
                     memcpy(text + position, text + position + 1, copyAmount);
                 }
             }
-            else if (window->IsKeyDown(Pixie::Key_Home))
+            else if (Pixie_IsKeyDown(window, PixieKey_Home))
             {
                 s_state.keyboardCursorPosition = 0;
             }
-            else if (window->IsKeyDown(Pixie::Key_End))
+            else if (Pixie_IsKeyDown(window, PixieKey_End))
             {
                 s_state.keyboardCursorPosition = textLength;
             }
         }
 
         // Process remaining ASCII input.
-        const char* inputCharacters = window->GetInputCharacters();
+        const char* inputCharacters = window->inputCharacters;
         if (*inputCharacters)
         {
             for ( ; *inputCharacters; inputCharacters++)
@@ -273,31 +270,31 @@ void ImGui::Input(char* text, int textBufferLength, int x, int y, int width, int
                 }
 
                 // Move the cursor.
-                s_state.keyboardCursorPosition = std::min(s_state.keyboardCursorPosition + 1, textBufferLength);
+                s_state.keyboardCursorPosition = min(s_state.keyboardCursorPosition + 1, textBufferLength);
             }
 
             // We have consumed the input so remove it from the buffer.
-            window->ClearInputCharacters();
+            Pixie_ClearInputCharacters(window);
         }
     }
 }
 
-bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
+char Pixie_ImGuiCheckbox(const char* label, char checked, int x, int y)
 {
     assert(label);
-    assert(s_state.HasStarted());
+    assert(State_HasStarted());
 
     const int TextLeftMargin = 8;
     const int BoxSize = 18;
     const int CheckSize = 8;
 
-    Font* font = s_state.font;
-    int charHeight = font->GetCharacterHeight();
+    PixieFont* font = s_state.font;
+    int charHeight = font->characterSizeY;
 
     int textY = y + ((BoxSize - charHeight) >> 1) + 1;
-    Label(label, x + BoxSize + TextLeftMargin, textY, s_state.defaultTextColour);
-    bool wasChecked = checked;
-    if (Button(0, x, y, BoxSize, BoxSize))
+    Pixie_ImGuiLabel(label, x + BoxSize + TextLeftMargin, textY, s_state.defaultTextColour);
+    char wasChecked = checked;
+    if (Pixie_ImGuiButton(0, x, y, BoxSize, BoxSize))
         checked = !checked;
 
     if (wasChecked)
@@ -305,9 +302,9 @@ bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
         // Draw check mark.
         int checkX = x + ((BoxSize - CheckSize) >> 1);
         int checkY = y + ((BoxSize - CheckSize) >> 1);
-        Window* window = s_state.window;
-        int windowWidth = window->GetWidth();
-        uint32_t* pixels = window->GetPixels();
+        PixieWindow* window = s_state.window;
+        int windowWidth = window->width;
+        uint32_t* pixels = window->pixels;
         y = checkY;
         for (int yy = y*windowWidth, x = 0; y < checkY + CheckSize; y++, x++, yy += windowWidth)
         {
@@ -319,23 +316,23 @@ bool ImGui::Checkbox(const char* label, bool checked, int x, int y)
     return checked;
 }
 
-bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
+char Pixie_ImGuiRadioButton(const char* label, char checked, int x, int y)
 {
     assert(label);
-    assert(s_state.HasStarted());
+    assert(State_HasStarted());
 
     const int TextLeftMargin = 8;
     const int BoxSize = 18;
     const int CheckSize = 8;
     const uint32_t FontColour = s_state.defaultTextColour;
 
-    Font* font = s_state.font;
-    int charHeight = font->GetCharacterHeight();
+    PixieFont* font = s_state.font;
+    int charHeight = font->characterSizeY;
 
     int textY = y + ((BoxSize - charHeight) >> 1) + 1;
-    Label(label, x + BoxSize + TextLeftMargin, textY, FontColour);
-    bool wasChecked = checked;
-    if (Button(0, x, y, BoxSize, BoxSize))
+    Pixie_ImGuiLabel(label, x + BoxSize + TextLeftMargin, textY, FontColour);
+    char wasChecked = checked;
+    if (Pixie_ImGuiButton(0, x, y, BoxSize, BoxSize))
         checked = !checked;
 
     if (wasChecked)
@@ -343,19 +340,19 @@ bool ImGui::RadioButton(const char* label, bool checked, int x, int y)
         // Draw radio button mark.
         int checkX = x + ((BoxSize - CheckSize) >> 1);
         int checkY = y + ((BoxSize - CheckSize) >> 1);
-        FilledRect(checkX, checkY, CheckSize, CheckSize, FontColour, FontColour);
+        Pixie_ImGuiFilledRect(checkX, checkY, CheckSize, CheckSize, FontColour, FontColour);
     }
 
     return checked;
 }
 
-void ImGui::Rect(int x, int y, int width, int height, uint32_t borderColour)
+void Pixie_ImGuiRect(int x, int y, int width, int height, uint32_t borderColour)
 {
-    assert(s_state.HasStarted());
-    Window* window = s_state.window;
-    uint32_t* pixels = window->GetPixels();
-    int windowWidth = window->GetWidth();
-    int windowHeight = window->GetHeight();
+    assert(State_HasStarted());
+    PixieWindow* window = s_state.window;
+    uint32_t* pixels = window->pixels;
+    int windowWidth = window->width;
+    int windowHeight = window->height;
 
     pixels += x + (y*windowWidth);
 
@@ -372,7 +369,7 @@ void ImGui::Rect(int x, int y, int width, int height, uint32_t borderColour)
         pixels += windowWidth;
     }
 
-    pixels = window->GetPixels() + x + (y*windowWidth);
+    pixels = window->pixels + x + (y*windowWidth);
     for (int i = 0, xpos = x; i < width; i++, xpos++)
     {
         int top = y;
@@ -387,13 +384,13 @@ void ImGui::Rect(int x, int y, int width, int height, uint32_t borderColour)
     }
 }
 
-void ImGui::FilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
+void Pixie_ImGuiFilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour)
 {
-    assert(s_state.HasStarted());
-    Window* window = s_state.window;
-    uint32_t* pixels = window->GetPixels();
-    int windowWidth = window->GetWidth();
-    int windowHeight = window->GetHeight();
+    assert(State_HasStarted());
+    PixieWindow* window = s_state.window;
+    uint32_t* pixels = window->pixels;
+    int windowWidth = window->width;
+    int windowHeight = window->height;
 
     pixels += x + (y*windowWidth);
 

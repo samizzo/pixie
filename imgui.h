@@ -3,26 +3,16 @@
 #include <stdint.h>
 #include "core.h"
 
-namespace Pixie
-{
-    class Window;
-    class Font;
+void Pixie_ImGuiBegin(PixieWindow* window, PixieFont* font);
+void Pixie_ImGuiEnd();
 
-    class ImGui
-    {
-        public:
-            static void Begin(Window* window, Font* font);
-            static void End();
+// UI widgets
+void Pixie_ImGuiLabel(const char* text, int x, int y, uint32_t colour);
+char Pixie_ImGuiButton(const char* label, int x, int y, int width, int height);
+void Pixie_ImGuiInput(char* text, int textBufferLength, int x, int y, int width, int height);
+char Pixie_ImGuiCheckbox(const char* label, char checked, int x, int y);
+char Pixie_ImGuiRadioButton(const char* label, char checked, int x, int y);
 
-            // UI widgets
-            static void Label(const char* text, int x, int y, uint32_t colour);
-            static bool Button(const char* label, int x, int y, int width, int height);
-            static void Input(char* text, int textBufferLength, int x, int y, int width, int height);
-            static bool Checkbox(const char* label, bool checked, int x, int y);
-            static bool RadioButton(const char* label, bool checked, int x, int y);
-
-            // Basic drawing
-            static void Rect(int x, int y, int width, int height, uint32_t borderColour);
-            static void FilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour);
-    };
-}
+// Basic drawing
+void Pixie_ImGuiRect(int x, int y, int width, int height, uint32_t borderColour);
+void Pixie_ImGuiFilledRect(int x, int y, int width, int height, uint32_t colour, uint32_t borderColour);

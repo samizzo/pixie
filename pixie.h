@@ -1,337 +1,256 @@
 #pragma once
 
-#include <assert.h>
 #include <stdint.h>
+#include <assert.h>
 #include "core.h"
 
-namespace Pixie
+// Public interface.
+
+typedef enum _PixieMouseButton
 {
-    enum MouseButton
+    PixieMouseButton_Left	= 0,
+    PixieMouseButton_Middle	= 1,
+    PixieMouseButton_Right	= 2,
+    PixieMouseButton_Num
+} PixieMouseButton;
+
+typedef enum _PixieKey
+{
+    PixieKey_Backspace = 0,
+    PixieKey_Tab,
+    PixieKey_Enter,
+    PixieKey_Escape,
+
+    PixieKey_Up,
+    PixieKey_Down,
+    PixieKey_Left,
+    PixieKey_Right,
+
+    PixieKey_Home,
+    PixieKey_End,
+    PixieKey_PageUp,
+    PixieKey_PageDown,
+
+    PixieKey_Delete,
+    PixieKey_Insert,
+
+    PixieKey_LeftShift,
+    PixieKey_RightShift,
+    PixieKey_LeftControl,
+    PixieKey_RightControl,
+    PixieKey_LeftAlt,
+    PixieKey_RightAlt,
+
+    PixieKey_F1,
+    PixieKey_F2,
+    PixieKey_F3,
+    PixieKey_F4,
+    PixieKey_F5,
+    PixieKey_F6,
+    PixieKey_F7,
+    PixieKey_F8,
+    PixieKey_F9,
+    PixieKey_F10,
+    PixieKey_F11,
+    PixieKey_F12,
+
+    PixieKey_ASCII_Start = 32,
+
+    // 32 to 127 are ASCII printable characters.
+    // Note: these are unshifted keys.
+
+    PixieKey_ASCII_End = 127,
+
+    PixieKey_Num
+} PixieKey;
+
+enum
+{
+    MaxPlatformKeys = 256
+};
+
+typedef struct _PixieWindow PixieWindow;
+typedef void(*KeyCallback)(PixieWindow* window, PixieKey key, char down);
+
+typedef struct _PixieWindow
+{
+    int mousex;
+    int mousey;
+    char lastMouseButtonDown[PixieMouseButton_Num];
+    char mouseButtonDown[PixieMouseButton_Num];
+
+    int keyMap[PixieKey_Num];
+    char lastKeyDown[MaxPlatformKeys];
+    char keyDown[MaxPlatformKeys];
+    char anyKeyDown;
+    char inputCharacters[16 + 1];
+
+    float delta;
+
+    uint32_t* pixels;
+    uint32_t width;
+    uint32_t height;
+    uint32_t windowWidth;
+    uint32_t windowHeight;
+    int scale;
+    char fullscreen;
+    char maintainAspectRatio;
+    float scalex, scaley;
+
+    float time;
+    int64_t lastTime;
+    int64_t freq;
+
+    KeyCallback keyCallback;
+    void* handle;
+} PixieWindow;
+
+// Open a Pixie window with the specified title bar, width, and height.
+// If scale is greater than 1 the window will be rendered scale times larger
+// and the buffer will be stretched to fit.
+PixieWindow* Pixie_Open(const TCHAR* title, int width, int height, char fullscreen);
+PixieWindow* Pixie_OpenEx(const TCHAR* title, int width, int height, char fullscreen, char maintainAspectRatio, int scale);
+
+// Close a Pixie window.
+void Pixie_Close(PixieWindow* window);
+
+// Update a Pixie window. This will copy the backing buffer to the actual window.
+char Pixie_Update(PixieWindow* window);
+
+// Returns true in the frame the mouse button went down.
+char Pixie_HasMouseGoneDown(const PixieWindow* window, PixieMouseButton button);
+
+// Returns true in the frame the mouse button went up.
+char Pixie_HasMouseGoneUp(const PixieWindow* window, PixieMouseButton button);
+
+// Returns true if the mouse button is currently down.
+char Pixie_IsMouseDown(const PixieWindow* window, PixieMouseButton button);
+
+// Returns true in the frame the key specified went down.
+char Pixie_HasKeyGoneDown(const PixieWindow* window, PixieKey key);
+
+// Returns true if any key went down in the frame.
+char Pixie_HasAnyKeyGoneDown(const PixieWindow* window);
+
+// Returns true in the frame the key specified went up.
+char Pixie_HasKeyGoneUp(const PixieWindow* window, PixieKey key);
+
+// Returns true if the key specified is currently down.
+char Pixie_IsKeyDown(const PixieWindow* window, PixieKey key);
+
+// Returns true if any key is currently down.
+char Pixie_IsAnyKeyDown(const PixieWindow* window);
+
+// Returns an array of ASCII input for the current frame.
+const char* Pixie_GetInputCharacters(const PixieWindow* window);
+
+// Clears the ASCII input for the current frame.
+void Pixie_ClearInputCharacters(PixieWindow* window);
+
+// Key callback handler. Called on any key state change.
+void Pixie_SetKeyCallback(PixieWindow* window, KeyCallback callback);
+
+inline char Pixie_HasMouseGoneDown(const PixieWindow* window, PixieMouseButton button)
+{
+    assert(window);
+    return !window->lastMouseButtonDown[button] && window->mouseButtonDown[button];
+}
+
+inline char Pixie_HasMouseGoneUp(const PixieWindow* window, PixieMouseButton button)
+{
+    assert(window);
+    return window->lastMouseButtonDown[button] && !window->mouseButtonDown[button];
+}
+
+inline char Pixie_IsMouseDown(const PixieWindow* window, PixieMouseButton button)
+{
+    assert(window);
+    return window->mouseButtonDown[button];
+}
+
+inline char Pixie_HasAnyKeyGoneDown(const PixieWindow* window)
+{
+    assert(window);
+    for (int i = 0; i < PixieKey_Num; i++)
     {
-        MouseButton_Left	= 0,
-        MouseButton_Middle	= 1,
-        MouseButton_Right	= 2,
-        MouseButton_Num
-    };
-
-    enum Key
-    {
-        Key_Backspace = 0,
-        Key_Tab,
-        Key_Enter,
-        Key_Escape,
-
-        Key_Up,
-        Key_Down,
-        Key_Left,
-        Key_Right,
-
-        Key_Home,
-        Key_End,
-        Key_PageUp,
-        Key_PageDown,
-
-        Key_Delete,
-        Key_Insert,
-
-        Key_LeftShift,
-        Key_RightShift,
-        Key_LeftControl,
-        Key_RightControl,
-        Key_LeftAlt,
-        Key_RightAlt,
-
-        Key_F1,
-        Key_F2,
-        Key_F3,
-        Key_F4,
-        Key_F5,
-        Key_F6,
-        Key_F7,
-        Key_F8,
-        Key_F9,
-        Key_F10,
-        Key_F11,
-        Key_F12,
-
-        Key_ASCII_Start = 32,
-
-        // 32 to 127 are ASCII printable characters.
-        // Note: these are unshifted keys.
-
-        Key_ASCII_End = 127,
-
-        Key_Num
-    };
-
-    enum
-    {
-        MaxPlatformKeys = 256
-    };
-
-    class Window
-    {
-        public:
-            Window();
-            ~Window();
-
-            // Open the Pixie window with the specified title bar, width, and height.
-            // If scale is greater than 1 the window will be rendered scale times larger
-            // and the buffer will be stretched to fit.
-            bool Open(const TCHAR* title, int width, int height, bool fullscreen, bool maintainAspectRatio = false, int scale = 1);
-
-            // Close the Pixie window.
-            void Close();
-
-            // Update the Pixie window. This will copy the backing buffer to the actual window.
-            bool Update();
-
-            // Returns true in the frame the mouse button went down.
-            bool HasMouseGoneDown(MouseButton button) const;
-
-            // Returns true in the frame the mouse button went up.
-            bool HasMouseGoneUp(MouseButton button) const;
-
-            // Returns true if the mouse button is currently down.
-            bool IsMouseDown(MouseButton button) const;
-
-            // Returns true in the frame the key specified went down.
-            bool HasKeyGoneDown(Key key) const;
-
-            // Returns true if any key went down in the frame.
-            bool HasAnyKeyGoneDown() const;
-
-            // Returns true in the frame the key specified went up.
-            bool HasKeyGoneUp(Key key) const;
-
-            // Returns true if the key specified is currently down.
-            bool IsKeyDown(Key key) const;
-
-            // Returns true if any key is currently down.
-            bool IsAnyKeyDown() const;
-
-            // Returns an array of ASCII input for the current frame.
-            const char* GetInputCharacters() const;
-
-            // Clears the ASCII input for the current frame.
-            void ClearInputCharacters();
-
-            // Returns the current mouse X position.
-            int GetMouseX() const;
-
-            // Returns the current mouse Y position.
-            int GetMouseY() const;
-
-            // Returns the time delta in seconds since the last time the window was updated.
-            float GetDelta() const;
-
-            // Returns the time in seconds since the window was opened.
-            float GetTime() const;
-
-            // Returns the backing buffer for the window.
-            uint32_t* GetPixels() const;
-
-            // Returns the width of the window.
-            uint32_t GetWidth() const;
-
-            // Returns the height of the window.
-            uint32_t GetHeight() const;
-
-            // Returns the scale of the window.
-            uint32_t GetScale() const;
-
-            // Key callback handler. Called on any key state change.
-            typedef void(*KeyCallback)(Key key, bool down);
-            void SetKeyCallback(KeyCallback callback);
-
-            // Used by the window procedure to update key and mouse state.
-            void SetMouseButtonDown(MouseButton button, bool down);
-            void SetKeyDown(int key, bool down);
-            void AddInputCharacter(char c);
-
-        private:
-            void PlatformInit();
-            bool PlatformOpen(const TCHAR* title, int width, int height);
-            bool PlatformUpdate();
-            void PlatformClose();
-
-            void UpdateMouse();
-            void UpdateKeyboard();
-
-            int m_mouseX;
-            int m_mouseY;
-            bool m_lastMouseButtonDown[MouseButton_Num];
-            bool m_mouseButtonDown[MouseButton_Num];
-
-            int m_keyMap[Key_Num];
-            bool m_lastKeyDown[MaxPlatformKeys];
-            bool m_keyDown[MaxPlatformKeys];
-            bool m_anyKeyDown;
-            char m_inputCharacters[16+1];
-
-            float m_delta;
-
-            uint32_t* m_pixels;
-            uint32_t m_width;
-            uint32_t m_height;
-            uint32_t m_windowWidth;
-            uint32_t m_windowHeight;
-            int m_scale;
-            bool m_fullscreen;
-            bool m_maintainAspectRatio;
-            float m_scalex, m_scaley;
-
-            void* m_window;
-
-            float m_time;
-            int64_t m_lastTime;
-            int64_t m_freq;
-
-            KeyCallback m_keyCallback;
-    };
-
-    inline int Window::GetMouseX() const
-    {
-        return m_mouseX;
+        if (Pixie_HasKeyGoneDown(window, (PixieKey)i))
+            return 1;
     }
 
-    inline int Window::GetMouseY() const
+    return 0;
+}
+
+inline char Pixie_HasKeyGoneDown(const PixieWindow* window, PixieKey key)
+{
+    assert(window);
+    int index = window->keyMap[key];
+    if (index == -1)
+        return 0;
+    assert(index >= 0 && index < MaxPlatformKeys);
+    return !window->lastKeyDown[index] && window->keyDown[index];
+}
+
+inline char Pixie_HasKeyGoneUp(const PixieWindow* window, PixieKey key)
+{
+    assert(window);
+    int index = window->keyMap[key];
+    if (index == -1)
+        return 0;
+    assert(index >= 0 && index < MaxPlatformKeys);
+    return window->lastKeyDown[index] && !window->keyDown[index];
+}
+
+inline char Pixie_IsKeyDown(const PixieWindow* window, PixieKey key)
+{
+    assert(window);
+    int index = window->keyMap[key];
+    if (index == -1)
+        return 0;
+    assert(index >= 0 && index < MaxPlatformKeys);
+    return window->keyDown[index];
+}
+
+inline char Pixie_IsAnyKeyDown(const PixieWindow* window)
+{
+    assert(window);
+    for (int i = 0; i < PixieKey_Num; i++)
     {
-        return m_mouseY;
+        if (Pixie_IsKeyDown(window, (PixieKey)i))
+            return 1;
     }
 
-    inline float Window::GetDelta() const
-    {
-        return m_delta;
-    }
+    return 0;
+}
 
-    inline float Window::GetTime() const
-    {
-        return m_time;
-    }
+inline void Pixie_ClearInputCharacters(PixieWindow* window)
+{
+    assert(window);
+    window->inputCharacters[0] = 0;
+}
 
-    inline uint32_t* Window::GetPixels() const
-    {
-        return m_pixels;
-    }
+// --------------------------------------------------------------------------
 
-    inline uint32_t Window::GetWidth() const
-    {
-        return m_width;
-    }
+// Internal implementation details.
+void Pixie_AddInputCharacter(PixieWindow* window, char c);
 
-    inline uint32_t Window::GetHeight() const
-    {
-        return m_height;
-    }
+inline void Pixie_SetKeyDown(PixieWindow* window, int platformKey, char down)
+{
+    assert(window);
+    assert(platformKey >= 0 && platformKey < MaxPlatformKeys);
+    if (window->keyDown[platformKey] == down)
+        return;
 
-    inline uint32_t Window::GetScale() const
+    window->keyDown[platformKey] = down;
+    if (window->keyCallback)
     {
-        return m_scale;
-    }
-
-    inline bool Window::HasMouseGoneDown(MouseButton button) const
-    {
-        return !m_lastMouseButtonDown[button] && m_mouseButtonDown[button];
-    }
-
-    inline bool Window::HasMouseGoneUp(MouseButton button) const
-    {
-        return m_lastMouseButtonDown[button] && !m_mouseButtonDown[button];
-    }
-
-    inline bool Window::IsMouseDown(MouseButton button) const
-    {
-        return m_mouseButtonDown[button];
-    }
-
-    inline bool Window::HasAnyKeyGoneDown() const
-    {
-        for (int i = 0; i < Key_Num; i++)
+        for (int i = 0; i < PixieKey_Num; i++)
         {
-            if (HasKeyGoneDown((Key)i))
-                return true;
-        }
-
-        return false;
-    }
-
-    inline bool Window::HasKeyGoneDown(Key key) const
-    {
-        int index = m_keyMap[key];
-        if (index == -1)
-            return false;
-        assert(index >= 0 && index < MaxPlatformKeys);
-        return !m_lastKeyDown[index] && m_keyDown[index];
-    }
-
-    inline bool Window::HasKeyGoneUp(Key key) const
-    {
-        int index = m_keyMap[key];
-        if (index == -1)
-            return false;
-        assert(index >= 0 && index < MaxPlatformKeys);
-        return m_lastKeyDown[index] && !m_keyDown[index];
-    }
-
-    inline bool Window::IsKeyDown(Key key) const
-    {
-        int index = m_keyMap[key];
-        if (index == -1)
-            return false;
-        assert(index >= 0 && index < MaxPlatformKeys);
-        return m_keyDown[index];
-    }
-
-    inline bool Window::IsAnyKeyDown() const
-    {
-        for (int i = 0; i < Key_Num; i++)
-        {
-            if (IsKeyDown((Key)i))
-                return true;
-        }
-
-        return false;
-    }
-
-    inline const char* Window::GetInputCharacters() const
-    {
-        return m_inputCharacters;
-    }
-
-    inline void Window::ClearInputCharacters()
-    {
-        m_inputCharacters[0] = 0;
-    }
-
-    inline void Window::SetMouseButtonDown(MouseButton button, bool down)
-    {
-        m_mouseButtonDown[button] = down;
-    }
-
-    inline void Window::SetKeyDown(int platformKey, bool down)
-    {
-        assert(platformKey >= 0 && platformKey < MaxPlatformKeys);
-        if (m_keyDown[platformKey] == down)
-            return;
-
-        m_keyDown[platformKey] = down;
-        if (m_keyCallback)
-        {
-            for (int i = 0; i < Key_Num; i++)
+            int key = window->keyMap[i];
+            if (key == platformKey)
             {
-                int key = m_keyMap[i];
-                if (key == platformKey)
-                {
-                    m_keyCallback((Key)i, down);
-                    return;
-                }
+                window->keyCallback(window, (PixieKey)i, down);
+                return;
             }
         }
-    }
-
-    inline void Window::SetKeyCallback(KeyCallback callback)
-    {
-        m_keyCallback = callback;
     }
 }

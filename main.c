@@ -1,9 +1,7 @@
-﻿#include "pixie.h"
+﻿#include <stdio.h>
+#include "pixie.h"
 #include "font.h"
 #include "imgui.h"
-#include <string.h>
-#include <stdio.h>
-#include <algorithm>
 
 static const TCHAR* WindowTitle = TEXT("Hello, World!");
 static const int WindowWidth = 640;
@@ -26,8 +24,8 @@ static void draw(int x, int y, uint32_t* pixels)
 
 int main(int argc, char** argv)
 {
-    Pixie::Font font;
-    if (!font.Load("font.bmp", 9, 16))
+    PixieFont* font = Pixie_FontLoad("font.bmp", 9, 16);
+    if (!font)
     {
 #if PIXIE_PLATFORM_WIN
         MessageBox(NULL, TEXT("Failed to load font.bmp"), TEXT("Pixie Error"), MB_ICONERROR);
@@ -37,11 +35,11 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    Pixie::Window window;
-    if (!window.Open(WindowTitle, WindowWidth, WindowHeight, true))
+    PixieWindow* window = Pixie_Open(WindowTitle, WindowWidth, WindowHeight, 0);
+    if (!window)
         return 0;
 
-    uint32_t* pixels = window.GetPixels();
+    uint32_t* pixels = window->pixels;
 
     const float SPEED = 100.0f;
     float x = 0, y = 0;
@@ -49,17 +47,17 @@ int main(int argc, char** argv)
     char buf[16] = { 0 };
     strcat_s(buf, sizeof(buf), "Hello, World!");
 
-    while (!window.HasKeyGoneUp(Pixie::Key_Escape))
+    while (!Pixie_HasKeyGoneUp(window, PixieKey_Escape))
     {
-        Pixie::ImGui::Begin(&window, &font);
+        Pixie_ImGuiBegin(window, font);
 
-        float delta = window.GetDelta();
+        float delta = window->delta;
 
         x += xadd*delta;
         y += yadd*delta;
         if (x >= WindowWidth - 1)
         {
-            x = WindowWidth - 1;
+            x = (float)(WindowWidth - 1);
             xadd = -SPEED;
         }
         else if (x < 0)
@@ -70,7 +68,7 @@ int main(int argc, char** argv)
 
         if (y >= WindowHeight - 1)
         {
-            y = WindowHeight - 1;
+            y = (float)(WindowHeight - 1);
             yadd = -SPEED;
         }
         else if (y < 0)
@@ -91,47 +89,47 @@ int main(int argc, char** argv)
                 cx = 0;
                 cy += 16;
             }
-            font.Draw(buf, cx, cy, &window);
+            Pixie_FontDraw(font, buf, cx, cy, window);
             cx += 9;
         }
 
         {
             char buf[128];
-            sprintf_s(buf, sizeof(buf), "%.4f", window.GetTime());
-            font.Draw(buf, 10, 90, &window);
+            sprintf_s(buf, sizeof(buf), "%.4f", window->time);
+            Pixie_FontDraw(font, buf, 10, 90, window);
         }
 
         draw((int)x, (int)y, pixels);
 
-        Pixie::ImGui::FilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
+        Pixie_ImGuiFilledRect(10, 240, 100, 100, MAKE_RGB(255, 0, 0), MAKE_RGB(128, 0, 0));
 
-        if (Pixie::ImGui::Button("Hello", 100, 100, 100, 30))
+        if (Pixie_ImGuiButton("Hello", 100, 100, 100, 30))
             strcpy_s(buf, sizeof(buf), "Hello, World!");
-        if (Pixie::ImGui::Button("Goodbye", 100, 140, 100, 30))
+        if (Pixie_ImGuiButton("Goodbye", 100, 140, 100, 30))
             strcpy_s(buf, sizeof(buf), "Goodbye, World!");
 
-        Pixie::ImGui::Input(buf, sizeof(buf), 100, 180, 400, 20);
+        Pixie_ImGuiInput(buf, sizeof(buf), 100, 180, 400, 20);
 
-        static bool checked = false;
-        checked = Pixie::ImGui::Checkbox("Do the thing", checked, 100, 210);
+        static char checked = 0;
+        checked = Pixie_ImGuiCheckbox("Do the thing", checked, 100, 210);
 
         static int selection = 0;
-        if (Pixie::ImGui::RadioButton("Banana", selection == 0, 300, 210))
+        if (Pixie_ImGuiRadioButton("Banana", selection == 0, 300, 210))
             selection = 0;
-        if (Pixie::ImGui::RadioButton("Apple", selection == 1, 300, 230))
+        if (Pixie_ImGuiRadioButton("Apple", selection == 1, 300, 230))
             selection = 1;
-        if (Pixie::ImGui::RadioButton("Pear", selection == 3, 300, 250))
+        if (Pixie_ImGuiRadioButton("Pear", selection == 3, 300, 250))
             selection = 3;
 
-        for (int i = 0; i < Pixie::MouseButton_Num; i++)
+        for (int i = 0; i < PixieMouseButton_Num; i++)
         {
-            if (window.IsMouseDown((Pixie::MouseButton)i))
+            if (Pixie_IsMouseDown(window, (PixieMouseButton)i))
             {
-                Pixie::ImGui::FilledRect((i*33) + 240, 280, 32, 32, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
+                Pixie_ImGuiFilledRect((i*33) + 240, 280, 32, 32, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
             }
             else
             {
-                Pixie::ImGui::Rect((i*33) + 240, 280, 32, 32, MAKE_RGB(255, 0, 0));
+                Pixie_ImGuiRect((i*33) + 240, 280, 32, 32, MAKE_RGB(255, 0, 0));
             }
         }
 
@@ -147,23 +145,23 @@ int main(int argc, char** argv)
             accumTime = 0.0f;
         }
 
-        int fpsWidth = std::min(WindowWidth, (int)((avgFrameTime*20.0f)*WindowWidth));
-        Pixie::ImGui::FilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
-        Pixie::ImGui::FilledRect((int)((1.0f/60.0f)*20.0f*WindowWidth), 0, 2, 10, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 255, 0));
+        int fpsWidth = min(WindowWidth, (int)((avgFrameTime*20.0f)*WindowWidth));
+        Pixie_ImGuiFilledRect(0, 0, fpsWidth, 10, MAKE_RGB(255, 0, 0), MAKE_RGB(255, 0, 0));
+        Pixie_ImGuiFilledRect((int)((1.0f/60.0f)*20.0f*WindowWidth), 0, 2, 10, MAKE_RGB(0, 255, 0), MAKE_RGB(0, 255, 0));
 
         {
             char buf[128];
             sprintf_s(buf, sizeof(buf), "%.2f fps", 1.0f / avgFrameTime);
-            font.Draw(buf, 10, 106, &window);
+            Pixie_FontDraw(font, buf, 10, 106, window);
         }
 
-        Pixie::ImGui::End();
+        Pixie_ImGuiEnd();
 
-        if (!window.Update())
+        if (!Pixie_Update(window))
             break;
     }
 
-    window.Close();
+    Pixie_Close(window);
 
     printf("done\n");
 }

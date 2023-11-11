@@ -143,11 +143,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="font.cpp" />
-    <ClCompile Include="imgui.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="pixie.cpp" />
-    <ClCompile Include="pixie_win.cpp" />
+    <ClCompile Include="font.c" />
+    <ClCompile Include="imgui.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="pixie.c" />
+    <ClCompile Include="pixie_win.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui.h" />

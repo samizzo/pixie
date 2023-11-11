@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include "font.h"
 #include "pixie.h"
-#if !PIXIE_PLATFORM_WIN
-#include <string.h>
-#endif
 
 #if PIXIE_PLATFORM_OSX
 struct BITMAPFILEHEADER
@@ -35,28 +32,18 @@ struct BITMAPINFOHEADER
 #define BI_RGB 0
 #endif
 
-using namespace Pixie;
-
-Font::~Font()
+PixieFont* Pixie_FontLoad(const char* filename, int characterSizeX, int characterSizeY)
 {
-    delete[] m_fontBuffer;
-}
-
-bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
-{
-    m_characterSizeX = characterSizeX;
-    m_characterSizeY = characterSizeY;
-
     FILE* infile = fopen(filename, "rb");
     if (!infile)
-        return false;
+        return 0;
 
     BITMAPFILEHEADER bmfh;
     fread(&bmfh, sizeof(bmfh), 1, infile);
     if (bmfh.bfType != 0x4d42) // 'MB'
     {
         fclose(infile);
-        return false;
+        return 0;
     }
 
     BITMAPINFOHEADER bmih;
@@ -64,31 +51,37 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
     if (bmih.biSize != sizeof(bmih))
     {
         fclose(infile);
-        return false;
+        return 0;
     }
 
     if ((bmih.biBitCount != 32 && bmih.biBitCount != 24) || bmih.biCompression != BI_RGB)
     {
         fclose(infile);
-        return false;
+        return 0;
     }
+
+    PixieFont* font = malloc(sizeof(PixieFont));
+    memset(font, 0, sizeof(PixieFont));
+
+    font->characterSizeX = characterSizeX;
+    font->characterSizeY = characterSizeY;
 
     fseek(infile, bmfh.bfOffBits, SEEK_SET);
 
-    m_width = bmih.biWidth;
-    m_height = abs(bmih.biHeight);
+    font->width = bmih.biWidth;
+    font->height = abs(bmih.biHeight);
 
-    uint32_t size = 256 * m_characterSizeX * m_characterSizeY;
-    m_fontBuffer = new uint32_t[size];
+    uint32_t size = 256 * font->characterSizeX * font->characterSizeY;
+    font->pixels = malloc(sizeof(uint32_t) * size);
 
     if (bmih.biBitCount == 32)
     {
-        fread(m_fontBuffer, 1, size * 4, infile);
+        fread(font->pixels, 1, size * 4, infile);
     }
     else if (bmih.biBitCount == 24)
     {
         // read into 24bit buf and expand
-        uint8_t* buf24 = new uint8_t[size * 3];
+        uint8_t* buf24 = malloc(size * 3);
         fread(buf24, 1, size * 3, infile);
 
         uint8_t* pcurr = buf24;
@@ -96,7 +89,7 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
         {
             // from: R,G,B
             // to:   xRGB
-            m_fontBuffer[i] =
+            font->pixels[i] =
                 0xff000000 |
                 (*(pcurr) << 16) |
                 (*(pcurr + 1) << 8) |
@@ -105,23 +98,23 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
             pcurr += 3;
         }
 
-        delete[] buf24;
+        free(buf24);
     }
 
     // if we don't have a negative height, the bmp is stored upside-down, so go through and flip it
     if (bmih.biHeight > 0)
     {
-        uint32_t* rowbuf = new uint32_t[m_width];
+        uint32_t* rowbuf = malloc(sizeof(uint32_t) * font->width);
         // flip all rows apart from the middle one if the image has an odd height
         // h = 4; h/2 = 2; y 0,fy 3 | y 1,fy 2
         // h = 5; h/2 = 2; y 0,fy 4 | y 1,fy 3  [row 2 unchanged]
-        for (uint32_t y = 0; y < m_height / 2; ++y)
+        for (uint32_t y = 0; y < font->height / 2; ++y)
         {
-            uint32_t flipy = (m_height - (y + 1));
+            uint32_t flipy = (font->height - (y + 1));
 
-            void* row = m_fontBuffer + (m_width * y);
-            void* fliprow = m_fontBuffer + (m_width * flipy);
-            uint32_t rowsize = m_width * sizeof(uint32_t);
+            void* row = font->pixels + (font->width * y);
+            void* fliprow = font->pixels + (font->width * flipy);
+            uint32_t rowsize = font->width * sizeof(uint32_t);
 
             // 1. copy fliprow into rowbuf
             memcpy(rowbuf, fliprow, rowsize);
@@ -133,75 +126,89 @@ bool Font::Load(const char* filename, int characterSizeX, int characterSizeY)
             memcpy(row, rowbuf, rowsize);
         }
 
-        delete[] rowbuf;
+        free(rowbuf);
     }
 
     fclose(infile);
 
-    return true;
+    return font;
 }
 
-void Font::Draw(const char* msg, int x, int y, Pixie::Window* window)
+void Pixie_FontDestroy(PixieFont* font)
 {
-    uint32_t* pixels = window->GetPixels();
-    int width = window->GetWidth();
-    int height = window->GetHeight();
+    assert(font);
+    free(font->pixels);
+    free(font);
+}
+
+void Pixie_FontDraw(const PixieFont* font, const char* msg, int x, int y, PixieWindow* window)
+{
+    assert(font);
+    assert(window);
+
+    uint32_t* pixels = window->pixels;
+    int width = window->width;
+    int height = window->height;
 
     for ( ; *msg; msg++)
     {
         uint8_t c = *msg;
-        uint32_t* charStart = m_fontBuffer + (c * m_characterSizeX);
+        uint32_t* charStart = font->pixels + (c * font->characterSizeX);
 
-        for (int cx = 0; cx < m_characterSizeX; cx++)
+        for (int cx = 0; cx < font->characterSizeX; cx++)
         {
-            for (int cy = 0; cy < m_characterSizeY; cy++)
+            for (int cy = 0; cy < font->characterSizeY; cy++)
             {
                 int sx = cx + x;
                 int sy = cy + y;
                 if (sx >= 0 && sx < width && sy >= 0 && sy < height)
                 {
-                    uint32_t pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
+                    uint32_t pixel = charStart[cx + (cy * 256 * font->characterSizeX)];
                     if (pixel & 0xffffff)
                         pixels[sx+(sy*width)] = pixel;
                 }
             }
         }
 
-        x += m_characterSizeX;
+        x += font->characterSizeX;
     }
 }
 
-void Font::DrawColour(const char* msg, int x, int y, uint32_t colour, Pixie::Window* window)
+void Pixie_FontDrawColour(const PixieFont* font, const char* msg, int x, int y, uint32_t colour, PixieWindow* window)
 {
-    uint32_t* pixels = window->GetPixels();
-    int width = window->GetWidth();
-    int height = window->GetHeight();
+    assert(font);
+    assert(window);
+
+    uint32_t* pixels = window->pixels;
+    int width = window->width;
+    int height = window->height;
 
     for (; *msg; msg++)
     {
         uint8_t c = *msg;
-        uint32_t* charStart = m_fontBuffer + (c * m_characterSizeX);
+        uint32_t* charStart = font->pixels + (c * font->characterSizeX);
 
-        for (int cx = 0; cx < m_characterSizeX; cx++)
+        for (int cx = 0; cx < font->characterSizeX; cx++)
         {
-            for (int cy = 0; cy < m_characterSizeY; cy++)
+            for (int cy = 0; cy < font->characterSizeY; cy++)
             {
                 int sx = cx + x;
                 int sy = cy + y;
                 if (sx >= 0 && sx < width && sy >= 0 && sy < height)
                 {
-                    uint32_t pixel = charStart[cx + (cy * 256 * m_characterSizeX)];
+                    uint32_t pixel = charStart[cx + (cy * 256 * font->characterSizeX)];
                     if (pixel & 0xffffff)
                         pixels[sx + (sy*width)] = colour;
                 }
             }
         }
 
-        x += m_characterSizeX;
+        x += font->characterSizeX;
     }
 }
 
-int Font::GetStringWidth(const char* msg) const
+int Pixie_FontGetStringWidth(const PixieFont* font, const char* msg)
 {
-    return (int)strlen(msg) * m_characterSizeX;
+    assert(font);
+    return (int)strlen(msg) * font->characterSizeX;
 }
