@@ -332,3 +332,4 @@ ASALocalRun/
 pixie_demo
 pixie-xcode/**
 
+.vscode/**
