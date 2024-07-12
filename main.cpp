@@ -39,7 +39,14 @@ int main(int argc, char** argv)
 
     Pixie::Window window;
     if (!window.Open(WindowTitle, WindowWidth, WindowHeight, true))
+    {
+#if PIXIE_PLATFORM_WIN
+        MessageBox(NULL, TEXT("Failed to open window"), TEXT("Pixie Error"), MB_ICONERROR);
+#else
+        printf("pixie: failed to open window\n");
+#endif
         return 0;
+    }
 
     uint32_t* pixels = window.GetPixels();
 

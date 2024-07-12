@@ -12,17 +12,26 @@
 #define PIXIE_PLATFORM_WIN 1
 #elif __APPLE__
 #define PIXIE_PLATFORM_OSX 1
+#elif __linux__
+#define PIXIE_PLATFORM_LINUX 1
 #else
 #error "Unsupported platform"
 #endif
 
+#if PIXIE_PLATFORM_OSX || PIXIE_PLATFORM_LINUX
 #if PIXIE_PLATFORM_OSX
 #define strcat_s(dst, size, src) strlcat(dst, src, size)
+#else
+#define strcat_s(dst, size, src) strcat(dst, src)
+#endif
 #define sprintf_s(dst, size, fmt, ...) snprintf(dst, size, fmt, __VA_ARGS__)
 #define strcpy_s(dst, size, src) snprintf(dst, size, "%s", src)
 #endif
 
 #define MAKE_RGB(r, g, b) ((b)|((g)<<8)|((r)<<16))
+
+#define PIXIE_BUFFER_DEPTH 24
+#define PIXIE_BUFFER_BPP 32
 
 #if PIXIE_PLATFORM_WIN
 #if !defined(__MINGW32__)
@@ -37,7 +46,7 @@
 #define TEXT(x) L"\"" #x "\""
 typedef wchar_t TCHAR;
 #else
-#define TEXT(x) #x
+#define TEXT(x) x
 typedef char TCHAR;
 #endif
 #endif

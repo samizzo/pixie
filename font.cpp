@@ -7,7 +7,7 @@
 #include <string.h>
 #endif
 
-#if PIXIE_PLATFORM_OSX
+#if PIXIE_PLATFORM_OSX || PIXIE_PLATFORM_LINUX
 struct BITMAPFILEHEADER
 {
     uint16_t	bfType;

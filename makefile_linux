@@ -1,0 +1,43 @@
+ifndef CONFIG
+# Build debug config by default
+CONFIG=debug
+endif
+
+CC=g++
+
+# Compiler flags
+CFLAGS_debug=
+CFLAGS_release=-O3
+CFLAGS=-g -I. -Wall $(CFLAGS_$(CONFIG))
+
+# Linker flags
+LDFLAGS=
+LIBS=-lxcb -lxcb-util -lxcb-icccm -lxcb-image
+
+DEPS=core.h font.h imgui.h pixie.h makefile_linux
+OBJDIR=linux/$(CONFIG)
+
+_OBJ=main.o pixie.o pixie_linux.o imgui.o font.o
+OBJ=$(patsubst %,$(OBJDIR)/%,$(_OBJ))
+
+TARGET = $(OBJDIR)/pixie_demo
+
+$(OBJDIR)/%.o: %.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+all: init $(OBJDIR) $(TARGET)
+
+init:
+	@$(CC) --version
+	@echo Building $(CONFIG)
+
+$(OBJDIR):
+	mkdir -p $@
+
+$(TARGET): $(OBJ)
+	$(CC) -g -o $@ $^ $(LIBS) $(LDFLAGS)
+
+.PHONY: clean init
+
+clean: init
+	-rm -rf $(OBJDIR)
