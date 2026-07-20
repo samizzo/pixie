@@ -43,6 +43,7 @@ bool Window::Open(const TCHAR* title, int width, int height, bool fullscreen, bo
     m_time = 0.0f;
     m_fullscreen = fullscreen;
     m_maintainAspectRatio = maintainAspectRatio;
+    m_mouseX = m_mouseY = 0;
 
     if (!PlatformOpen(title, width, height))
     {
