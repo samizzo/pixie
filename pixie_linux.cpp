@@ -1,4 +1,5 @@
 #include "pixie.h"
+#include <algorithm>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,6 +15,13 @@ using namespace Pixie;
 static constexpr uint32_t XCB_WINDOW_X = 0;
 static constexpr uint32_t XCB_WINDOW_Y = 0;
 static constexpr uint32_t XCB_WINDOW_BORDER_WIDTH = 0;
+
+static constexpr Pixie::MouseButton MouseButtonMap[] =
+{
+    Pixie::MouseButton_Middle,
+    Pixie::MouseButton_Left,
+    Pixie::MouseButton_Right
+};
 
 struct XcbImage
 {
@@ -287,6 +295,43 @@ bool Window::PlatformUpdate()
                     free(event);
                     return false;
                 }
+            }
+            case XCB_BUTTON_PRESS:
+            {
+                const xcb_button_press_event_t* buttonEvent = (xcb_button_press_event_t*)event;
+                if (buttonEvent->detail < sizeof(MouseButtonMap))
+                {
+                    const Pixie::MouseButton button = MouseButtonMap[buttonEvent->detail];
+                    SetMouseButtonDown(button, true);
+                }
+                break;
+            }
+            case XCB_BUTTON_RELEASE:
+            {
+                const xcb_button_press_event_t* buttonEvent = (xcb_button_press_event_t*)event;
+                if (buttonEvent->detail < sizeof(MouseButtonMap))
+                {
+                    const Pixie::MouseButton button = MouseButtonMap[buttonEvent->detail];
+                    SetMouseButtonDown(button, false);
+                }
+                break;
+            }
+            case XCB_MOTION_NOTIFY:
+            {
+                xcb_motion_notify_event_t* motionEvent = (xcb_motion_notify_event_t*)event;
+                m_mouseX = motionEvent->event_x;
+                m_mouseY = motionEvent->event_y;
+                if (m_fullscreen)
+                {
+                    m_mouseX = (int)(m_mouseX / m_scalex);
+                    m_mouseY = (int)(m_mouseY / m_scaley);
+                }
+                else
+                {
+                    m_mouseX /= m_scale;
+                    m_mouseY /= m_scale;
+                }
+                break;
             }
         }
         free(event);
