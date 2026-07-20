@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     }
 
     Pixie::Window window;
-    if (!window.Open(WindowTitle, WindowWidth, WindowHeight, true))
+    if (!window.Open(WindowTitle, WindowWidth, WindowHeight, false))
     {
 #if PIXIE_PLATFORM_WIN
         MessageBox(NULL, TEXT("Failed to open window"), TEXT("Pixie Error"), MB_ICONERROR);
@@ -162,6 +162,12 @@ int main(int argc, char** argv)
             char buf[128];
             sprintf_s(buf, sizeof(buf), "%.2f fps", 1.0f / avgFrameTime);
             font.Draw(buf, 10, 106, &window);
+        }
+
+        {
+            char buf[128];
+            sprintf_s(buf, sizeof(buf), "%i, %i", window.GetMouseX(), window.GetMouseY());
+            font.Draw(buf, 10, 122, &window);
         }
 
         Pixie::ImGui::End();
